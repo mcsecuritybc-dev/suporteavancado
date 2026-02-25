@@ -1,9 +1,18 @@
+Aqui está o código **completo e pronto para usar**. Eu já integrei as 20 questões de BLS que você pediu, configurei os filtros para elas funcionarem e mantive todas as melhorias anteriores (ECG realista, timer, jogos).
+
+**Como usar:**
+1.  Crie um novo arquivo no seu computador chamado `index.html` (pode usar o Bloco de Notas).
+2.  Copie **todo** o código abaixo e cole dentro desse arquivo.
+3.  Salve e abra o arquivo no seu navegador (Chrome, Edge, etc).
+
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedSim Pro v2.0 - Plataforma Avançada</title>
+    <title>MedSim Pro - Plataforma de Treinamento em Saúde</title>
+    <!-- Ícones -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -398,7 +407,7 @@
                     <div class="ecg-container" style="height: 200px; margin-bottom: 20px;">
                         <div class="ecg-grid"></div>
                         <svg width="100%" height="100%" viewBox="0 0 800 200" preserveAspectRatio="none">
-                            <path id="tool-ecg-path" fill="none" stroke="#0f0" stroke-width="2" d="M0,100 L800,100" />
+                            <path id="tool-ecg-path" fill="none" stroke="#0f0" stroke-width: 2" d="M0,100 L800,100" />
                         </svg>
                     </div>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
@@ -416,7 +425,7 @@
     </main>
 
     <script>
-        // --- DATABASE ---
+        // --- BANCO DE DADOS COMPLETO ---
         const db = {
             cases: [
                 {
@@ -441,7 +450,7 @@
                         },
                         'step_3': {
                             text: "Choque aplicado. O que fazer agora?",
-                            vitals: { hr: 0, bp: '---', spo2: '--', rr: 0, rhythm: 'asystole' }, // Simula linha de base pós choque
+                            vitals: { hr: 0, bp: '---', spo2: '--', rr: 0, rhythm: 'asystole' },
                             options: [
                                 { text: "Retomar RCP imediatamente (2 min)", next: 'success', feedback: "Correto! RCP pós-choque é vital." },
                                 { text: "Checar ritmo", next: 'fail_check', feedback: "Incorreto. RCP primeiro, ritmo depois de 2 min." }
@@ -502,22 +511,219 @@
                         'fail_asp': { text: "Tempo perdido na aspiração. Hipóxia piorou.", vitals: { hr: 40, bp: '--', spo2: '60', rr: 0, rhythm: 'brady' }, options: [] },
                         'fail_massage': { text: "Massagem sem ventilação adequada é ineficaz.", vitals: { hr: 50, bp: '--', spo2: '65', rr: 0, rhythm: 'brady' }, options: [] }
                     }
-                },
-                // Adicione mais casos aqui seguindo o modelo
+                }
             ],
             questions: [
-                // ACLS
-                { q: "Qual a dose de Amiodarona na 3ª choque em PCR por FV/TV?", spec: "ACLS", diff: "hard", options: ["150mg", "300mg", "1mg/kg", "5mg/kg"], ans: 1, exp: "300mg em bolus é a dose inicial para FV/TV refratária." },
-                { q: "Qual a frequência de ventilação em via aérea avançada na PCR?", spec: "ACLS", diff: "medium", options: ["10 rpm", "12 rpm", "20 rpm", "30 rpm"], ans: 0, exp: "1 ventilação a cada 6 segundos (10 rpm) sem pausar compressões." },
-                // BLS
-                { q: "Qual a profundidade das compressões em adultos?", spec: "BLS", diff: "easy", options: ["2-3 cm", "5-6 cm", "Pelo menos 7 cm", "Metade do tórax"], ans: 1, exp: "Entre 5 e 6 cm de profundidade." },
-                { q: "Qual a sequência do C-A-B?", spec: "BLS", diff: "easy", options: ["Circulação, Via Aérea, Respiração", "Compressões, Ar, Balão", "Cardíaco, Abdomen, Brain"], ans: 0, exp: "Circulation, Airway, Breathing." },
-                // ATLS
-                { q: "Sinal de Grey-Turner indica:", spec: "ATLS", diff: "hard", options: ["Fratura de crânio", "Sangramento retroperitoneal", "Pneumotórax", "Ruptura de baço"], ans: 1, exp: "Equimose em flancos, sugere sangramento retroperitoneal." },
-                { q: "Glasgow 8 indica:", spec: "ATLS", diff: "medium", options: ["Trauma leve", "Necessidade de intubação", "Óbito cerebral", "Coma profundo"], ans: 1, exp: "Glasgow <= 8, intube (G8). Protege a via aérea." },
-                // Pediatria
-                { q: "Dose de Adrenalina em PCR pediátrica (IV/IO)?", spec: "Pediatria", diff: "hard", options: ["0.01 mg/kg", "0.1 mg/kg", "1 mg fixo", "0.5 mg/kg"], ans: 0, exp: "0.01 mg/kg (0.1 mL/kg da solução 1:10.000)." },
-                { q: "FC normal para recém-nascido termo:", spec: "Pediatria", diff: "easy", options: ["60-80", "80-100", "120-160", "160-180"], ans: 2, exp: "Entre 120 e 160 bpm é o esperado." }
+                // --- BANCO DE QUESTÕES BLS (20 QUESTÕES) ---
+                {
+                    q: "Frequência das compressões no adulto?",
+                    options: ["60–80 cpm", "80–100 cpm", "100–120 cpm", "140–160 cpm"],
+                    ans: 2,
+                    exp: "A diretriz atual recomenda 100-120 compressões por minuto para máxima eficácia.",
+                    spec: "BLS",
+                    diff: "easy"
+                },
+                {
+                    q: "Profundidade da compressão torácica no adulto?",
+                    options: ["2 cm", "3 cm", "5–6 cm", "8 cm"],
+                    ans: 2,
+                    exp: "A profundidade ideal é de pelo menos 5 cm, não excedendo 6 cm, para evitar lesões.",
+                    spec: "BLS",
+                    diff: "easy"
+                },
+                {
+                    q: "Relação compressão/ventilação para adulto com 1 socorrista?",
+                    options: ["15:2", "30:2", "20:2", "10:2"],
+                    ans: 1,
+                    exp: "Para adultos, a relação é sempre 30 compressões para 2 ventilações, independente do número de socorristas.",
+                    spec: "BLS",
+                    diff: "easy"
+                },
+                {
+                    q: "Primeira ação ao encontrar uma vítima inconsciente?",
+                    options: ["Ventilar", "Checar pulso", "Garantir segurança da cena", "Aplicar DEA"],
+                    ans: 2,
+                    exp: "A segurança da cena é sempre a prioridade #1 para evitar que o socorrista também se torne vítima.",
+                    spec: "BLS",
+                    diff: "easy"
+                },
+                {
+                    q: "Tempo máximo para checagem de pulso carotídeo?",
+                    options: ["5–10 segundos", "20 segundos", "30 segundos", "1 minuto"],
+                    ans: 0,
+                    exp: "A verificação do pulso não deve exceder 10 segundos para não atrasar o início das compressões.",
+                    spec: "BLS",
+                    diff: "medium"
+                },
+                {
+                    q: "Qual ritmo cardíaco é indicação para choque com DEA?",
+                    options: ["Assistolia", "Fibrilação Ventricular (FV)", "Atividade Elétrica Sem Pulso (AESP)", "Bradicardia extrema"],
+                    ans: 1,
+                    exp: "O DEA só aplica choque em ritmos chocáveis: Fibrilação Ventricular e Taquicardia Ventricular sem pulso.",
+                    spec: "BLS",
+                    diff: "medium"
+                },
+                {
+                    q: "Após a aplicação de um choque pelo DEA, o que fazer imediatamente?",
+                    options: ["Checar pulso", "Ventilar", "Retomar compressões torácicas", "Administrar drogas"],
+                    ans: 2,
+                    exp: "Após o choque, retome as compressões imediatamente por 2 minutos antes de reanalisar o ritmo.",
+                    spec: "BLS",
+                    diff: "medium"
+                },
+                {
+                    q: "Qual destes é um ritmo NÃO chocável?",
+                    options: ["Fibrilação Ventricular", "Taquicardia Ventricular sem pulso", "Atividade Elétrica Sem Pulso (AESP)", "Taquicardia Ventricular com pulso"],
+                    ans: 2,
+                    exp: "AESP e Assistolia são ritmos não chocáveis; o tratamento é RCP de qualidade e adrenalina.",
+                    spec: "BLS",
+                    diff: "hard"
+                },
+                {
+                    q: "As compressões torácicas devem ser realizadas:",
+                    options: ["Lentamente", "Superficialmente", "Com recuo total do tórax", "De forma intermitente"],
+                    ans: 2,
+                    exp: "O recuo total permite o enchimento cardíaco; compressões incompletas reduzem drasticamente o fluxo sanguíneo.",
+                    spec: "BLS",
+                    diff: "easy"
+                },
+                {
+                    q: "A troca de socorrista nas compressões deve ocorrer a cada:",
+                    options: ["1 minuto", "2 minutos", "5 minutos", "10 minutos"],
+                    ans: 1,
+                    exp: "A fadiga reduz a qualidade das compressões após ~2 minutos; trocas rápidas (<5s) são essenciais.",
+                    spec: "BLS",
+                    diff: "medium"
+                },
+                {
+                    q: "Na criança, a Parada Cardiorrespiratória (PCR) geralmente tem origem:",
+                    options: ["Primariamente cardíaca", "Primariamente respiratória", "Primariamente elétrica", "Primariamente traumática"],
+                    ans: 1,
+                    exp: "Em pediatria, a PCR é geralmente secundária à hipóxia/insuficiência respiratória, diferentemente do adulto.",
+                    spec: "BLS",
+                    diff: "medium"
+                },
+                {
+                    q: "Qual a relação compressão/ventilação para criança com 2 socorristas?",
+                    options: ["30:2", "20:2", "15:2", "10:1"],
+                    ans: 2,
+                    exp: "Em pediatria com 2 socorristas treinados, usa-se 15:2 para priorizar ventilação adequada.",
+                    spec: "BLS",
+                    diff: "hard"
+                },
+                {
+                    q: "Para compressões em lactente, a técnica recomendada é:",
+                    options: ["Duas mãos", "Uma mão", "Dois dedos ou dois polegares", "Punho fechado"],
+                    ans: 2,
+                    exp: "Use 2 dedos (técnica de 1 socorrista) ou 2 polegares envolvendo o tórax (2 socorristas) no lactente.",
+                    spec: "BLS",
+                    diff: "medium"
+                },
+                {
+                    q: "O sinal clínico definitivo de Parada Cardiorrespiratória é:",
+                    options: ["Confusão mental", "Cianose periférica", "Apneia + ausência de pulso central", "Dor torácica"],
+                    ans: 2,
+                    exp: "PCR é diagnosticada pela ausência de responsividade, apneia ou respiração agônica e ausência de pulso.",
+                    spec: "BLS",
+                    diff: "easy"
+                },
+                {
+                    q: "Posição correta das mãos para compressões no adulto:",
+                    options: ["Epigástrio", "Centro do esterno (linha intermamilar)", "Clavícula", "Ápice cardíaco"],
+                    ans: 1,
+                    exp: "Posicione o calcanhar da mão no centro do esterno, evitando o apêndice xifoide para não lesionar órgãos.",
+                    spec: "BLS",
+                    diff: "easy"
+                },
+                {
+                    q: "Sobre o uso de oxigênio suplementar no BLS:",
+                    options: ["Sempre obrigatório", "Nunca deve ser usado", "Usar se disponível, sem atrasar compressões", "Apenas em ambiente hospitalar"],
+                    ans: 2,
+                    exp: "O oxigênio é benéfico, mas nunca deve atrasar o início das compressões ou a desfibrilação.",
+                    spec: "BLS",
+                    diff: "medium"
+                },
+                {
+                    q: "O ritmo inicial mais comum na PCR extra-hospitalar de causa cardíaca é:",
+                    options: ["Fibrilação Ventricular", "Atividade Elétrica Sem Pulso", "Bloqueio AV total", "Fibrilação Atrial"],
+                    ans: 0,
+                    exp: "A FV é o ritmo mais frequente nos primeiros minutos de PCR súbita de origem cardíaca.",
+                    spec: "BLS",
+                    diff: "hard"
+                },
+                {
+                    q: "A Cadeia de Sobrevivência do BLS inclui como elo essencial:",
+                    options: ["Desfibrilação precoce", "Sedação rápida", "Antibioticoterapia", "Intubação imediata"],
+                    ans: 0,
+                    exp: "Os elos são: reconhecimento/ativação, RCP precoce, desfibrilação precoce, suporte avançado e cuidados pós-PCR.",
+                    spec: "BLS",
+                    diff: "easy"
+                },
+                {
+                    q: "A interrupção máxima permitida das compressões torácicas é de:",
+                    options: ["2 segundos", "5 segundos", "10 segundos", "20 segundos"],
+                    ans: 2,
+                    exp: "Pausas >10s reduzem a perfusão coronariana e cerebral; minimize interrupções para análise de ritmo/choque.",
+                    spec: "BLS",
+                    diff: "medium"
+                },
+                {
+                    q: "O objetivo principal do Suporte Básico de Vida (BLS) é:",
+                    options: ["Reverter a causa da PCR", "Manter perfusão cerebral e coronariana", "Sedar o paciente", "Realizar intubação"],
+                    ans: 1,
+                    exp: "O BLS mantém fluxo sanguíneo mínimo ao cérebro e coração até que o suporte avançado possa tratar a causa.",
+                    spec: "BLS",
+                    diff: "easy"
+                },
+                // --- OUTRAS QUESTÕES (ACLS/ATLS GERAIS) ---
+                {
+                    q: "Qual a dose de Amiodarona na 3ª choque em PCR por FV/TV?",
+                    options: ["150mg", "300mg", "1mg/kg", "5mg/kg"],
+                    ans: 1,
+                    exp: "300mg em bolus é a dose inicial para FV/TV refratária.",
+                    spec: "ACLS",
+                    diff: "hard"
+                },
+                {
+                    q: "Qual a frequência de ventilação em via aérea avançada na PCR?",
+                    options: ["10 rpm", "12 rpm", "20 rpm", "30 rpm"],
+                    ans: 0,
+                    exp: "1 ventilação a cada 6 segundos (10 rpm) sem pausar compressões.",
+                    spec: "ACLS",
+                    diff: "medium"
+                },
+                {
+                    q: "Sinal de Grey-Turner indica:",
+                    options: ["Fratura de crânio", "Sangramento retroperitoneal", "Pneumotórax", "Ruptura de baço"],
+                    ans: 1,
+                    exp: "Equimose em flancos, sugere sangramento retroperitoneal.",
+                    spec: "ATLS",
+                    diff: "hard"
+                },
+                {
+                    q: "Glasgow 8 indica:",
+                    options: ["Trauma leve", "Necessidade de intubação", "Óbito cerebral", "Coma profundo"],
+                    ans: 1,
+                    exp: "Glasgow <= 8, intube (G8). Protege a via aérea.",
+                    spec: "ATLS",
+                    diff: "medium"
+                },
+                {
+                    q: "Dose de Adrenalina em PCR pediátrica (IV/IO)?",
+                    options: ["0.01 mg/kg", "0.1 mg/kg", "1 mg fixo", "0.5 mg/kg"],
+                    ans: 0,
+                    exp: "0.01 mg/kg (0.1 mL/kg da solução 1:10.000).",
+                    spec: "Pediatria",
+                    diff: "hard"
+                },
+                {
+                    q: "FC normal para recém-nascido termo:",
+                    options: ["60-80", "80-100", "120-160", "160-180"],
+                    ans: 2,
+                    exp: "Entre 120 e 160 bpm é o esperado.",
+                    spec: "Pediatria",
+                    diff: "easy"
+                }
             ]
         };
 
@@ -535,7 +741,6 @@
             
             // Update Menu Active State
             document.querySelectorAll('.menu-link').forEach(el => el.classList.remove('active'));
-            // Simple logic to highlight parent if child clicked could be added here
             
             const titles = {
                 'dashboard': 'Dashboard', 'cases': 'Casos Clínicos', 
@@ -576,50 +781,42 @@
         // --- ECG ENGINE (SVG) ---
         let ecgAnimationId;
         let ecgPoints = [];
-        const maxPoints = 200; // Resolution
+        const maxPoints = 200; 
         
         function initECG(elementId, type) {
             const path = document.getElementById(elementId);
-            ecgPoints = new Array(maxPoints).fill(100); // Start flat
+            ecgPoints = new Array(maxPoints).fill(100); 
             
             if(ecgAnimationId) cancelAnimationFrame(ecgAnimationId);
             
             let offset = 0;
             
             function draw() {
-                // Generate new point based on rhythm
-                let y = 100; // Baseline
-                const phase = (offset % 100) / 100; // 0 to 1 cycle
+                let y = 100; 
+                const phase = (offset % 100) / 100; 
 
                 if (type === 'sinus') {
-                    // P wave, QRS, T wave simulation
-                    if (phase > 0.1 && phase < 0.15) y -= 10; // P
-                    if (phase > 0.2 && phase < 0.22) y += 10; // Q
-                    if (phase > 0.22 && phase < 0.25) y -= 80; // R (Spike)
-                    if (phase > 0.25 && phase < 0.27) y += 15; // S
-                    if (phase > 0.4 && phase < 0.5) y -= 15; // T
+                    if (phase > 0.1 && phase < 0.15) y -= 10; 
+                    if (phase > 0.2 && phase < 0.22) y += 10; 
+                    if (phase > 0.22 && phase < 0.25) y -= 80; 
+                    if (phase > 0.25 && phase < 0.27) y += 15; 
+                    if (phase > 0.4 && phase < 0.5) y -= 15; 
                 } else if (type === 'tachy') {
-                    // Faster sinus
                     const fastPhase = (offset % 50) / 50;
                     if (fastPhase > 0.2 && fastPhase < 0.25) y -= 80;
                 } else if (type === 'vfib') {
-                    // Chaotic
                     y = 100 + (Math.random() * 60 - 30);
                 } else if (type === 'asystole') {
-                    // Flat with slight wander
                     y = 100 + (Math.random() * 4 - 2);
                 } else if (type === 'brady') {
-                     // Slow sinus
                      const slowPhase = (offset % 150) / 150;
                      if (slowPhase > 0.2 && slowPhase < 0.25) y -= 80;
                 } else if (type === 'afib') {
-                    // Irregular baseline + QRS
                     y = 100 + (Math.random() * 10 - 5);
-                    if (Math.random() > 0.7) y -= 80; // Random QRS
+                    if (Math.random() > 0.7) y -= 80; 
                 } else if (type === 'pvc') {
-                    // Normal then big spike
                     if (offset % 200 > 150) {
-                         y = 100 + (Math.random() * 40 - 20); // Premature big wave
+                         y = 100 + (Math.random() * 40 - 20); 
                     } else {
                         const phase = (offset % 100) / 100;
                         if (phase > 0.2 && phase < 0.25) y -= 80;
@@ -629,7 +826,6 @@
                 ecgPoints.push(y);
                 ecgPoints.shift();
                 
-                // Build SVG Path
                 let d = `M 0 ${ecgPoints[0]}`;
                 const stepX = 800 / maxPoints;
                 for(let i=1; i<ecgPoints.length; i++) {
@@ -770,7 +966,6 @@
                         if(state.currentSim.steps[opt.next]) {
                             loadStep(state.currentSim.steps[opt.next]);
                         } else {
-                            // Fallback for direct fail keys not in steps object
                             loadStep({ text: "Erro de fluxo no caso.", vitals: {hr:0,bp:'--',spo2:'--',rr:0, rhythm:'asystole'}, options: [] });
                         }
                     }, 2500);
@@ -853,7 +1048,7 @@
             clearInterval(state.quizTimer);
             const bar = document.getElementById('quiz-timer-fill');
             bar.style.width = '100%';
-            bar.style.transition = 'none'; // Reset animation
+            bar.style.transition = 'none'; 
             
             setTimeout(() => {
                 bar.style.transition = `width ${seconds}s linear`;
@@ -886,7 +1081,6 @@
             } else {
                 btnElement.classList.remove('btn-outline');
                 btnElement.classList.add('btn-danger');
-                // Highlight correct
                 allBtns[correct].classList.remove('btn-outline');
                 allBtns[correct].style.background = 'var(--success)';
                 allBtns[correct].style.borderColor = 'var(--success)';
@@ -932,11 +1126,9 @@
             const grid = document.getElementById('memory-grid');
             grid.innerHTML = '';
             
-            // Select 6 pairs for mobile friendliness, or 8 for desktop
             const gameItems = memoryItems.slice(0, 6); 
             let cards = [...gameItems, ...gameItems];
             
-            // Robust Shuffle
             for (let i = cards.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [cards[i], cards[j]] = [cards[j], cards[i]];
@@ -1011,10 +1203,10 @@
             updateStats();
             renderDashboard();
             
-            // Start default ECG animation for visual flair
             initECG('ecg-path', 'sinus');
         };
 
     </script>
 </body>
 </html>
+```
