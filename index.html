@@ -1,2086 +1,1020 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Centro de Treinamento Avançado — Emergência</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedSim Pro v2.0 - Plataforma Avançada</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #005f73;
+            --secondary: #0a9396;
+            --accent: #94d2bd;
+            --bg-light: #f0f4f8;
+            --white: #ffffff;
+            --danger: #ae2012;
+            --success: #2a9d8f;
+            --warning: #e9c46a;
+            --text-dark: #333;
+            --sidebar-width: 280px;
+        }
 
-  <style>
-    :root{
-      --bg0:#050814;
-      --bg1:#071024;
-      --card: rgba(255,255,255,0.06);
-      --card2: rgba(255,255,255,0.09);
-      --stroke: rgba(255,255,255,0.12);
-      --text:#EAF2FF;
-      --muted: rgba(234,242,255,0.75);
-      --muted2: rgba(234,242,255,0.60);
-      --cyan:#22D3EE;
-      --indigo:#6366F1;
-      --emerald:#10B981;
-      --amber:#F59E0B;
-      --red:#EF4444;
-      --good:#22C55E;
-      --bad:#F43F5E;
-      --radius:22px;
-      --radius2:28px;
-      --shadow: 0 20px 60px rgba(0,0,0,0.45);
-      --shadow2: 0 14px 40px rgba(0,0,0,0.35);
-      --btnPad: 16px 16px;
-      --btnRadius: 18px;
-      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
-    }
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
-    body{
-      margin:0;
-      font-family: var(--font);
-      color: var(--text);
-      background:
-        radial-gradient(900px 500px at 10% 10%, rgba(34,211,238,0.22), transparent 60%),
-        radial-gradient(900px 500px at 90% 20%, rgba(99,102,241,0.22), transparent 60%),
-        radial-gradient(900px 600px at 40% 110%, rgba(16,185,129,0.16), transparent 60%),
-        linear-gradient(180deg, var(--bg0), var(--bg1));
-      overflow-y:auto; /* UMA rolagem só */
-    }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+        
+        body { background-color: var(--bg-light); display: flex; height: 100vh; overflow: hidden; }
 
-    /* Layout */
-    .app{ display:flex; min-height:100vh; }
-    .sidebar{
-      width: 360px;
-      flex: 0 0 360px;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      padding: 16px;
-      border-right: 1px solid rgba(255,255,255,0.10);
-      background: rgba(5,8,20,0.48);
-      backdrop-filter: blur(10px);
-    }
-    .main{ flex:1; padding: 18px 18px 40px; }
+        /* --- Sidebar --- */
+        #sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, #023047 0%, var(--primary) 100%);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            transition: 0.3s;
+            z-index: 100;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+        }
 
-    /* Mobile */
-    .topbar{
-      display:none;
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      padding: 12px 12px;
-      background: rgba(5,8,20,0.65);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255,255,255,0.10);
-    }
+        .brand { padding: 25px; font-size: 1.6rem; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 12px; }
+        .brand i { color: var(--accent); }
 
-    @media (max-width: 1024px){
-      .sidebar{
-        position: fixed;
-        left: 0; top: 0; bottom: 0;
-        z-index: 60;
-        transform: translateX(-100%);
-        transition: transform .18s ease;
-      }
-      .sidebar.open{ transform: translateX(0); }
-      .main{ padding-top: 8px; }
-      .topbar{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
-    }
+        .menu { list-style: none; padding: 20px 0; flex: 1; overflow-y: auto; }
+        .menu-item { cursor: pointer; transition: 0.2s; }
+        .menu-link { padding: 15px 25px; display: flex; align-items: center; gap: 15px; opacity: 0.8; text-decoration: none; color: white; }
+        .menu-link:hover, .menu-link.active { background: rgba(255,255,255,0.1); opacity: 1; border-left: 4px solid var(--accent); }
+        
+        .submenu { list-style: none; background: rgba(0,0,0,0.2); display: none; }
+        .submenu.open { display: block; }
+        .submenu li a { padding: 12px 25px 12px 55px; display: block; color: #ccc; font-size: 0.9rem; text-decoration: none; }
+        .submenu li a:hover { color: white; background: rgba(255,255,255,0.05); }
 
-    /* Cards */
-    .card{
-      background: var(--card);
-      border: 1px solid var(--stroke);
-      border-radius: var(--radius2);
-      box-shadow: var(--shadow2);
-    }
-    .card.pad{ padding: 16px; }
-    .grid{ display:grid; gap: 14px; }
-    .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    @media (max-width: 900px){ .grid2{ grid-template-columns: 1fr; } }
+        .user-profile { padding: 20px; background: rgba(0,0,0,0.2); font-size: 0.9rem; }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
 
-    /* Typography */
-    h1,h2,h3{ margin:0; }
-    .titleTop{
-      text-align:center;
-      padding: 14px 14px 8px;
-    }
-    .brandSmall{ font-size: 12px; color: var(--muted2); letter-spacing: .10em; text-transform: uppercase; }
-    .brandBig{ font-size: 22px; font-weight: 900; margin-top: 6px; }
-    .sub{ font-size: 13px; color: var(--muted); margin-top: 8px; line-height: 1.35; }
+        /* --- Main Content --- */
+        #main-content { flex: 1; overflow-y: auto; padding: 30px; position: relative; }
+        
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        h1 { color: var(--primary); font-size: 1.8rem; }
+        
+        .btn-toggle { display: none; background: none; border: none; font-size: 1.5rem; color: var(--primary); cursor: pointer; }
 
-    .pageTitle{ font-size: 28px; font-weight: 900; letter-spacing: -0.02em; text-align:center; }
-    .pageSub{ text-align:center; color: var(--muted); margin-top: 6px; }
+        /* --- Components --- */
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        
+        .card { background: var(--white); padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: 0.3s; border-top: 5px solid var(--secondary); display: flex; flex-direction: column; justify-content: space-between; }
+        .card:hover { transform: translateY(-5px); }
+        .card h3 { color: var(--text-dark); margin-bottom: 10px; }
+        .tag { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; margin-bottom: 10px; }
+        .tag.bls { background: #e0f7fa; color: #006064; }
+        .tag.acls { background: #ffebee; color: #c62828; }
+        .tag.atls { background: #e8f5e9; color: #2e7d32; }
 
-    /* Buttons */
-    .btn{
-      appearance:none;
-      border: 0;
-      cursor:pointer;
-      padding: var(--btnPad);
-      border-radius: var(--btnRadius);
-      font-weight: 900;
-      letter-spacing: .2px;
-      font-size: 16px;
-      color: var(--text);
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
-      transition: transform .06s ease, filter .12s ease, background .12s ease;
-      width: 100%;
-      text-align: left;
-    }
-    .btn:hover{ filter: brightness(1.05); background: rgba(255,255,255,0.10); }
-    .btn:active{ transform: translateY(1px); }
-    .btnRow{ display:flex; gap:10px; flex-wrap: wrap; }
-    .btnRow .btn{ width:auto; min-width: 150px; text-align:center; }
-    .btnPrimary{
-      background: linear-gradient(135deg, rgba(34,211,238,0.92), rgba(99,102,241,0.92));
-      border: 1px solid rgba(255,255,255,0.14);
-    }
-    .btnOk{
-      background: linear-gradient(135deg, rgba(34,197,94,0.92), rgba(16,185,129,0.92));
-      border: 1px solid rgba(255,255,255,0.12);
-    }
-    .btnDanger{
-      background: linear-gradient(135deg, rgba(244,63,94,0.92), rgba(239,68,68,0.92));
-      border: 1px solid rgba(255,255,255,0.12);
-    }
-    .btnWarn{
-      background: linear-gradient(135deg, rgba(245,158,11,0.92), rgba(251,191,36,0.92));
-      border: 1px solid rgba(255,255,255,0.12);
-      color: rgba(10,10,20,0.95);
-    }
-    .btnSmall{
-      padding: 12px 14px;
-      font-size: 14px;
-      border-radius: 16px;
-    }
-    .btnPill{
-      width:auto;
-      padding: 10px 12px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 900;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
-    }
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s; width: 100%; margin-top: 10px; }
+        .btn-primary { background: var(--secondary); color: var(--white); }
+        .btn-primary:hover { background: var(--primary); }
+        .btn-danger { background: var(--danger); color: var(--white); }
+        .btn-outline { background: transparent; border: 2px solid var(--secondary); color: var(--secondary); }
 
-    /* Nav */
-    .navGroup{ padding: 10px; }
-    .navBtn{
-      display:flex; align-items:center; justify-content:space-between;
-      gap: 12px;
-      width: 100%;
-      text-align:left;
-      padding: 14px 14px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.10);
-      cursor:pointer;
-      color: var(--text);
-      font-weight: 900;
-      font-size: 15px;
-    }
-    .navBtn:hover{ background: rgba(255,255,255,0.10); }
-    .navBtn.active{
-      background: linear-gradient(135deg, rgba(34,211,238,0.28), rgba(99,102,241,0.20));
-      border: 1px solid rgba(34,211,238,0.28);
-    }
-    .navLeft{ display:flex; align-items:center; gap: 12px; min-width: 0; }
-    .navIcon{
-      width: 36px; height: 36px; flex: 0 0 36px;
-      display:flex; align-items:center; justify-content:center;
-      font-size: 20px;
-      border-radius: 14px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.10);
-    }
-    .navLabel{
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+        /* --- Sections --- */
+        .section { display: none; animation: fadeIn 0.4s ease; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Widgets */
-    .kpiRow{ display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-    .kpi{
-      padding: 12px;
-      border-radius: 18px;
-      background: rgba(0,0,0,0.18);
-      border: 1px solid rgba(255,255,255,0.10);
-    }
-    .kpi .k{ color: var(--muted2); font-size: 12px; }
-    .kpi .v{ font-size: 22px; font-weight: 900; margin-top: 4px; }
+        /* --- Simulation Interface --- */
+        .sim-header { display: flex; justify-content: space-between; margin-bottom: 20px; align-items: center; }
+        .timer-box { background: var(--danger); color: white; padding: 8px 15px; border-radius: 20px; font-weight: bold; font-family: monospace; font-size: 1.2rem; }
+        
+        .patient-monitor { 
+            background: #1a1a1a; 
+            border-radius: 15px; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            border: 2px solid #333;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
+        
+        .vitals-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 15px; }
+        .vital-card { background: #000; border: 1px solid #333; padding: 10px; border-radius: 8px; text-align: center; }
+        .vital-label { color: #888; font-size: 0.8rem; text-transform: uppercase; }
+        .vital-value { color: #0f0; font-family: 'Courier New', monospace; font-size: 2rem; font-weight: bold; text-shadow: 0 0 5px rgba(0,255,0,0.5); }
+        .vital-unit { color: #0f0; font-size: 0.8rem; }
 
-    /* Content blocks */
-    .block{
-      padding: 16px;
-      border-radius: var(--radius2);
-      background: rgba(0,0,0,0.18);
-      border: 1px solid rgba(255,255,255,0.10);
-    }
-    .muted{ color: var(--muted); }
-    .small{ font-size: 13px; }
-    .tiny{ font-size: 12px; color: var(--muted2); }
-    .hr{ height:1px; background: rgba(255,255,255,0.10); margin: 14px 0; }
+        /* ECG SVG Container */
+        .ecg-container { width: 100%; height: 120px; background: #001100; border: 1px solid #003300; border-radius: 8px; overflow: hidden; position: relative; }
+        .ecg-grid { position: absolute; width: 100%; height: 100%; background-image: linear-gradient(#002200 1px, transparent 1px), linear-gradient(90deg, #002200 1px, transparent 1px); background-size: 20px 20px; opacity: 0.3; }
+        #ecg-path { fill: none; stroke: #0f0; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 2px #0f0); }
 
-    /* Answer states */
-    .optBtn{
-      width:100%;
-      text-align:left;
-      padding: 16px;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.07);
-      cursor:pointer;
-      font-size: 16px;
-      font-weight: 900;
-      color: var(--text);
-      transition: filter .12s ease, transform .06s ease;
-    }
-    .optBtn:hover{ filter: brightness(1.05); }
-    .optBtn:active{ transform: translateY(1px); }
-    .optBtn.selected{
-      background: rgba(34,197,94,0.22);
-      border: 1px solid rgba(34,197,94,0.45);
-    }
-    .optBtn.correct{
-      background: rgba(34,197,94,0.30);
-      border: 1px solid rgba(34,197,94,0.55);
-    }
-    .optBtn.wrong{
-      background: rgba(244,63,94,0.22);
-      border: 1px solid rgba(244,63,94,0.55);
-    }
+        .decision-area { background: white; padding: 25px; border-radius: 12px; }
+        .decision-btn { 
+            text-align: left; padding: 15px; margin-bottom: 10px; border: 1px solid #ddd; 
+            background: #f8f9fa; border-radius: 8px; cursor: pointer; transition: 0.2s; 
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .decision-btn:hover { background: #e3f2fd; border-color: var(--secondary); transform: translateX(5px); }
 
-    /* Inputs */
-    input, select{
-      width: 100%;
-      padding: 14px 14px;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(0,0,0,0.22);
-      color: var(--text);
-      font-weight: 900;
-      outline: none;
-    }
-    input::placeholder{ color: rgba(234,242,255,0.50); font-weight: 800; }
+        /* --- Quiz Setup --- */
+        .quiz-setup { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: var(--text-dark); }
+        .form-control { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; }
 
-    /* Toast */
-    .toastWrap{
-      position: fixed;
-      left: 0; right: 0; bottom: 14px;
-      display:flex;
-      justify-content:center;
-      pointer-events:none;
-      z-index: 90;
-    }
-    .toast{
-      width: min(980px, calc(100% - 16px));
-      padding: 12px 14px;
-      border-radius: 18px;
-      background: rgba(5,8,20,0.75);
-      border: 1px solid rgba(255,255,255,0.12);
-      backdrop-filter: blur(10px);
-      box-shadow: var(--shadow);
-      pointer-events:none;
-    }
-    .toast .t1{ font-weight: 900; }
-    .toast .t2{ margin-top:4px; color: var(--muted); font-size: 13px; }
+        /* --- Quiz Active --- */
+        .quiz-active { max-width: 800px; margin: 0 auto; }
+        .quiz-timer-bar { height: 6px; background: #eee; border-radius: 3px; margin-bottom: 20px; overflow: hidden; }
+        .quiz-timer-fill { height: 100%; background: var(--secondary); width: 100%; transition: width 1s linear; }
+        
+        /* --- Memory Game --- */
+        .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; max-width: 800px; margin: 20px auto; }
+        .memory-card { 
+            aspect-ratio: 1; background: var(--secondary); border-radius: 12px; cursor: pointer; 
+            perspective: 1000px; position: relative; transform-style: preserve-3d; transition: transform 0.6s;
+        }
+        .memory-card.flipped { transform: rotateY(180deg); }
+        .card-face { 
+            position: absolute; width: 100%; height: 100%; backface-visibility: hidden; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .card-front { background: var(--white); border: 2px solid var(--secondary); color: var(--primary); }
+        .card-back { background: linear-gradient(135deg, var(--secondary), var(--primary)); color: white; font-size: 2rem; }
+        .card-text { font-size: 0.8rem; margin-top: 5px; font-weight: bold; text-align: center; padding: 0 5px; }
 
-    /* Mascot */
-    .mascot{
-      position: fixed;
-      inset: 0;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index: 95;
-      pointer-events:none;
-    }
-    .mascot.show{ display:flex; }
-    .mascotCard{
-      padding: 16px 18px;
-      border-radius: 26px;
-      background: rgba(5,8,20,0.78);
-      border: 1px solid rgba(255,255,255,0.14);
-      backdrop-filter: blur(10px);
-      box-shadow: var(--shadow);
-      display:flex;
-      align-items:center;
-      gap: 14px;
-    }
-    .mascotEmoji{ font-size: 58px; }
-    .mascotText .a{ font-weight: 900; font-size: 18px; }
-    .mascotText .b{ color: var(--muted); margin-top: 4px; font-size: 13px; }
-
-    /* Modal */
-    .modal{
-      position: fixed;
-      inset: 0;
-      display:none;
-      z-index: 100;
-    }
-    .modal.show{ display:block; }
-    .modalBg{
-      position:absolute; inset:0;
-      background: rgba(0,0,0,0.60);
-    }
-    .modalBox{
-      position: relative;
-      margin: 0 auto;
-      width: min(980px, calc(100% - 18px));
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(5,8,20,0.85);
-      border: 1px solid rgba(255,255,255,0.14);
-      border-radius: 28px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
-      padding: 16px;
-    }
-
-    /* Game tiles */
-    .memGrid{
-      display:grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-    }
-    @media (max-width: 520px){ .memGrid{ grid-template-columns: repeat(3, 1fr); } }
-    .memCard{
-      height: 78px;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.07);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight: 1000;
-      cursor:pointer;
-      user-select:none;
-      text-transform: uppercase;
-      letter-spacing: .06em;
-    }
-    .memCard.revealed{
-      background: rgba(34,211,238,0.18);
-      border: 1px solid rgba(34,211,238,0.35);
-    }
-    .memCard.matched{
-      background: rgba(34,197,94,0.22);
-      border: 1px solid rgba(34,197,94,0.45);
-    }
-
-    /* Word search */
-    .wsGrid{
-      display:grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 6px;
-      max-width: 720px;
-    }
-    @media (max-width: 700px){ .wsGrid{ grid-template-columns: repeat(10, 1fr); } }
-    .wsCell{
-      aspect-ratio: 1/1;
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.06);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight: 1000;
-      cursor:pointer;
-      user-select:none;
-      text-transform: uppercase;
-    }
-    .wsCell.sel{
-      background: rgba(245,158,11,0.25);
-      border: 1px solid rgba(245,158,11,0.50);
-      color: rgba(10,10,20,0.95);
-    }
-    .wsCell.good{
-      background: rgba(34,197,94,0.25);
-      border: 1px solid rgba(34,197,94,0.50);
-    }
-
-    /* Footer */
-    .footer{
-      margin-top: 18px;
-      text-align:center;
-      color: var(--muted2);
-      font-size: 12px;
-      padding-bottom: 18px;
-    }
-    .creator{ font-weight: 900; color: var(--text); }
-
-  </style>
+        /* Responsive */
+        @media (max-width: 768px) {
+            #sidebar { position: fixed; left: -280px; height: 100%; }
+            #sidebar.open { left: 0; }
+            .btn-toggle { display: block; }
+            .vitals-grid { grid-template-columns: repeat(2, 1fr); }
+            .memory-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+    </style>
 </head>
-
 <body>
-  <!-- Mobile topbar -->
-  <div class="topbar">
-    <button id="btnOpenMenu" class="btn btnPrimary btnSmall" style="width:auto;">🧭 Menu</button>
-    <div class="btnRow" style="gap:8px;">
-      <span class="btnPill" id="pillScore">Score: 0</span>
-      <button id="btnCopyStepMobile" class="btn btnSmall" style="width:auto;">🔗 Link do passo</button>
-    </div>
-  </div>
 
-  <div class="app">
     <!-- Sidebar -->
-    <aside id="sidebar" class="sidebar">
-      <div class="card">
-        <div class="titleTop">
-          <div class="brandSmall">Centro de Treinamento Avançado</div>
-          <div class="brandBig">🏥 CTA — Emergência</div>
-          <div class="sub">Plataforma multiprofissional para simulação (Enfermagem, Fisioterapia, Técnicos e demais).</div>
+    <nav id="sidebar">
+        <div class="brand">
+            <i class="fas fa-heart-pulse"></i> MedSim Pro
+        </div>
+        <ul class="menu">
+            <li class="menu-item">
+                <a class="menu-link active" onclick="nav('dashboard')"><i class="fas fa-home"></i> Dashboard</a>
+            </li>
+            <li class="menu-item">
+                <a class="menu-link" onclick="toggleSubmenu('sub-cases')"><i class="fas fa-user-nurse"></i> Casos Clínicos <i class="fas fa-chevron-down" style="margin-left: auto; font-size: 0.8rem;"></i></a>
+                <ul id="sub-cases" class="submenu">
+                    <li><a href="#" onclick="nav('cases'); filterCases('all')">Todos</a></li>
+                    <li><a href="#" onclick="nav('cases'); filterCases('ACLS')">ACLS</a></li>
+                    <li><a href="#" onclick="nav('cases'); filterCases('ATLS')">ATLS</a></li>
+                    <li><a href="#" onclick="nav('cases'); filterCases('Neonato')">Neonato</a></li>
+                </ul>
+            </li>
+            <li class="menu-item">
+                <a class="menu-link" onclick="nav('quiz-setup')"><i class="fas fa-clipboard-question"></i> Quiz Arena</a>
+            </li>
+            <li class="menu-item">
+                <a class="menu-link" onclick="nav('games')"><i class="fas fa-gamepad"></i> Jogos</a>
+            </li>
+            <li class="menu-item">
+                <a class="menu-link" onclick="nav('tools')"><i class="fas fa-tools"></i> Equipamentos</a>
+            </li>
+        </ul>
+        <div class="user-profile">
+            <div class="stat-row"><span>Nível:</span> <strong id="user-level">Iniciante</strong></div>
+            <div class="stat-row"><span>XP:</span> <strong id="xp-display">0</strong></div>
+            <div class="stat-row"><span>Pontos:</span> <strong id="score-display">0</strong></div>
+        </div>
+    </nav>
 
-          <div class="kpiRow">
-            <div class="kpi">
-              <div class="k">Score</div>
-              <div class="v" id="kpiScore">0</div>
-            </div>
-            <div class="kpi">
-              <div class="k">Acerto</div>
-              <div class="v" id="kpiAcc">0%</div>
-            </div>
-          </div>
-
-          <div class="hr"></div>
-
-          <div class="grid">
-            <div class="block">
-              <div class="tiny">Modo Aula (Professor/Aluno) — opção A</div>
-              <div style="margin-top:10px;" class="grid">
-                <input id="classCodeInput" placeholder="Código da aula (ex.: TURMA1)" />
-                <div class="btnRow">
-                  <button id="btnSetClassCode" class="btn btnOk btnSmall">✅ Aplicar</button>
-                  <button id="btnCopyStep" class="btn btnSmall">🔗 Copiar link do passo</button>
+    <!-- Main Content -->
+    <main id="main-content">
+        <header>
+            <button class="btn-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            <h1 id="page-title">Dashboard</h1>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <div class="timer-box" id="global-timer" style="display: none; background: var(--primary);">03:00</div>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.8rem; color: #666;">Bem-vindo,</div>
+                    <strong>Dr. Usuário</strong>
                 </div>
-              </div>
-              <div class="tiny" style="margin-top:10px;">
-                Mesmo código = mesma ordem de questões/casos/jogos.
-              </div>
+            </div>
+        </header>
+
+        <!-- DASHBOARD -->
+        <div id="dashboard" class="section active">
+            <div class="card-grid">
+                <div class="card" style="border-color: var(--success);">
+                    <div>
+                        <h3><i class="fas fa-check-circle"></i> Casos Completos</h3>
+                        <p id="dash-cases" style="font-size: 1.5rem; font-weight: bold; margin: 10px 0;">0</p>
+                        <p class="text-muted">Total de casos disponíveis</p>
+                    </div>
+                </div>
+                <div class="card" style="border-color: var(--warning);">
+                    <div>
+                        <h3><i class="fas fa-brain"></i> Precisão no Quiz</h3>
+                        <p id="dash-quiz" style="font-size: 1.5rem; font-weight: bold; margin: 10px 0;">0%</p>
+                        <p class="text-muted">Média de acertos</p>
+                    </div>
+                </div>
+                <div class="card" style="border-color: var(--accent);">
+                    <div>
+                        <h3><i class="fas fa-trophy"></i> Ranking</h3>
+                        <p style="font-size: 1.5rem; font-weight: bold; margin: 10px 0;">Top 10%</p>
+                        <p class="text-muted">Entre os usuários ativos</p>
+                    </div>
+                </div>
             </div>
 
-            <div class="block">
-              <div class="tiny">Aluno/Professor</div>
-              <div style="font-weight: 900; font-size: 18px; margin-top: 6px;" id="userLabel">Aluno</div>
-              <div class="btnRow" style="margin-top:10px;">
-                <button id="btnName" class="btn btnSmall" style="width:auto;">✏️ Nome</button>
-                <button id="btnReset" class="btn btnDanger btnSmall" style="width:auto;">♻️ Reset</button>
-              </div>
+            <h2 style="margin-top: 40px; color: var(--text-dark); border-left: 5px solid var(--primary); padding-left: 15px;">Casos em Destaque</h2>
+            <div class="card-grid" style="margin-top: 20px;" id="featured-cases">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- CASES LIST & SIMULATOR -->
+        <div id="cases" class="section">
+            <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+                <button class="btn btn-outline" style="width: auto;" onclick="filterCases('all')">Todos</button>
+                <button class="btn btn-outline" style="width: auto;" onclick="filterCases('ACLS')">ACLS</button>
+                <button class="btn btn-outline" style="width: auto;" onclick="filterCases('ATLS')">ATLS</button>
+                <button class="btn btn-outline" style="width: auto;" onclick="filterCases('Neonato')">Neonato</button>
             </div>
 
-            <div class="block tiny">
-              Criador: <span class="creator">Dr. Moacir Carrion — Fisioterapeuta</span>
+            <div class="card-grid" id="cases-list">
+                <!-- Populated by JS -->
             </div>
-          </div>
+            
+            <!-- Active Simulation View -->
+            <div id="active-sim" style="display: none;">
+                <div class="sim-header">
+                    <button class="btn btn-outline" style="width: auto;" onclick="closeSimulation()"><i class="fas fa-arrow-left"></i> Voltar</button>
+                    <div class="timer-box" id="sim-timer">03:00</div>
+                </div>
+
+                <div class="patient-monitor">
+                    <div class="vitals-grid">
+                        <div class="vital-card">
+                            <div class="vital-label">FC (bpm)</div>
+                            <div class="vital-value" id="sim-hr">--</div>
+                        </div>
+                        <div class="vital-card">
+                            <div class="vital-label">PA (mmHg)</div>
+                            <div class="vital-value" id="sim-bp">--/--</div>
+                        </div>
+                        <div class="vital-card">
+                            <div class="vital-label">SpO2 (%)</div>
+                            <div class="vital-value" id="sim-spo2">--</div>
+                        </div>
+                        <div class="vital-card">
+                            <div class="vital-label">FR (rpm)</div>
+                            <div class="vital-value" id="sim-rr">--</div>
+                        </div>
+                    </div>
+                    <div class="ecg-container">
+                        <div class="ecg-grid"></div>
+                        <svg width="100%" height="100%" viewBox="0 0 800 120" preserveAspectRatio="none">
+                            <path id="ecg-path" d="M0,60 L800,60" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="decision-area">
+                    <h3 id="sim-scenario" style="margin-bottom: 15px; color: var(--primary);">Cenário</h3>
+                    <div id="sim-feedback" style="padding: 15px; background: #e8f5e9; color: #2e7d32; margin-bottom: 15px; border-radius: 8px; display: none;"></div>
+                    <div id="sim-options" class="decision-tree">
+                        <!-- Options injected here -->
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="navGroup grid">
-          <button class="navBtn" data-view="dashboard">
-            <span class="navLeft"><span class="navIcon">🧑‍⚕️</span><span class="navLabel">Painel</span></span>
-            <span>→</span>
-          </button>
-          <button class="navBtn" data-view="triage">
-            <span class="navLeft"><span class="navIcon">🚦</span><span class="navLabel">Triagem</span></span>
-            <span>→</span>
-          </button>
-          <button class="navBtn" data-view="er">
-            <span class="navLeft"><span class="navIcon">🚑</span><span class="navLabel">Sala de Emergência</span></span>
-            <span>→</span>
-          </button>
-          <button class="navBtn" data-view="rapid">
-            <span class="navLeft"><span class="navIcon">⏱️</span><span class="navLabel">Suporte Rápido</span></span>
-            <span>→</span>
-          </button>
-          <button class="navBtn" data-view="quiz">
-            <span class="navLeft"><span class="navIcon">🧠</span><span class="navLabel">Quiz</span></span>
-            <span>→</span>
-          </button>
-          <button class="navBtn" data-view="cases">
-            <span class="navLeft"><span class="navIcon">📋</span><span class="navLabel">Casos Clínicos</span></span>
-            <span>→</span>
-          </button>
-          <button class="navBtn" data-view="checklists">
-            <span class="navLeft"><span class="navIcon">✅</span><span class="navLabel">Checklists</span></span>
-            <span>→</span>
-          </button>
-          <button class="navBtn" data-view="path">
-            <span class="navLeft"><span class="navIcon">🧩</span><span class="navLabel">Patologias</span></span>
-            <span>→</span>
-          </button>
-          <button class="navBtn" data-view="epis">
-            <span class="navLeft"><span class="navIcon">🧤</span><span class="navLabel">EPIs</span></span>
-            <span>→</span>
-          </button>
-          <button class="navBtn" data-view="games">
-            <span class="navLeft"><span class="navIcon">🎮</span><span class="navLabel">Jogos</span></span>
-            <span>→</span>
-          </button>
-          <button class="navBtn" data-view="review">
-            <span class="navLeft"><span class="navIcon">📚</span><span class="navLabel">Revisão</span></span>
-            <span>→</span>
-          </button>
+        <!-- QUIZ SETUP -->
+        <div id="quiz-setup" class="section">
+            <div class="quiz-setup">
+                <h2 style="margin-bottom: 20px; text-align: center;">Configurar Quiz</h2>
+                <div class="form-group">
+                    <label>Especialidade</label>
+                    <select id="quiz-spec" class="form-control">
+                        <option value="all">Geral (Misto)</option>
+                        <option value="BLS">Suporte Básico (BLS)</option>
+                        <option value="ACLS">Suporte Avançado (ACLS)</option>
+                        <option value="ATLS">Trauma (ATLS)</option>
+                        <option value="Pediatria">Pediatria/Neonato</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nível de Dificuldade</label>
+                    <select id="quiz-diff" class="form-control">
+                        <option value="all">Misto</option>
+                        <option value="easy">Fácil (Conceitos)</option>
+                        <option value="medium">Médio (Aplicação)</option>
+                        <option value="hard">Difícil (Casos Complexos)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Quantidade de Questões</label>
+                    <select id="quiz-count" class="form-control">
+                        <option value="5">5 Questões</option>
+                        <option value="10">10 Questões</option>
+                        <option value="20">20 Questões</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="startQuiz()">Iniciar Quiz</button>
+            </div>
         </div>
-      </div>
-    </aside>
 
-    <!-- Main -->
-    <main class="main">
-      <div class="card pad">
-        <div class="pageTitle" id="pageTitle">Painel</div>
-        <div class="pageSub" id="pageSub">Treine decisões e rotinas com feedback imediato, banco grande e modo aula sincronizável por link.</div>
-
-        <div class="hr"></div>
-
-        <div class="btnRow" style="justify-content:center;">
-          <button class="btn btnPrimary btnSmall" style="width:auto;" id="btnInstructions">ℹ️ Instruções</button>
-          <button class="btn btnSmall" style="width:auto;" id="btnCopyStepTop">🔗 Copiar link do passo atual</button>
-          <button class="btn btnSmall" style="width:auto;" id="btnCloseMenuMobile">📌 Fechar menu</button>
+        <!-- QUIZ ACTIVE -->
+        <div id="quiz-active" class="section">
+            <div class="quiz-active">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span id="quiz-progress">Questão 1/10</span>
+                    <span id="quiz-score-live">Pontos: 0</span>
+                </div>
+                <div class="quiz-timer-bar"><div class="quiz-timer-fill" id="quiz-timer-fill"></div></div>
+                
+                <div class="card" style="border-top: none; box-shadow: none; padding: 0;">
+                    <h2 id="quiz-question" style="font-size: 1.4rem; margin-bottom: 20px;">Carregando...</h2>
+                    <div class="options-grid" id="quiz-options" style="display: grid; gap: 15px;">
+                        <!-- Options -->
+                    </div>
+                </div>
+                
+                <div id="quiz-explanation" style="margin-top: 20px; padding: 20px; background: #e3f2fd; border-left: 5px solid var(--primary); border-radius: 8px; display: none;">
+                    <strong>Explicação Técnica:</strong> <span id="quiz-exp-text"></span>
+                </div>
+                <button class="btn btn-primary" id="next-q-btn" style="margin-top: 20px; display: none;" onclick="nextQuestion()">Próxima Questão</button>
+                <button class="btn btn-danger" style="margin-top: 20px; display: none;" id="finish-quiz-btn" onclick="finishQuiz()">Ver Resultados</button>
+            </div>
         </div>
-      </div>
 
-      <div id="view" class="grid" style="margin-top:14px;"></div>
+        <!-- GAMES -->
+        <div id="games" class="section">
+            <div class="card-grid">
+                <div class="card">
+                    <h3><i class="fas fa-braille"></i> Memória Médica</h3>
+                    <p>Associe o equipamento à sua função ou nome.</p>
+                    <button class="btn btn-primary" onclick="startMemoryGame()">Jogar Agora</button>
+                </div>
+                <div class="card">
+                    <h3><i class="fas fa-crown"></i> Show do Milhão</h3>
+                    <p>Modo sobrevivência com ajudas.</p>
+                    <button class="btn btn-primary" disabled style="opacity: 0.6; cursor: not-allowed;">Em Breve</button>
+                </div>
+            </div>
 
-      <div class="footer">
-        Material educacional para simulação. Condutas reais dependem de protocolo institucional e avaliação clínica.<br/>
-        Criador: <span class="creator">Dr. Moacir Carrion — Fisioterapeuta</span>
-      </div>
+            <!-- Memory Game Board -->
+            <div id="memory-board" style="display: none; text-align: center; margin-top: 20px;">
+                <div style="display: flex; justify-content: space-between; max-width: 800px; margin: 0 auto 20px;">
+                    <h3>Encontre os pares!</h3>
+                    <button class="btn btn-danger" style="width: auto;" onclick="document.getElementById('memory-board').style.display='none'">Sair</button>
+                </div>
+                <div class="memory-grid" id="memory-grid"></div>
+            </div>
+        </div>
+
+        <!-- TOOLS / EQUIPMENT -->
+        <div id="tools" class="section">
+            <div class="card-grid">
+                <div class="card">
+                    <h3>Monitor Cardíaco</h3>
+                    <p>Simulador de ritmos e interpretação de ECG.</p>
+                    <button class="btn btn-primary" onclick="loadTool('monitor')">Abrir Ferramenta</button>
+                </div>
+                <div class="card">
+                    <h3>Ventilador Mecânico</h3>
+                    <p>Configuração de modos (VC, PC, PSV).</p>
+                    <button class="btn btn-primary" onclick="alert('Funcionalidade em desenvolvimento')">Em Breve</button>
+                </div>
+            </div>
+
+            <div id="tool-monitor" style="margin-top: 30px; display: none;">
+                <div class="patient-monitor" style="max-width: 800px; margin: 0 auto;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <h3 style="color: white;">Simulador de Ritmos</h3>
+                        <button class="btn btn-danger" style="width: auto; padding: 5px 10px;" onclick="document.getElementById('tool-monitor').style.display='none'">X</button>
+                    </div>
+                    <div class="ecg-container" style="height: 200px; margin-bottom: 20px;">
+                        <div class="ecg-grid"></div>
+                        <svg width="100%" height="100%" viewBox="0 0 800 200" preserveAspectRatio="none">
+                            <path id="tool-ecg-path" fill="none" stroke="#0f0" stroke-width="2" d="M0,100 L800,100" />
+                        </svg>
+                    </div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-outline" style="width: auto;" onclick="setToolRhythm('sinus')">Ritmo Sinusal</button>
+                        <button class="btn btn-outline" style="width: auto;" onclick="setToolRhythm('tachy')">Taquicardia Sinusal</button>
+                        <button class="btn btn-outline" style="width: auto;" onclick="setToolRhythm('afib')">Fibrilação Atrial</button>
+                        <button class="btn btn-danger" style="width: auto;" onclick="setToolRhythm('vfib')">Fibrilação Ventricular</button>
+                        <button class="btn btn-outline" style="width: auto;" onclick="setToolRhythm('asystole')">Assistolia</button>
+                        <button class="btn btn-outline" style="width: auto;" onclick="setToolRhythm('pvc')">Extra-sístole (PVC)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
-  </div>
 
-  <!-- Toast -->
-  <div class="toastWrap" id="toastWrap" style="display:none;">
-    <div class="toast">
-      <div class="t1" id="toastT1">Info</div>
-      <div class="t2" id="toastT2">Mensagem</div>
-    </div>
-  </div>
-
-  <!-- Mascot -->
-  <div class="mascot" id="mascot">
-    <div class="mascotCard">
-      <div class="mascotEmoji">🧑‍⚕️</div>
-      <div class="mascotText">
-        <div class="a" id="mascotA">OK</div>
-        <div class="b" id="mascotB">Feedback</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal -->
-  <div class="modal" id="modal">
-    <div class="modalBg" id="modalBg"></div>
-    <div class="modalBox">
-      <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
-        <div>
-          <div style="font-weight:900; font-size:20px;" id="modalTitle">Título</div>
-          <div class="small muted" style="margin-top:6px;" id="modalSub">Sub</div>
-        </div>
-        <button class="btn btnSmall" style="width:auto;" id="modalClose">✖️ Fechar</button>
-      </div>
-      <div class="hr"></div>
-      <div id="modalBody"></div>
-    </div>
-  </div>
-
-<script>
-/* =========================================================
-   Centro de Treinamento Avançado — Emergência (single-file)
-   - Banco: Quiz 50, Casos 20, Checklists por cenário (>=5)
-   - Triagem: banco + botão Próxima
-   - Sala de Emergência: cenários por patologia + hints
-   - Suporte Rápido: 2 min, escolher patologia + intervenções
-   - Jogos: Memória + Caça-palavras (funcionais)
-   - Modo Aula (opção A): mesma sequência por Código da Aula
-     + Link do passo atual (view + index) para sincronizar
-   ========================================================= */
-
-document.addEventListener("DOMContentLoaded", () => {
-  const LS = {
-    KEY: "CTA_EMERG_V1",
-  };
-
-  // --- Utilities
-  const $ = (id) => document.getElementById(id);
-  const clamp = (n,min,max)=>Math.max(min,Math.min(max,n));
-
-  function toast(title, msg){
-    $("toastT1").textContent = title;
-    $("toastT2").textContent = msg;
-    $("toastWrap").style.display = "flex";
-    setTimeout(()=> $("toastWrap").style.display = "none", 2600);
-  }
-
-  function mascot(title, msg){
-    $("mascotA").textContent = title;
-    $("mascotB").textContent = msg;
-    const m = $("mascot");
-    m.classList.add("show");
-    setTimeout(()=> m.classList.remove("show"), 2000); // 2 segundos
-  }
-
-  function openModal(title, sub, bodyHtml){
-    $("modalTitle").textContent = title;
-    $("modalSub").textContent = sub || "";
-    $("modalBody").innerHTML = bodyHtml || "";
-    $("modal").classList.add("show");
-  }
-  function closeModal(){
-    $("modal").classList.remove("show");
-  }
-  $("modalClose").addEventListener("click", closeModal);
-  $("modalBg").addEventListener("click", closeModal);
-
-  // --- Deterministic RNG (mulberry32) with string hash
-  function hashStringToSeed(str){
-    let h = 2166136261 >>> 0;
-    for(let i=0;i<str.length;i++){
-      h ^= str.charCodeAt(i);
-      h = Math.imul(h, 16777619);
-    }
-    return h >>> 0;
-  }
-  function mulberry32(a){
-    return function(){
-      let t = a += 0x6D2B79F5;
-      t = Math.imul(t ^ (t >>> 15), t | 1);
-      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    }
-  }
-  function seededShuffle(arr, seed){
-    const rng = mulberry32(seed >>> 0);
-    const a = arr.slice();
-    for(let i=a.length-1;i>0;i--){
-      const j = Math.floor(rng()* (i+1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
-
-  // --- State
-  const defaultState = {
-    userName: "Aluno",
-    classCode: "TURMA1",
-    score: 0,
-    correct: 0,
-    wrong: 0,
-    view: "dashboard",
-
-    // indices per module (these are "steps")
-    idx: {
-      triage: 0,
-      quiz: 0,
-      cases: 0,
-      checklists: 0,
-      er: 0,
-      rapid: 0,
-      games: 0, // used for mem/word states
-    },
-
-    review: [], // recent log
-  };
-
-  function loadState(){
-    try{
-      const raw = localStorage.getItem(LS.KEY);
-      if(!raw) return structuredClone(defaultState);
-      const s = JSON.parse(raw);
-      return { ...structuredClone(defaultState), ...s, idx: { ...structuredClone(defaultState.idx), ...(s.idx||{}) } };
-    }catch(e){
-      return structuredClone(defaultState);
-    }
-  }
-  let state = loadState();
-
-  function saveState(){
-    localStorage.setItem(LS.KEY, JSON.stringify(state));
-    renderKpis();
-  }
-
-  function logReview(type, detail){
-    state.review.unshift({ t: new Date().toISOString(), type, detail });
-    if(state.review.length > 200) state.review.pop();
-  }
-
-  function addScore(delta, reason){
-    state.score = Math.max(0, state.score + delta);
-    logReview("score", `${delta>0?"+":""}${delta} — ${reason}`);
-    saveState();
-  }
-
-  function accuracy(){
-    const total = state.correct + state.wrong;
-    if(total === 0) return 0;
-    return Math.round((state.correct/total)*100);
-  }
-
-  function renderKpis(){
-    $("kpiScore").textContent = state.score;
-    $("kpiAcc").textContent = `${accuracy()}%`;
-    $("pillScore").textContent = `Score: ${state.score}`;
-    $("userLabel").textContent = state.userName || "Aluno";
-    $("classCodeInput").value = state.classCode || "TURMA1";
-  }
-
-  // --- URL step sync (Modo Aula)
-  // ?view=quiz&step=3&code=TURMA1
-  function readUrlParams(){
-    const url = new URL(window.location.href);
-    const view = url.searchParams.get("view");
-    const step = url.searchParams.get("step");
-    const code = url.searchParams.get("code");
-
-    if(code && typeof code === "string" && code.trim().length){
-      state.classCode = code.trim().slice(0, 24);
-    }
-    if(view && VIEW_META[view]){
-      state.view = view;
-    }
-    if(step !== null){
-      const n = parseInt(step, 10);
-      if(!Number.isNaN(n)){
-        // apply only to that view
-        if(state.idx[view] !== undefined){
-          state.idx[view] = clamp(n, 0, 9999);
-        }
-      }
-    }
-    saveState();
-
-    // clean URL (optional). We'll keep it, as it's used for sync.
-  }
-
-  function copyStepLink(){
-    const url = new URL(window.location.href);
-    url.searchParams.set("code", state.classCode || "TURMA1");
-    url.searchParams.set("view", state.view);
-    url.searchParams.set("step", String(state.idx[state.view] || 0));
-    navigator.clipboard?.writeText(url.toString())
-      .then(()=> toast("Link copiado", "Envie no grupo para alunos abrirem no mesmo passo."))
-      .catch(()=> toast("Não copiou", "Seu navegador bloqueou. Copie manualmente pela barra de endereço."));
-  }
-
-  // --- Large banks (Quiz 50, Cases 20, Checklists 5 scenarios w/5+ items, Triage bank)
-  // Observação: “embasamento” aqui é descrito como “conceitos/diretrizes” (sem citar ano/versão específica).
-  // Você pode trocar/editar livremente as fontes no texto.
-  const TRIAGE_BANK = [
-    {
-      id:"t1",
-      q:"Triagem: paciente com dispneia intensa, uso de musculatura acessória e SpO₂ 86% em ar ambiente. Prioridade?",
-      opts:["Vermelho (emergência imediata)","Verde (pouco urgente)","Azul (não urgente)"],
-      ans:0,
-      why:"Hipoxemia e sinais de esforço respiratório indicam risco imediato; prioridade alta.",
-      src:"Conceitos de triagem e avaliação primária (ABCDE).",
-      hint:"Pense no risco de vida imediato associado à ventilação/oxigenação."
-    },
-    {
-      id:"t2",
-      q:"Triagem: paciente com dor torácica súbita, sudorese, náusea, palidez. Prioridade?",
-      opts:["Amarelo","Vermelho","Azul"],
-      ans:1,
-      why:"Dor torácica com sinais autonômicos sugere síndrome coronariana/instabilidade → atendimento imediato.",
-      src:"Conceitos de dor torácica na emergência.",
-      hint:"Dor torácica típica + sinais sistêmicos costuma ser alto risco."
-    },
-    {
-      id:"t3",
-      q:"Triagem: ferimento superficial com sangramento controlado e sinais vitais normais. Prioridade?",
-      opts:["Vermelho","Verde","Laranja"],
-      ans:1,
-      why:"Baixo risco imediato e estável → pode aguardar com segurança.",
-      src:"Conceitos de triagem por gravidade.",
-      hint:"Observe estabilidade hemodinâmica e ausência de ameaça imediata."
-    },
-    {
-      id:"t4",
-      q:"Triagem: paciente confuso, hipotenso (PA 86/54), extremidades frias. Prioridade?",
-      opts:["Vermelho","Verde","Azul"],
-      ans:0,
-      why:"Sinais de choque/hipoperfusão exigem intervenção imediata.",
-      src:"Conceitos de choque e perfusão.",
-      hint:"Hipotensão + alteração de consciência aponta hipoperfusão."
-    },
-    {
-      id:"t5",
-      q:"Triagem: crise convulsiva ativa na chegada. Prioridade?",
-      opts:["Vermelho","Verde","Amarelo"],
-      ans:0,
-      why:"Convulsão ativa é ameaça imediata (via aérea/aspiração/hipóxia).",
-      src:"Conceitos de emergência neurológica.",
-      hint:"Atividade convulsiva ativa = risco imediato."
-    },
-    {
-      id:"t6",
-      q:"Triagem: paciente febril, dor leve, estável, sem sinais de gravidade. Prioridade?",
-      opts:["Azul/Verde (baixa urgência)","Vermelho","Laranja"],
-      ans:0,
-      why:"Sem sinais de gravidade e estável → baixa urgência.",
-      src:"Conceitos de triagem por gravidade.",
-      hint:"Procure sinais de instabilidade."
-    },
-    {
-      id:"t7",
-      q:"Triagem: suspeita de AVC (face caída, fala alterada, fraqueza súbita). Prioridade?",
-      opts:["Vermelho","Verde","Azul"],
-      ans:0,
-      why:"AVC é tempo-dependente e precisa de fluxo rápido (imediato).",
-      src:"Conceitos de AVC na emergência.",
-      hint:"Patologias tempo-dependentes sobem a prioridade."
-    },
-    {
-      id:"t8",
-      q:"Triagem: anafilaxia (urticária + broncoespasmo + hipotensão). Prioridade?",
-      opts:["Vermelho","Amarelo","Verde"],
-      ans:0,
-      why:"Risco imediato de colapso circulatório e via aérea.",
-      src:"Conceitos de anafilaxia na emergência.",
-      hint:"Anafilaxia é ameaça imediata."
-    },
-    {
-      id:"t9",
-      q:"Triagem: trauma com sangramento arterial ativo. Prioridade?",
-      opts:["Vermelho","Verde","Azul"],
-      ans:0,
-      why:"Hemorragia ativa pode levar a choque rapidamente.",
-      src:"Conceitos de trauma e controle de hemorragia.",
-      hint:"Sangramento ativo = risco de choque."
-    },
-    {
-      id:"t10",
-      q:"Triagem: paciente com dor abdominal intensa + defesa abdominal + palidez. Prioridade?",
-      opts:["Laranja/Vermelho (alta prioridade)","Azul","Verde"],
-      ans:0,
-      why:"Pode indicar abdome agudo com risco; precisa avaliação rápida.",
-      src:"Conceitos de abdome agudo.",
-      hint:"Intensidade + sinais de irritação peritoneal elevam o risco."
-    }
-  ];
-
-  const QUIZ_BANK = [
-    // 50 itens (compactos, porém reais e úteis)
-    {id:"q1", topic:"ABCDE", lvl:1, q:"No ABCDE, a letra A refere-se a:", opts:["Via aérea","Ventilação","Circulação"], ans:0, why:"A = Airway (via aérea).", src:"Conceitos ABCDE.", hint:"Pense na sequência do ABCDE."},
-    {id:"q2", topic:"ABCDE", lvl:1, q:"No ABCDE, a letra B refere-se a:", opts:["Circulação","Ventilação/respiração","Disfunção neurológica"], ans:1, why:"B = Breathing.", src:"Conceitos ABCDE.", hint:"Após via aérea vem respiração."},
-    {id:"q3", topic:"RCP", lvl:1, q:"Em ritmo chocável (FV/TVsp), a conduta-chave imediata inclui:", opts:["Desfibrilação precoce + RCP","Atropina como 1ª escolha","Aguardar exames"], ans:0, why:"Ritmo chocável: choque + RCP de alta qualidade.", src:"Conceitos de suporte avançado de vida.", hint:"Ritmo chocável = choque."},
-    {id:"q4", topic:"Oxigenação", lvl:1, q:"Objetivo comum de SpO₂ em adulto sem retenção crônica de CO₂:", opts:[">94% (em geral)","80%","100% sempre"], ans:0, why:"Alvo geralmente >94% dependendo do caso.", src:"Conceitos de oxigenoterapia.", hint:"Evite extremos; pense em alvo seguro."},
-    {id:"q5", topic:"Choque", lvl:1, q:"Sinal clássico de hipoperfusão periférica:", opts:["Extremidades frias e tempo de enchimento capilar prolongado","Pele quente e rosada","Bradicardia isolada"], ans:0, why:"Hipoperfusão costuma cursar com vasoconstrição periférica.", src:"Conceitos de choque.", hint:"Pense em vasoconstrição."},
-    {id:"q6", topic:"Sepse", lvl:2, q:"Na sepse, uma prioridade inicial na emergência é:", opts:["Reconhecer gravidade e iniciar bundle precoce conforme protocolo","Aguardar 24h para antibiótico","Evitar monitorização"], ans:0, why:"Sepse é tempo-dependente: abordagem precoce melhora desfechos.", src:"Conceitos de bundles de sepse.", hint:"Tempo importa."},
-    {id:"q7", topic:"AVC", lvl:2, q:"Em suspeita de AVC, o fator crítico é:", opts:["Tempo até avaliação e imagem","Esperar melhora espontânea","Evitar triagem"], ans:0, why:"AVC é tempo-dependente.", src:"Conceitos de AVC.", hint:"“Tempo é cérebro” (conceito)."},
-    {id:"q8", topic:"Trauma", lvl:2, q:"Em trauma com hemorragia, uma prioridade é:", opts:["Controle rápido de sangramento","Dar alta imediata","Suspender monitorização"], ans:0, why:"Controle de hemorragia reduz choque e mortalidade.", src:"Conceitos de trauma.", hint:"Pare o sangramento."},
-    {id:"q9", topic:"Vias aéreas", lvl:2, q:"Sinal de ameaça de via aérea:", opts:["Estridor","Tosse leve isolada","Pressão arterial normal"], ans:0, why:"Estridor sugere obstrução de via aérea.", src:"Conceitos de via aérea.", hint:"Som inspiratório agudo."},
-    {id:"q10", topic:"Farmaco", lvl:2, q:"Em anafilaxia com instabilidade, a conduta de primeira linha (conceito) envolve:", opts:["Tratamento imediato conforme protocolo e suporte ABC","Apenas anti-histamínico e observar","Esperar exames"], ans:0, why:"Anafilaxia é emergência: intervenção imediata e suporte.", src:"Conceitos de anafilaxia.", hint:"Emergência de via aérea e perfusão."},
-
-    // 40 adicionais
-    {id:"q11", topic:"Monitorização", lvl:1, q:"Um parâmetro essencial na admissão de emergência:", opts:["Sinais vitais completos","Apenas temperatura","Somente peso"], ans:0, why:"Monitorização orienta decisões.", src:"Boas práticas de emergência.", hint:"O básico guia a conduta."},
-    {id:"q12", topic:"Segurança", lvl:1, q:"Boa prática na administração de medicação:", opts:["Checar identificação e alergias","Aplicar sem conferência","Evitar rotulagem"], ans:0, why:"Barreiras reduzem erros.", src:"Segurança do paciente (conceito).", hint:"Reduza erros com checagens."},
-    {id:"q13", topic:"Ventilação", lvl:2, q:"Em broncoespasmo grave, uma prioridade é:", opts:["Avaliar fadiga/hipoventilação e oferecer suporte conforme protocolo","Dar sedação e liberar","Ignorar SpO₂"], ans:0, why:"Risco de falência ventilatória exige atenção.", src:"Conceitos de insuficiência respiratória.", hint:"Pense em fadiga respiratória."},
-    {id:"q14", topic:"Cardio", lvl:2, q:"Dor torácica + hipotensão sugere:", opts:["Instabilidade hemodinâmica (alto risco)","Baixo risco","Sempre ansiedade"], ans:0, why:"Hipotensão com dor torácica é sinal de gravidade.", src:"Conceitos de dor torácica.", hint:"Instabilidade = gravidade."},
-    {id:"q15", topic:"ABCDE", lvl:1, q:"No ABCDE, a letra C está ligada a:", opts:["Circulação/hemorragia","Temperatura","Apenas glicemia"], ans:0, why:"C = Circulation.", src:"Conceitos ABCDE.", hint:"C de Circulação."},
-
-    {id:"q16", topic:"Neuro", lvl:2, q:"No ABCDE, avaliação neurológica rápida é:", opts:["D (Disability)","B","A"], ans:0, why:"D = Disability (estado neurológico).", src:"Conceitos ABCDE.", hint:"Qual letra trata do neuro?"},
-    {id:"q17", topic:"Exposição", lvl:1, q:"A letra E do ABCDE envolve:", opts:["Exposição e controle de temperatura","Eletrocardiograma","Endoscopia"], ans:0, why:"Expor para buscar lesões e prevenir hipotermia.", src:"Conceitos ABCDE.", hint:"E = Expose."},
-    {id:"q18", topic:"Choque", lvl:2, q:"Sinais de choque podem incluir:", opts:["Taquicardia + hipotensão + pele fria","Bradicardia + pele quente sempre","Somente febre"], ans:0, why:"Padrão típico de hipoperfusão.", src:"Conceitos de choque.", hint:"Pense em resposta adrenérgica."},
-    {id:"q19", topic:"Glicemia", lvl:1, q:"Hipoglicemia pode simular:", opts:["Alteração neurológica/AVC","Fratura exposta","Apendicite sempre"], ans:0, why:"Hipoglicemia altera nível de consciência e fala.", src:"Conceitos de emergência metabólica.", hint:"Sempre checar glicemia no neuro."},
-    {id:"q20", topic:"PCR", lvl:2, q:"Após desfibrilar, a conduta imediata é:", opts:["Retomar RCP sem demora","Aguardar 2 minutos sem RCP","Checar pressão arterial primeiro"], ans:0, why:"Minimizar pausas na RCP.", src:"Conceitos de RCP.", hint:"Pausas mínimas."},
-
-    {id:"q21", topic:"Infecção", lvl:1, q:"Sinal de gravidade infecciosa:", opts:["Hipotensão e confusão","Dor leve isolada","Espinhas"], ans:0, why:"Sinais sistêmicos sugerem sepse.", src:"Conceitos de sepse.", hint:"Procure instabilidade."},
-    {id:"q22", topic:"Resp", lvl:1, q:"Indicador de esforço respiratório:", opts:["Uso de musculatura acessória","Unhas curtas","Olhos castanhos"], ans:0, why:"Sinal clínico importante.", src:"Semiologia respiratória (conceito).", hint:"Observe tórax/pescoço."},
-    {id:"q23", topic:"Trauma", lvl:2, q:"Imobilização cervical é considerada quando:", opts:["Suspeita de trauma e risco de lesão cervical","Dor de cabeça crônica","Febre baixa"], ans:0, why:"Proteção de coluna em trauma selecionado.", src:"Conceitos de trauma.", hint:"Trauma + mecanismo."},
-    {id:"q24", topic:"Sinais vitais", lvl:1, q:"Taquipneia é:", opts:["FR elevada","FC elevada","PA elevada"], ans:0, why:"FR = frequência respiratória.", src:"Sinais vitais (conceito).", hint:"Respiração."},
-    {id:"q25", topic:"Oxigênio", lvl:2, q:"O₂ suplementar é indicado quando:", opts:["Hipoxemia ou desconforto conforme avaliação","Sempre em todo paciente","Nunca"], ans:0, why:"Indicação clínica.", src:"Conceitos de oxigenoterapia.", hint:"Use quando precisa."},
-
-    {id:"q26", topic:"Neuro", lvl:2, q:"Sinal de rebaixamento neurológico relevante:", opts:["Glasgow reduzido","Unhas pintadas","Cabelo curto"], ans:0, why:"Avaliação do nível de consciência.", src:"Conceitos neuro na emergência.", hint:"Escala de consciência."},
-    {id:"q27", topic:"Cardio", lvl:2, q:"No IAM, atraso no atendimento tende a:", opts:["Piorar desfechos","Não mudar nada","Curar sozinho"], ans:0, why:"Tempo-dependente.", src:"Conceitos de IAM.", hint:"Tempo importa."},
-    {id:"q28", topic:"EPI", lvl:1, q:"Uso de proteção ocular é especialmente importante quando:", opts:["Risco de respingos/ aerossóis","Paciente sorrindo","Ambiente silencioso"], ans:0, why:"Barreira contra exposição.", src:"Boas práticas de biossegurança.", hint:"Risco de respingos."},
-    {id:"q29", topic:"Via aérea", lvl:2, q:"Sialorreia + voz abafada + dificuldade de deglutir pode sugerir:", opts:["Risco de via aérea","Dor lombar","Apenas ansiedade"], ans:0, why:"Sinais de via aérea comprometida.", src:"Conceitos de via aérea.", hint:"Deglutição/voz."},
-    {id:"q30", topic:"Choque", lvl:2, q:"Tempo de enchimento capilar prolongado sugere:", opts:["Hipoperfusão","Hipertensão","Hipertermia"], ans:0, why:"Perfusão periférica reduzida.", src:"Semiologia (conceito).", hint:"Perfusão periférica."},
-
-    {id:"q31", topic:"Acesso", lvl:1, q:"Em emergência, garantir acesso venoso é útil para:", opts:["Medicação e fluidos quando indicados","Apenas estética","Evitar monitor"], ans:0, why:"Permite terapias rápidas.", src:"Conceitos de emergência.", hint:"Acesso = rapidez."},
-    {id:"q32", topic:"Resp", lvl:2, q:"Sinais de falência ventilatória podem incluir:", opts:["Sonolência/hipoventilação","Apetite aumentado","Cabelo úmido"], ans:0, why:"Retenção de CO₂ e fadiga podem causar sonolência.", src:"Conceitos de insuficiência ventilatória.", hint:"CO₂ alto pode dar sonolência."},
-    {id:"q33", topic:"Anamnese", lvl:1, q:"SAMPLE é um mnemônico útil para:", opts:["História breve focada","Dosagem de antibiótico","ECG"], ans:0, why:"SAMPLE estrutura coleta rápida.", src:"Conceitos de atendimento inicial.", hint:"História rápida."},
-    {id:"q34", topic:"ABCDE", lvl:1, q:"No ABCDE, reavaliação é:", opts:["Essencial após intervenções","Desnecessária","Opcional apenas no fim"], ans:0, why:"Reavaliação confirma resposta e novas ameaças.", src:"Conceitos ABCDE.", hint:"Sempre reavaliar."},
-    {id:"q35", topic:"PCR", lvl:2, q:"Qualidade da RCP depende de:", opts:["Profundidade e frequência adequadas com mínimas pausas","Apenas de oxigênio","Somente de medicação"], ans:0, why:"RCP de alta qualidade é base.", src:"Conceitos de RCP.", hint:"Compressões boas."},
-
-    {id:"q36", topic:"Sepse", lvl:2, q:"Sinais de disfunção orgânica podem incluir:", opts:["Confusão/hipotensão/oligúria","Somente espirros","Apenas tosse"], ans:0, why:"Disfunção sistêmica.", src:"Conceitos de sepse.", hint:"Pense em órgãos."},
-    {id:"q37", topic:"Trauma", lvl:2, q:"Em trauma, hipotermia é perigosa porque:", opts:["Piora coagulopatia e prognóstico","Sempre melhora dor","Não importa"], ans:0, why:"Tríade letal no trauma (conceito).", src:"Conceitos de trauma.", hint:"Temperatura importa."},
-    {id:"q38", topic:"EPI", lvl:1, q:"Higienização das mãos é:", opts:["Fundamental antes/depois do contato","Opcional","Apenas com luva"], ans:0, why:"Medida mais efetiva contra transmissão.", src:"Biossegurança (conceito).", hint:"Sempre."},
-    {id:"q39", topic:"Neuro", lvl:2, q:"Convulsão prolongada aumenta risco de:", opts:["Hipóxia/lesão secundária","Crescimento de cabelo","Sono profundo benéfico"], ans:0, why:"Emergência neurológica.", src:"Conceitos de convulsão.", hint:"Duração importa."},
-    {id:"q40", topic:"Resp", lvl:1, q:"FR normal em adulto geralmente é em torno de:", opts:["12–20 irpm (aprox.)","2 irpm","40–60 irpm sempre"], ans:0, why:"Faixa aproximada usada clinicamente.", src:"Sinais vitais (conceito).", hint:"Valores usuais."},
-
-    {id:"q41", topic:"Cardio", lvl:2, q:"Em dor torácica, um exame inicial importante é:", opts:["ECG (quando disponível)","Tomografia sempre","EEG"], ans:0, why:"ECG orienta conduta e risco.", src:"Conceitos de dor torácica.", hint:"Exame rápido cardíaco."},
-    {id:"q42", topic:"Resp", lvl:2, q:"Sibilos difusos sugerem:", opts:["Broncoespasmo","Fratura de fêmur","Insuficiência renal"], ans:0, why:"Sibilância indica fluxo em vias aéreas estreitadas.", src:"Semiologia respiratória (conceito).", hint:"Som expiratório musical."},
-    {id:"q43", topic:"Choque", lvl:2, q:"Oligúria pode sugerir:", opts:["Hipoperfusão renal","Sono","Alergia alimentar"], ans:0, why:"Perfusão reduzida → débito urinário baixo.", src:"Conceitos de perfusão.", hint:"Diurese é marcador."},
-    {id:"q44", topic:"EPI", lvl:1, q:"Máscara N95/PFF2 é indicada principalmente em:", opts:["Risco de aerossóis","Curativos secos","Dor lombar"], ans:0, why:"Proteção respiratória em aerossóis.", src:"Biossegurança (conceito).", hint:"Aerosol."},
-    {id:"q45", topic:"ABCDE", lvl:1, q:"Ao detectar ameaça, deve-se:", opts:["Intervir e reavaliar","Aguardar evolução","Ignorar"], ans:0, why:"Intervenção imediata e reavaliação.", src:"Conceitos ABCDE.", hint:"Agir e reavaliar."},
-
-    {id:"q46", topic:"Metabólico", lvl:2, q:"Em alteração neurológica, um teste rápido útil é:", opts:["Glicemia capilar","Raio-X de crânio sempre","Audiometria"], ans:0, why:"Hipoglicemia é causa reversível frequente.", src:"Conceitos de abordagem neuro.", hint:"Reversível e rápido."},
-    {id:"q47", topic:"Resp", lvl:2, q:"Em insuficiência respiratória, sinais de gravidade incluem:", opts:["Cianose/queda de SpO₂/esforço intenso","Pele hidratada","Sono normal"], ans:0, why:"Sinais clínicos de falência respiratória.", src:"Conceitos de insuficiência respiratória.", hint:"Oxigenação baixa + esforço."},
-    {id:"q48", topic:"Trauma", lvl:2, q:"Dor + deformidade + incapacidade funcional após queda sugere:", opts:["Fratura/lesão importante","Sempre resfriado","Apenas ansiedade"], ans:0, why:"Sinais sugestivos de lesão estrutural.", src:"Conceitos de trauma ortopédico.", hint:"Função comprometida."},
-    {id:"q49", topic:"Sepse", lvl:2, q:"Febre + taquicardia + hipotensão em contexto infeccioso sugere:", opts:["Sepse/choque séptico (suspeita)","Alergia leve","Gastrite simples"], ans:0, why:"Instabilidade em contexto infeccioso → suspeitar sepse.", src:"Conceitos de sepse.", hint:"Infecção + instabilidade."},
-    {id:"q50", topic:"Segurança", lvl:1, q:"Rotulagem de seringas/soluções:", opts:["Reduz troca e erros","Aumenta risco","É inútil"], ans:0, why:"Barreira de segurança na prática.", src:"Segurança do paciente (conceito).", hint:"Evita confusão."},
-  ];
-
-  const CASES_BANK = [
-    // 20 casos (cada um com 3 opções)
-    {
-      id:"c1", title:"Sepse provável",
-      stem:"67a com febre, confusão, pele fria, PA 86/54, FC 118, FR 30, SpO₂ 88% AA.",
-      q:"Primeira prioridade no atendimento:",
-      opts:[
-        {t:"Oxigenar e iniciar avaliação ABCDE + monitorização", ok:true},
-        {t:"Aguardar exames antes de qualquer intervenção", ok:false},
-        {t:"Oferecer água e observar", ok:false},
-      ],
-      why:"Hipoxemia/choque exigem intervenção imediata e fluxo rápido conforme protocolo.",
-      src:"Conceitos ABCDE + sepse (bundle precoce).",
-      hint:"Identifique ameaça imediata à vida (oxigenação/perfusão).",
-      pts:10
-    },
-    {
-      id:"c2", title:"PCR com FV",
-      stem:"Colapso súbito; monitor mostra fibrilação ventricular; pulso ausente.",
-      q:"Conduta imediata mais efetiva:",
-      opts:[
-        {t:"Desfibrilar e retomar RCP imediatamente", ok:true},
-        {t:"Atropina como 1ª medida", ok:false},
-        {t:"Esperar 2 min para checar novamente", ok:false},
-      ],
-      why:"Ritmo chocável: choque precoce + RCP de alta qualidade.",
-      src:"Conceitos de RCP avançada.",
-      hint:"Ritmo chocável = choque + RCP sem pausas longas.",
-      pts:10
-    },
-    {
-      id:"c3", title:"Suspeita de AVC",
-      stem:"Paciente com face desviada, fala arrastada, fraqueza em MSD/MID há 40 minutos.",
-      q:"Ação prioritária:",
-      opts:[
-        {t:"Ativar fluxo rápido de AVC e avaliação imediata", ok:true},
-        {t:"Aguardar 6h para observar", ok:false},
-        {t:"Liberar com analgesia apenas", ok:false},
-      ],
-      why:"AVC é tempo-dependente; precisa avaliação e imagem rápidas.",
-      src:"Conceitos de AVC na emergência.",
-      hint:"Tempo determina janela terapêutica.",
-      pts:10
-    },
-    {
-      id:"c4", title:"Anafilaxia",
-      stem:"Urticária difusa, chiado, edema de lábios e hipotensão após alimento.",
-      q:"Prioridade inicial:",
-      opts:[
-        {t:"Suporte ABC imediato e tratamento conforme protocolo", ok:true},
-        {t:"Somente anti-histamínico e alta", ok:false},
-        {t:"Aguardar exames laboratoriais", ok:false},
-      ],
-      why:"Anafilaxia ameaça via aérea e perfusão.",
-      src:"Conceitos de anafilaxia na emergência.",
-      hint:"Via aérea e choque são prioridade.",
-      pts:10
-    },
-    {
-      id:"c5", title:"Crise asmática grave",
-      stem:"Dispneia intensa, fala entrecortada, sibilos difusos, SpO₂ 89% AA.",
-      q:"Conduta inicial apropriada:",
-      opts:[
-        {t:"Oxigenar e iniciar broncodilatação conforme protocolo + reavaliação", ok:true},
-        {t:"Sedação e enviar para casa", ok:false},
-        {t:"Ignorar saturação e apenas observar", ok:false},
-      ],
-      why:"Hipoxemia e broncoespasmo exigem intervenção e monitorização.",
-      src:"Conceitos de insuficiência respiratória/asma.",
-      hint:"Tratamento precoce e reavaliação.",
-      pts:10
-    },
-    {
-      id:"c6", title:"Hipoglicemia",
-      stem:"Paciente confuso, sudorese, tremor; glicemia capilar 45 mg/dL.",
-      q:"Conduta prioritária:",
-      opts:[
-        {t:"Correção imediata da glicemia conforme protocolo", ok:true},
-        {t:"Aguardar TC de crânio", ok:false},
-        {t:"Apenas hidratar e observar", ok:false},
-      ],
-      why:"Hipoglicemia é causa reversível e deve ser corrigida rapidamente.",
-      src:"Conceitos de emergência metabólica.",
-      hint:"Causa reversível e rápida.",
-      pts:10
-    },
-    {
-      id:"c7", title:"Trauma com hemorragia",
-      stem:"Ferimento com sangramento ativo e sinais de choque incipiente.",
-      q:"Prioridade:",
-      opts:[
-        {t:"Controle de hemorragia + avaliação ABCDE", ok:true},
-        {t:"Solicitar exames e aguardar", ok:false},
-        {t:"Colocar em observação sem intervenções", ok:false},
-      ],
-      why:"Hemorragia mata rápido: controle imediato é chave.",
-      src:"Conceitos de trauma.",
-      hint:"Primeiro pare o sangramento.",
-      pts:10
-    },
-    {
-      id:"c8", title:"Dor torácica típica",
-      stem:"Dor torácica em aperto, sudorese, náusea, PA limítrofe.",
-      q:"Ação inicial útil:",
-      opts:[
-        {t:"Monitorização e ECG precoce (quando disponível) + avaliação de risco", ok:true},
-        {t:"Alta imediata", ok:false},
-        {t:"Somente anti-inflamatório e observar em casa", ok:false},
-      ],
-      why:"ECG e monitorização orientam conduta.",
-      src:"Conceitos de síndrome coronariana.",
-      hint:"Exame rápido que muda conduta.",
-      pts:10
-    },
-    {
-      id:"c9", title:"Pneumotórax suspeito",
-      stem:"Dispneia súbita após trauma, assimetria ventilatória, hipotensão progressiva.",
-      q:"Prioridade:",
-      opts:[
-        {t:"Reconhecer risco e intervir conforme protocolo (suporte ABC) com urgência", ok:true},
-        {t:"Aguardar evolução", ok:false},
-        {t:"Dar alta", ok:false},
-      ],
-      why:"Condição potencialmente fatal e tempo-dependente.",
-      src:"Conceitos de trauma torácico.",
-      hint:"Emergência tempo-dependente.",
-      pts:10
-    },
-    {
-      id:"c10", title:"Convulsão",
-      stem:"Convulsão tônico-clônica contínua na chegada.",
-      q:"Primeira prioridade:",
-      opts:[
-        {t:"Proteger via aérea/oxigenação e manejo imediato conforme protocolo", ok:true},
-        {t:"Aguardar cessar espontaneamente", ok:false},
-        {t:"Dar água", ok:false},
-      ],
-      why:"Convulsão ativa aumenta risco de hipóxia e aspiração.",
-      src:"Conceitos de emergência neurológica.",
-      hint:"Via aérea e oxigenação primeiro.",
-      pts:10
-    },
-    // 10 adicionais
-    { id:"c11", title:"Choque hipovolêmico suspeito", stem:"PA 90/60, FC 130, pele fria, história de sangramento GI.",
-      q:"Prioridade inicial:", opts:[
-        {t:"Avaliar perfusão e iniciar reposição/condutas conforme protocolo + monitorização", ok:true},
-        {t:"Enviar para casa", ok:false},
-        {t:"Esperar 6h", ok:false},
-      ], why:"Sinais de hipoperfusão exigem intervenção e reavaliação.", src:"Conceitos de choque/hemorragia.", hint:"Perfusão baixa requer ação.", pts:10
-    },
-    { id:"c12", title:"Edema agudo de pulmão", stem:"Dispneia, crepitações, PA elevada, ortopneia, SpO₂ baixa.",
-      q:"Conduta inicial:", opts:[
-        {t:"Suporte ventilatório/oxigênio e manejo conforme protocolo + monitorização", ok:true},
-        {t:"Somente analgésico", ok:false},
-        {t:"Aguardar melhora espontânea", ok:false},
-      ], why:"Hipoxemia e congestão exigem suporte e manejo rápido.", src:"Conceitos de insuficiência cardíaca aguda.", hint:"Oxigenação e alívio respiratório.", pts:10
-    },
-    { id:"c13", title:"Tromboembolismo suspeito", stem:"Dispneia súbita, dor pleurítica, taquicardia, fator de risco.",
-      q:"Ação inicial:", opts:[
-        {t:"Avaliar gravidade e iniciar investigação/condutas conforme protocolo", ok:true},
-        {t:"Alta sem avaliação", ok:false},
-        {t:"Ignorar sinais vitais", ok:false},
-      ], why:"Pode ser condição grave; requer avaliação estruturada.", src:"Conceitos de TEP.", hint:"Dispneia súbita + risco = atenção.", pts:10
-    },
-    { id:"c14", title:"Trauma cranioencefálico", stem:"Queda, vômitos, sonolência crescente.",
-      q:"Prioridade:", opts:[
-        {t:"Avaliação neurológica e proteção de via aérea conforme necessário", ok:true},
-        {t:"Apenas observação sem reavaliação", ok:false},
-        {t:"Alta imediata", ok:false},
-      ], why:"Risco de piora neurológica e via aérea.", src:"Conceitos de TCE.", hint:"Neuro pode piorar rápido.", pts:10
-    },
-    { id:"c15", title:"Hemorragia pós-parto (simulado)", stem:"Sangramento intenso, tontura, PA caindo.",
-      q:"Conduta inicial:", opts:[
-        {t:"Reconhecer hemorragia e acionar protocolo + suporte hemodinâmico", ok:true},
-        {t:"Esperar 2h", ok:false},
-        {t:"Apenas compressa fria", ok:false},
-      ], why:"Hemorragia maciça exige protocolo e suporte imediato.", src:"Conceitos de hemorragia obstétrica (simulação).", hint:"Sangramento importante = protocolo.", pts:10
-    },
-    { id:"c16", title:"Intoxicação", stem:"Rebaixamento + respiração lenta após uso de substância desconhecida.",
-      q:"Prioridade:", opts:[
-        {t:"Suporte de via aérea/ventilação e avaliação rápida (ABCDE)", ok:true},
-        {t:"Aguardar acordar", ok:false},
-        {t:"Somente soro oral", ok:false},
-      ], why:"Hipoventilação e rebaixamento ameaçam vida.", src:"Conceitos de intoxicação/ABCDE.", hint:"Ventilação primeiro.", pts:10
-    },
-    { id:"c17", title:"Dor abdominal + instabilidade", stem:"Dor intensa, sudorese, PA 88/56, palidez.",
-      q:"Prioridade:", opts:[
-        {t:"Avaliar choque/abdome agudo e conduzir fluxo rápido conforme protocolo", ok:true},
-        {t:"Alta com antiespasmódico", ok:false},
-        {t:"Aguardar 24h", ok:false},
-      ], why:"Instabilidade sugere condição grave.", src:"Conceitos de abdome agudo e choque.", hint:"Instável = alto risco.", pts:10
-    },
-    { id:"c18", title:"Hemoptise importante", stem:"Sangramento respiratório significativo + dispneia.",
-      q:"Ação inicial:", opts:[
-        {t:"Proteger via aérea e oxigenar; monitorizar e acionar fluxo", ok:true},
-        {t:"Somente analgésico", ok:false},
-        {t:"Enviar para casa", ok:false},
-      ], why:"Risco de aspiração/hipóxia.", src:"Conceitos de via aérea e sangramento.", hint:"Proteção de via aérea.", pts:10
-    },
-    { id:"c19", title:"Arritmia instável (simulado)", stem:"Taquicardia, hipotensão, confusão, dor torácica.",
-      q:"Conduta inicial:", opts:[
-        {t:"Reconhecer instabilidade e seguir protocolo de urgência", ok:true},
-        {t:"Aguardar normalizar", ok:false},
-        {t:"Liberar para casa", ok:false},
-      ], why:"Instabilidade hemodinâmica exige ação rápida.", src:"Conceitos de arritmias.", hint:"Instável = urgência.", pts:10
-    },
-    { id:"c20", title:"Febre + rigidez de nuca (simulado)", stem:"Febre alta, cefaleia, rigidez de nuca, prostração.",
-      q:"Prioridade:", opts:[
-        {t:"Reconhecer gravidade e acionar avaliação imediata + isolamento conforme protocolo", ok:true},
-        {t:"Somente dipirona e alta", ok:false},
-        {t:"Aguardar 48h", ok:false},
-      ], why:"Sinais meníngeos podem indicar condição grave.", src:"Conceitos de síndrome meníngea.", hint:"Sinais neurológicos + febre.", pts:10
-    },
-  ];
-
-  // Checklists por cenário (>=5 cenários, cada um com >=5 itens)
-  const CHECKLIST_SCENARIOS = [
-    {
-      id:"cl_intub",
-      title:"Checklist — Intubação (simulação)",
-      intro:"Marque os itens VERDADEIROS como necessários/adequados antes/durante o procedimento (conceito).",
-      items:[
-        {t:"Monitorização (SpO₂, PA, ECG quando disponível).", truth:true, why:"Monitorização aumenta segurança e detecta deterioração."},
-        {t:"Pré-oxigenação quando indicado.", truth:true, why:"Reduz risco de dessaturação durante tentativa."},
-        {t:"Checar material (laringoscópio, cânulas, fixação).", truth:true, why:"Evita falhas e atrasos."},
-        {t:"Não checar aspiração/sucção.", truth:false, why:"Sucção deve estar pronta para secreções/vômitos."},
-        {t:"Plano alternativo caso falha (conceito).", truth:true, why:"Reduz tempo e aumenta segurança."},
-      ],
-      src:"Boas práticas de via aérea (conceitos).",
-      pts:14
-    },
-    {
-      id:"cl_sepse",
-      title:"Checklist — Sepse (simulação)",
-      intro:"Selecione as ações adequadas no início do atendimento (conceito).",
-      items:[
-        {t:"Reconhecer gravidade e monitorizar sinais vitais.", truth:true, why:"Identifica instabilidade e orienta suporte."},
-        {t:"Aguardar 24h para antibiótico.", truth:false, why:"Sepse é tempo-dependente."},
-        {t:"Coletar exames/culturas conforme protocolo institucional.", truth:true, why:"Ajuda diagnóstico e direciona tratamento."},
-        {t:"Iniciar suporte hemodinâmico conforme protocolo quando indicado.", truth:true, why:"Hipoperfusão requer suporte."},
-        {t:"Reavaliar resposta após intervenções.", truth:true, why:"Garante ajuste terapêutico."},
-      ],
-      src:"Conceitos de sepse (bundle precoce).",
-      pts:14
-    },
-    {
-      id:"cl_pcr",
-      title:"Checklist — PCR (simulação)",
-      intro:"Marque ações adequadas durante PCR (conceito).",
-      items:[
-        {t:"Iniciar RCP de alta qualidade imediatamente.", truth:true, why:"Base do atendimento."},
-        {t:"Minimizar pausas nas compressões.", truth:true, why:"Mantém perfusão."},
-        {t:"Se ritmo chocável, desfibrilar e retomar RCP.", truth:true, why:"Choque precoce melhora chance."},
-        {t:"Aguardar sem RCP para “descansar”.", truth:false, why:"Pausas prolongadas pioram perfusão."},
-        {t:"Reavaliar ritmos em ciclos e buscar causas reversíveis.", truth:true, why:"Direciona correção do problema."},
-      ],
-      src:"Conceitos de RCP avançada.",
-      pts:14
-    },
-    {
-      id:"cl_meds",
-      title:"Checklist — Medicação Segura",
-      intro:"Selecione boas práticas de segurança (conceito).",
-      items:[
-        {t:"Identificação ativa do paciente (duas checagens).", truth:true, why:"Barreira contra erro de paciente."},
-        {t:"Checar alergias e contraindicações.", truth:true, why:"Evita eventos adversos."},
-        {t:"Rotular seringas/soluções preparadas.", truth:true, why:"Reduz trocas e erros."},
-        {t:"Administrar sem prescrição/protocolo aplicável.", truth:false, why:"Risco legal e clínico; seguir normas."},
-        {t:"Registrar administração e observar efeitos.", truth:true, why:"Rastreabilidade e segurança."},
-      ],
-      src:"Segurança do paciente (conceitos).",
-      pts:14
-    },
-    {
-      id:"cl_trauma",
-      title:"Checklist — Trauma (avaliação inicial)",
-      intro:"Marque itens que fazem parte do atendimento inicial (conceito).",
-      items:[
-        {t:"Avaliação primária ABCDE.", truth:true, why:"Estrutura prioridades."},
-        {t:"Controle de hemorragia externa.", truth:true, why:"Reduz choque rapidamente."},
-        {t:"Prevenir hipotermia durante exposição.", truth:true, why:"Hipotermia piora prognóstico."},
-        {t:"Ignorar mecanismo de trauma.", truth:false, why:"Mecanismo orienta riscos ocultos."},
-        {t:"Reavaliação seriada após intervenções.", truth:true, why:"Detecta deterioração."},
-      ],
-      src:"Conceitos de trauma e ABCDE.",
-      pts:14
-    },
-  ];
-
-  const PATHOLOGIES = [
-    {name:"Sepse / Choque séptico", tags:["infecção","hipotensão","lactato"], actions:[
-      "Reconhecer gravidade e monitorizar.",
-      "Oxigenar/ventilar se necessário (ABCDE).",
-      "Bundle precoce conforme protocolo: antibiótico oportuno, exames.",
-      "Suporte hemodinâmico e reavaliação seriada."
-    ], src:"Conceitos de sepse/bundle."},
-    {name:"PCR (FV/TVsp/assistolia/AEsp)", tags:["acls","rcp"], actions:[
-      "RCP de alta qualidade, pausas mínimas.",
-      "Desfibrilar em ritmo chocável e retomar RCP.",
-      "Ciclos com reavaliação de ritmo e causas reversíveis.",
-      "Pós-ROSC: otimizar ventilação/perfusão e investigar causa."
-    ], src:"Conceitos de RCP avançada."},
-    {name:"AVC isquêmico (suspeita)", tags:["tempo","neuro"], actions:[
-      "Ativar fluxo rápido de AVC e avaliação neurológica breve.",
-      "Checar glicemia capilar (causa reversível).",
-      "Imagem e conduta conforme protocolo e janela terapêutica.",
-      "Suporte ABC e monitorização."
-    ], src:"Conceitos de AVC na emergência."},
-    {name:"IAM / Síndrome coronariana", tags:["dor torácica","ecg"], actions:[
-      "Monitorização e ECG precoce (quando disponível).",
-      "Avaliar instabilidade e dor.",
-      "Conduta conforme protocolo institucional.",
-      "Reavaliação e estratificação de risco."
-    ], src:"Conceitos de dor torácica/IAM."},
-    {name:"Anafilaxia", tags:["alergia","choque","via aérea"], actions:[
-      "Suporte ABC imediato.",
-      "Tratamento imediato conforme protocolo.",
-      "Monitorização e reavaliação seriada.",
-      "Orientar prevenção e risco de recorrência."
-    ], src:"Conceitos de anafilaxia."},
-    {name:"Crise asmática grave", tags:["broncoespasmo","resp"], actions:[
-      "Oxigenar conforme necessidade e monitorizar.",
-      "Broncodilatação e terapia conforme protocolo.",
-      "Avaliar fadiga/hipoventilação.",
-      "Reavaliar resposta continuamente."
-    ], src:"Conceitos de insuficiência respiratória/asma."},
-    {name:"Edema agudo de pulmão", tags:["ic","hipóxia"], actions:[
-      "Suporte ventilatório/oxigênio e monitorização.",
-      "Manejo conforme protocolo (hemodinâmica).",
-      "Reavaliar sinais de perfusão/respiração."
-    ], src:"Conceitos de IC aguda."},
-    {name:"TEP (suspeita)", tags:["dispneia","risco"], actions:[
-      "Avaliar gravidade e estabilidade hemodinâmica.",
-      "Oxigenar se necessário.",
-      "Investigação e conduta conforme protocolo."
-    ], src:"Conceitos de TEP."},
-    {name:"Hipoglicemia", tags:["metabólico","neuro"], actions:[
-      "Confirmar glicemia capilar.",
-      "Corrigir imediatamente conforme protocolo.",
-      "Reavaliar consciência e risco de recorrência."
-    ], src:"Conceitos de emergência metabólica."},
-    {name:"Choque hemorrágico", tags:["trauma","sangramento"], actions:[
-      "Controle de hemorragia imediato.",
-      "Suporte hemodinâmico conforme protocolo.",
-      "Monitorização e reavaliação."
-    ], src:"Conceitos de trauma/hemorragia."},
-  ];
-
-  const EPIS = [
-    {title:"EPIs — Base", items:[
-      "Higienização das mãos (antes/depois).",
-      "Luvas quando indicado.",
-      "Máscara conforme risco (cirúrgica / PFF2/N95 em aerossóis).",
-      "Proteção ocular em risco de respingos.",
-      "Avental/Capote em contato com fluidos."
-    ]},
-    {title:"Boas práticas", items:[
-      "Trocar EPIs conforme sujidade/umidade e entre pacientes.",
-      "Descartar corretamente (perfurocortante e resíduos).",
-      "Evitar tocar face durante assistência.",
-      "Limpeza de superfícies e equipamentos conforme protocolo.",
-      "Treinamento e ajuste correto de máscara respiratória."
-    ]},
-  ];
-
-  // Sala de Emergência: cenários selecionáveis + dicas sem entregar resposta
-  const ER_SCENARIOS = [
-    {
-      id:"er_pcr",
-      title:"PCR (simulação)",
-      intro:"Paciente inconsciente, sem respiração efetiva e sem pulso.",
-      steps:[
-        "Avaliar responsividade e respiração/pulso rapidamente.",
-        "Acionar ajuda e iniciar RCP de alta qualidade.",
-        "Conectar desfibrilador/monitor e identificar ritmo.",
-        "Se chocável: desfibrilar e retomar RCP imediatamente.",
-        "Ciclos com reavaliação e causas reversíveis; pós-ROSC."
-      ],
-      hint:"Pense em prioridade absoluta e tempo crítico. Evite pausas longas.",
-      src:"Conceitos de RCP avançada.",
-      tasks:[
-        {label:"1) Prioridade inicial", choices:["Iniciar RCP e chamar ajuda","Aguardar equipe chegar","Registrar ficha primeiro"], correct:0, why:"RCP precoce é base."},
-        {label:"2) Ritmo chocável", choices:["Desfibrilar + retomar RCP","Atropina 1ª medida","Aguardar 2 min sem compressão"], correct:0, why:"Choque precoce + RCP."},
-        {label:"3) Após intervenção", choices:["Reavaliar e ajustar conduta","Encerrar atendimento","Ignorar monitor"], correct:0, why:"Reavaliação é essencial."},
-      ]
-    },
-    {
-      id:"er_sepse",
-      title:"Sepse/Choque séptico (simulação)",
-      intro:"Febre, confusão, hipotensão, taquipneia e sinais de hipoperfusão.",
-      steps:[
-        "Reconhecer gravidade e iniciar monitorização.",
-        "Oxigenar/ventilar conforme ABCDE.",
-        "Coletar exames/culturas conforme protocolo e iniciar antibiótico oportuno.",
-        "Suporte hemodinâmico conforme protocolo; reavaliação seriada.",
-        "Escalonar suporte conforme necessidade."
-      ],
-      hint:"Tempo importa. Pense em oxigenação/perfusão e bundle precoce.",
-      src:"Conceitos de sepse/bundle.",
-      tasks:[
-        {label:"1) Ação inicial", choices:["Monitorizar e avaliar ABCDE","Esperar exames antes de agir","Somente antitérmico e alta"], correct:0, why:"Estrutura e prioridade."},
-        {label:"2) Antibiótico", choices:["Oportuno conforme protocolo","Somente após 24h","Não é necessário"], correct:0, why:"Tempo-dependência."},
-        {label:"3) Após intervenções", choices:["Reavaliar perfusão e resposta","Encerrar sem reavaliação","Ignorar diurese"], correct:0, why:"Resposta guia ajuste."},
-      ]
-    },
-    {
-      id:"er_avc",
-      title:"AVC (simulação)",
-      intro:"Fraqueza súbita + fala alterada há 45 minutos.",
-      steps:[
-        "Triagem imediata (tempo-dependente) e avaliação neurológica breve.",
-        "Checar glicemia capilar (causa reversível).",
-        "Ativar fluxo rápido e realizar imagem conforme protocolo.",
-        "Suporte ABC e monitorização.",
-        "Conduta conforme janela terapêutica e equipe."
-      ],
-      hint:"Tempo define janela. Não esqueça causas reversíveis (glicemia).",
-      src:"Conceitos de AVC na emergência.",
-      tasks:[
-        {label:"1) Prioridade", choices:["Ativar fluxo rápido de AVC","Aguardar melhora espontânea","Dar alta"], correct:0, why:"Tempo-dependente."},
-        {label:"2) Teste rápido útil", choices:["Glicemia capilar","Audiometria","Raio-x de fêmur"], correct:0, why:"Hipoglicemia pode simular."},
-        {label:"3) Após identificação", choices:["Imagem e conduta conforme protocolo","Somente analgésico e observação domiciliar","Ignorar sinais"], correct:0, why:"Fluxo rápido."},
-      ]
-    }
-  ];
-
-  // Suporte Rápido (2 minutos): escolher patologia + intervenções
-  const RAPID_CASES = [
-    {
-      id:"r1",
-      stem:"Paciente com urticária, chiado, edema de lábios e queda de PA após alimento.",
-      dx:["Anafilaxia","AVC","Fratura de punho"],
-      correctDx:0,
-      interventions:["Suporte ABC imediato","Monitorização e reavaliação","Aguardar 24h sem conduta","Tratamento conforme protocolo"],
-      correctInt:[0,1,3],
-      hint:"Pense em via aérea + choque e rapidez."
-    },
-    {
-      id:"r2",
-      stem:"Dispneia intensa, SpO₂ 86% AA, uso de musculatura acessória.",
-      dx:["Crise asmática grave","Dor lombar","Otite"],
-      correctDx:0,
-      interventions:["Oxigenar e monitorizar","Broncodilatação conforme protocolo","Dar alta imediata","Reavaliar resposta"],
-      correctInt:[0,1,3],
-      hint:"Oxigenação + broncoespasmo + reavaliação."
-    },
-    {
-      id:"r3",
-      stem:"Febre, confusão, hipotensão, pele fria; suspeita infecciosa.",
-      dx:["Sepse/choque séptico","Enxaqueca","Gastrite"],
-      correctDx:0,
-      interventions:["Monitorização e ABCDE","Antibiótico oportuno conforme protocolo","Esperar 24h","Suporte hemodinâmico conforme protocolo"],
-      correctInt:[0,1,3],
-      hint:"Tempo importa e perfusão está ruim."
-    },
-    {
-      id:"r4",
-      stem:"Face desviada, fala arrastada, fraqueza súbita há 30–60 min.",
-      dx:["AVC (suspeita)","Hipertensão leve sem risco","Rinite"],
-      correctDx:0,
-      interventions:["Ativar fluxo rápido","Checar glicemia capilar","Aguardar em casa","Imagem conforme protocolo"],
-      correctInt:[0,1,3],
-      hint:"Tempo-dependente; descarte hipoglicemia."
-    },
-    {
-      id:"r5",
-      stem:"Colapso súbito, pulso ausente, ritmo chocável no monitor (simulado).",
-      dx:["PCR com FV/TVsp","Cólica renal","Vertigem benigna"],
-      correctDx:0,
-      interventions:["Iniciar RCP de alta qualidade","Desfibrilar quando indicado e retomar RCP","Aguardar equipe sem compressões","Reavaliar em ciclos"],
-      correctInt:[0,1,3],
-      hint:"Choque + RCP sem pausas."
-    },
-  ];
-
-  // Games content
-  const GAME_TERMS = [
-    "ABCDE","RCP","SEPSE","AVC","IAM","OXIGENO","CHOQUE","EPI","TRIAGEM","SAMPLE","MONITOR","VIAAREA"
-  ];
-
-  // --- Derived: deterministic order using classCode seed
-  function seed(){
-    return hashStringToSeed((state.classCode||"TURMA1").toUpperCase().trim());
-  }
-
-  function getOrderedBanks(){
-    const s = seed();
-    return {
-      triage: seededShuffle(TRIAGE_BANK, s ^ 0xA1B2C3),
-      quiz: seededShuffle(QUIZ_BANK, s ^ 0xB2C3D4),
-      cases: seededShuffle(CASES_BANK, s ^ 0xC3D4E5),
-      checklists: seededShuffle(CHECKLIST_SCENARIOS, s ^ 0xD4E5F6),
-      er: seededShuffle(ER_SCENARIOS, s ^ 0xE5F607),
-      rapid: seededShuffle(RAPID_CASES, s ^ 0xF60718),
-      gamesTerms: seededShuffle(GAME_TERMS, s ^ 0x13579B),
-    };
-  }
-
-  // --- Navigation + views
-  const VIEW_META = {
-    dashboard: {title:"Painel", sub:"Escolha um módulo e treine com feedback imediato. Use o Código da Aula para mesma sequência em todos."},
-    triage: {title:"Triagem", sub:"Questões rotativas + botão Próxima. Dica disponível sem entregar resposta."},
-    er: {title:"Sala de Emergência", sub:"Escolha a situação e resolva etapas sequenciais. Dicas sem revelar respostas."},
-    rapid: {title:"Suporte Rápido", sub:"Você tem 2 minutos: identifique patologia e intervenções. Se falhar, óbito simulado."},
-    quiz: {title:"Quiz", sub:"50 questões. Seleção verde + feedback. Auto-próxima em 5s (e botão Próxima)."},
-    cases: {title:"Casos Clínicos", sub:"20 casos. Decisão + justificativa. Rotativo pelo Código da Aula."},
-    checklists: {title:"Checklists", sub:"5 cenários (cada um 5+ itens). Marque V/F e corrija."},
-    path: {title:"Patologias", sub:"Consulta rápida ampliada: condutas iniciais (educacional)."},
-    epis: {title:"EPIs", sub:"Resumo essencial de EPIs e boas práticas."},
-    games: {title:"Jogos", sub:"Caça-palavras e Memória — termos e rotinas de emergência."},
-    review: {title:"Revisão", sub:"Histórico de desempenho e registros recentes."},
-  };
-
-  function setActiveNav(view){
-    document.querySelectorAll(".navBtn").forEach(b=>{
-      b.classList.toggle("active", b.dataset.view === view);
-    });
-  }
-
-  function setHeader(view){
-    const m = VIEW_META[view] || VIEW_META.dashboard;
-    $("pageTitle").textContent = m.title;
-    $("pageSub").textContent = m.sub;
-    document.title = `Centro de Treinamento Avançado — ${m.title}`;
-  }
-
-  function go(view){
-    if(!VIEW_META[view]) view = "dashboard";
-    state.view = view;
-    saveState();
-    setHeader(view);
-    setActiveNav(view);
-    render(view);
-
-    // close menu on mobile
-    if(window.innerWidth <= 1024){
-      $("sidebar").classList.remove("open");
-    }
-  }
-
-  function viewCard(title, subtitle, innerHtml){
-    const d = document.createElement("div");
-    d.className = "card pad";
-    d.innerHTML = `
-      <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap;">
-        <div>
-          <h2 style="font-size:22px; font-weight:900;">${escapeHtml(title)}</h2>
-          ${subtitle ? `<div class="small muted" style="margin-top:6px;">${escapeHtml(subtitle)}</div>` : ""}
-        </div>
-      </div>
-      <div class="hr"></div>
-      <div>${innerHtml}</div>
-    `;
-    return d;
-  }
-
-  function escapeHtml(str){
-    return (""+str)
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
-  }
-
-  // --- Render views
-  function render(view){
-    const container = $("view");
-    container.innerHTML = "";
-
-    switch(view){
-      case "dashboard": return renderDashboard(container);
-      case "triage": return renderTriage(container);
-      case "er": return renderER(container);
-      case "rapid": return renderRapid(container);
-      case "quiz": return renderQuiz(container);
-      case "cases": return renderCases(container);
-      case "checklists": return renderChecklists(container);
-      case "path": return renderPath(container);
-      case "epis": return renderEPIs(container);
-      case "games": return renderGames(container);
-      case "review": return renderReview(container);
-      default: return renderDashboard(container);
-    }
-  }
-
-  function renderDashboard(container){
-    const html = `
-      <div class="grid2">
-        <div class="block">
-          <div style="font-weight:900; font-size:18px;">🚀 Começar</div>
-          <div class="small muted" style="margin-top:8px;">Escolha um módulo. A sequência é definida pelo Código da Aula.</div>
-          <div class="hr"></div>
-          <div class="grid2">
-            <button class="btn btnPrimary" data-go="er">🚑 Sala de Emergência</button>
-            <button class="btn btnPrimary" data-go="rapid">⏱️ Suporte Rápido</button>
-            <button class="btn" data-go="triage">🚦 Triagem</button>
-            <button class="btn" data-go="quiz">🧠 Quiz</button>
-            <button class="btn" data-go="cases">📋 Casos Clínicos</button>
-            <button class="btn" data-go="checklists">✅ Checklists</button>
-            <button class="btn" data-go="games">🎮 Jogos</button>
-            <button class="btn" data-go="path">🧩 Patologias</button>
-          </div>
-        </div>
-
-        <div class="block">
-          <div style="font-weight:900; font-size:18px;">📌 Regras do treino</div>
-          <div class="small muted" style="margin-top:8px;">
-            • Ao clicar em alternativa: botão fica <b>verde</b> (selecionado) e aparece <b>correto/errado</b>.<br/>
-            • No Quiz: após resposta, passa para a próxima em <b>5 segundos</b> (e existe botão Próxima).<br/>
-            • Dicas existem, mas <b>não entregam</b> a resposta.<br/>
-            • Use “Copiar link do passo” para alunos abrirem no mesmo ponto (modo aula sem backend).
-          </div>
-
-          <div class="hr"></div>
-
-          <div class="btnRow">
-            <button class="btn btnSmall" style="width:auto;" id="btnDashCopy">🔗 Copiar link do passo atual</button>
-            <button class="btn btnSmall" style="width:auto;" id="btnDashInstr">ℹ️ Instruções</button>
-          </div>
-        </div>
-      </div>
-    `;
-    const c = viewCard("🧑‍⚕️ Painel", "Centro de Treinamento Avançado — ambiente tecnológico e dinâmico.", html);
-    container.appendChild(c);
-
-    c.querySelectorAll("[data-go]").forEach(b=>{
-      b.addEventListener("click", ()=> go(b.dataset.go));
-    });
-    $("btnDashCopy").addEventListener("click", copyStepLink);
-    $("btnDashInstr").addEventListener("click", () => openInstructions());
-  }
-
-  function openInstructions(){
-    openModal(
-      "ℹ️ Instruções (Aluno)",
-      "Objetivo: treino de tomada de decisão e rotinas.",
-      `
-      <div class="block small">
-        <b>Como usar:</b><br/>
-        1) Escolha um módulo no menu.<br/>
-        2) Leia o cenário e selecione a melhor opção.<br/>
-        3) Veja o feedback e a justificativa (base conceitual/diretrizes).<br/><br/>
-        <b>Modo Aula:</b><br/>
-        • Defina o <b>Código da Aula</b> (o mesmo para todos).<br/>
-        • Para todos ficarem no mesmo ponto, o professor usa <b>Copiar link do passo atual</b> e envia no grupo (ou projeta QR).<br/><br/>
-        <b>Importante:</b> esta plataforma é educacional; na prática real valem protocolos e avaliação clínica.
-      </div>
-      `
-    );
-  }
-
-  // TRIAGE view
-  function renderTriage(container){
-    const banks = getOrderedBanks();
-    const items = banks.triage;
-
-    const idx = state.idx.triage % items.length;
-    const item = items[idx];
-
-    const html = `
-      <div class="grid">
-        <div class="block">
-          <div class="tiny">Código da aula: <b>${escapeHtml(state.classCode)}</b> • Passo: <b>${idx}</b></div>
-          <div style="font-weight:900; font-size:20px; margin-top:8px;">${escapeHtml(item.q)}</div>
-
-          <div class="hr"></div>
-
-          <div class="grid" id="triOpts"></div>
-
-          <div class="hr"></div>
-
-          <div class="btnRow">
-            <button class="btn btnSmall" style="width:auto;" id="triHint">💡 Dica</button>
-            <button class="btn btnPrimary btnSmall" style="width:auto;" id="triNext">➡️ Próxima</button>
-          </div>
-
-          <div id="triFb" class="block small" style="margin-top:12px; display:none;"></div>
-        </div>
-      </div>
-    `;
-    const c = viewCard("🚦 Triagem", "Questões rotativas (Próxima para avançar).", html);
-    container.appendChild(c);
-
-    const triOpts = $("triOpts");
-    const fb = $("triFb");
-    let locked = false;
-
-    item.opts.forEach((opt, i)=>{
-      const b = document.createElement("button");
-      b.className = "optBtn";
-      b.type = "button";
-      b.textContent = opt;
-
-      b.addEventListener("click", ()=>{
-        if(locked) return;
-        locked = true;
-
-        b.classList.add("selected");
-        const ok = (i === item.ans);
-
-        // show correct/wrong immediately
-        if(ok){
-          b.classList.add("correct");
-          state.correct += 1;
-          addScore(6, "Triagem correta");
-          mascot("Correto", "+6 pontos");
-        }else{
-          b.classList.add("wrong");
-          state.wrong += 1;
-          mascot("Revisar", "Veja a justificativa");
+    <script>
+        // --- DATABASE ---
+        const db = {
+            cases: [
+                {
+                    id: 'acls_01', type: 'ACLS', title: 'PCR em FV', diff: 'Médio',
+                    desc: 'Paciente 55 anos colapsa no corredor. Monitor mostra FV.',
+                    start: {
+                        text: "Paciente inconsciente, apneico, sem pulso. Monitor acoplado mostra Fibrilação Ventricular.",
+                        vitals: { hr: 0, bp: '---', spo2: '--', rr: 0, rhythm: 'vfib' },
+                        options: [
+                            { text: "Iniciar RCP e carregar desfibrilador", next: 'step_2', feedback: "Correto. RCP enquanto carrega é crucial." },
+                            { text: "Administrar Adrenalina 1mg", next: 'fail_drug', feedback: "Incorreto. Na FV, o choque é a prioridade." }
+                        ]
+                    },
+                    steps: {
+                        'step_2': {
+                            text: "Desfibrilador carregado. Ritmo ainda em FV.",
+                            vitals: { hr: 0, bp: '---', spo2: '--', rr: 0, rhythm: 'vfib' },
+                            options: [
+                                { text: "Choque 200J Bifásico", next: 'step_3', feedback: "Correto. Choque imediato." },
+                                { text: "Checar pulso", next: 'fail_pulse', feedback: "Erro. Não perca tempo checando pulso se o ritmo é chocável." }
+                            ]
+                        },
+                        'step_3': {
+                            text: "Choque aplicado. O que fazer agora?",
+                            vitals: { hr: 0, bp: '---', spo2: '--', rr: 0, rhythm: 'asystole' }, // Simula linha de base pós choque
+                            options: [
+                                { text: "Retomar RCP imediatamente (2 min)", next: 'success', feedback: "Correto! RCP pós-choque é vital." },
+                                { text: "Checar ritmo", next: 'fail_check', feedback: "Incorreto. RCP primeiro, ritmo depois de 2 min." }
+                            ]
+                        },
+                        'success': { text: "ROSC Obtido! Paciente retorna com ritmo sinusal.", vitals: { hr: 80, bp: '110/70', spo2: '96%', rr: 16, rhythm: 'sinus' }, options: [] },
+                        'fail_drug': { text: "Tempo perdido. FV degenerou para Assistolia.", vitals: { hr: 0, bp: '---', spo2: '--', rr: 0, rhythm: 'asystole' }, options: [] },
+                        'fail_pulse': { text: "Pausa prolongada reduziu chances de sobrevivência.", vitals: { hr: 0, bp: '---', spo2: '--', rr: 0, rhythm: 'vfib' }, options: [] },
+                        'fail_check': { text: "A pausa para checar ritmo sem RCP prévia foi fatal.", vitals: { hr: 0, bp: '---', spo2: '--', rr: 0, rhythm: 'asystole' }, options: [] }
+                    }
+                },
+                {
+                    id: 'atls_01', type: 'ATLS', title: 'Trauma Penetrante', diff: 'Difícil',
+                    desc: 'Vítima de arma branca no tórax esquerdo. Instável.',
+                    start: {
+                        text: "Paciente agitado, PA 70/40, FC 140. Ferimento tórax esquerdo. SatO2 88%.",
+                        vitals: { hr: 140, bp: '70/40', spo2: '88', rr: 32, rhythm: 'tachy' },
+                        options: [
+                            { text: "Intubação Orotraqueal", next: 'fail_intub', feedback: "Risco. Hipotensão grave pode levar a PCR na indução." },
+                            { text: "Acesso Venoso + Drenagem Torácica", next: 'step_2', feedback: "Correto. Tratar causa reversível (Pneumotórax Hipertensivo?)." }
+                        ]
+                    },
+                    steps: {
+                        'step_2': {
+                            text: "Drenagem com saída de ar sob pressão. PA melhora para 90/60.",
+                            vitals: { hr: 120, bp: '90/60', spo2: '94', rr: 24, rhythm: 'tachy' },
+                            options: [
+                                { text: "TC de Tórax", next: 'success', feedback: "Agora está estável o suficiente para imagem." },
+                                { text: "Laparotomia", next: 'fail_surg', feedback: "Indicação incorreta sem evidência de sangramento abdominal." }
+                            ]
+                        },
+                        'success': { text: "Diagnóstico confirmado: Pneumotórax Hipertensivo resolvido.", vitals: { hr: 90, bp: '120/80', spo2: '98', rr: 18, rhythm: 'sinus' }, options: [] },
+                        'fail_intub': { text: "Paciente entrou em PCR na indução anestésica.", vitals: { hr: 0, bp: '---', spo2: '--', rr: 0, rhythm: 'asystole' }, options: [] },
+                        'fail_surg': { text: "Cirurgia negativa. Paciente deteriorou.", vitals: { hr: 150, bp: '60/40', spo2: '80', rr: 35, rhythm: 'tachy' }, options: [] }
+                    }
+                },
+                {
+                    id: 'neo_01', type: 'Neonato', title: 'Reanimação Neonatal', diff: 'Médio',
+                    desc: 'RN 34 semanas, nascido com líquido meconial, não chora.',
+                    start: {
+                        text: "RN flácido, cianótico, FC 60 bpm. Líquido amniótico com mecônio.",
+                        vitals: { hr: 60, bp: '--', spo2: '70', rr: 0, rhythm: 'brady' },
+                        options: [
+                            { text: "Aspirar traqueia imediatamente", next: 'fail_asp', feedback: "Diretriz atual: Não aspirar traqueia rotineiramente se não vigoroso." },
+                            { text: "Secar, estimular e posicionar", next: 'step_2', feedback: "Correto. Medidas iniciais." }
+                        ]
+                    },
+                    steps: {
+                        'step_2': {
+                            text: "Após 30s de medidas iniciais, FC permanece 60 bpm e apneico.",
+                            vitals: { hr: 60, bp: '--', spo2: '70', rr: 0, rhythm: 'brady' },
+                            options: [
+                                { text: "Iniciar VPP (Ventilação com Pressão Positiva)", next: 'success', feedback: "Correto. FC < 100 indica necessidade de VPP." },
+                                { text: "Massagem Cardíaca", next: 'fail_massage', feedback: "Ainda não. FC > 60. Priorize ventilação." }
+                            ]
+                        },
+                        'success': { text: "FC sobe para 120 bpm após VPP eficaz.", vitals: { hr: 120, bp: '--', spo2: '90', rr: 40, rhythm: 'sinus' }, options: [] },
+                        'fail_asp': { text: "Tempo perdido na aspiração. Hipóxia piorou.", vitals: { hr: 40, bp: '--', spo2: '60', rr: 0, rhythm: 'brady' }, options: [] },
+                        'fail_massage': { text: "Massagem sem ventilação adequada é ineficaz.", vitals: { hr: 50, bp: '--', spo2: '65', rr: 0, rhythm: 'brady' }, options: [] }
+                    }
+                },
+                // Adicione mais casos aqui seguindo o modelo
+            ],
+            questions: [
+                // ACLS
+                { q: "Qual a dose de Amiodarona na 3ª choque em PCR por FV/TV?", spec: "ACLS", diff: "hard", options: ["150mg", "300mg", "1mg/kg", "5mg/kg"], ans: 1, exp: "300mg em bolus é a dose inicial para FV/TV refratária." },
+                { q: "Qual a frequência de ventilação em via aérea avançada na PCR?", spec: "ACLS", diff: "medium", options: ["10 rpm", "12 rpm", "20 rpm", "30 rpm"], ans: 0, exp: "1 ventilação a cada 6 segundos (10 rpm) sem pausar compressões." },
+                // BLS
+                { q: "Qual a profundidade das compressões em adultos?", spec: "BLS", diff: "easy", options: ["2-3 cm", "5-6 cm", "Pelo menos 7 cm", "Metade do tórax"], ans: 1, exp: "Entre 5 e 6 cm de profundidade." },
+                { q: "Qual a sequência do C-A-B?", spec: "BLS", diff: "easy", options: ["Circulação, Via Aérea, Respiração", "Compressões, Ar, Balão", "Cardíaco, Abdomen, Brain"], ans: 0, exp: "Circulation, Airway, Breathing." },
+                // ATLS
+                { q: "Sinal de Grey-Turner indica:", spec: "ATLS", diff: "hard", options: ["Fratura de crânio", "Sangramento retroperitoneal", "Pneumotórax", "Ruptura de baço"], ans: 1, exp: "Equimose em flancos, sugere sangramento retroperitoneal." },
+                { q: "Glasgow 8 indica:", spec: "ATLS", diff: "medium", options: ["Trauma leve", "Necessidade de intubação", "Óbito cerebral", "Coma profundo"], ans: 1, exp: "Glasgow <= 8, intube (G8). Protege a via aérea." },
+                // Pediatria
+                { q: "Dose de Adrenalina em PCR pediátrica (IV/IO)?", spec: "Pediatria", diff: "hard", options: ["0.01 mg/kg", "0.1 mg/kg", "1 mg fixo", "0.5 mg/kg"], ans: 0, exp: "0.01 mg/kg (0.1 mL/kg da solução 1:10.000)." },
+                { q: "FC normal para recém-nascido termo:", spec: "Pediatria", diff: "easy", options: ["60-80", "80-100", "120-160", "160-180"], ans: 2, exp: "Entre 120 e 160 bpm é o esperado." }
+            ]
+        };
+
+        // --- STATE ---
+        let state = {
+            xp: 0, score: 0, casesCompleted: 0,
+            currentSim: null, simTimer: null,
+            quizQueue: [], quizIndex: 0, quizScore: 0, quizTimer: null
+        };
+
+        // --- NAVIGATION ---
+        function nav(sectionId) {
+            document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update Menu Active State
+            document.querySelectorAll('.menu-link').forEach(el => el.classList.remove('active'));
+            // Simple logic to highlight parent if child clicked could be added here
+            
+            const titles = {
+                'dashboard': 'Dashboard', 'cases': 'Casos Clínicos', 
+                'quiz-setup': 'Configurar Quiz', 'quiz-active': 'Quiz em Andamento',
+                'games': 'Jogos', 'tools': 'Equipamentos'
+            };
+            document.getElementById('page-title').innerText = titles[sectionId] || 'MedSim Pro';
+            
+            if(window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+            
+            // Reset views if needed
+            if(sectionId === 'dashboard') renderDashboard();
+            if(sectionId === 'cases') renderCasesList('all');
         }
 
-        logReview("triage", `${ok?"OK":"ERRO"} — ${item.id}`);
-        saveState();
-
-        fb.style.display = "block";
-        fb.innerHTML = `
-          <div style="font-weight:900; font-size:16px;">${ok ? "✅ Correto" : "❌ Incorreto"}</div>
-          <div class="muted" style="margin-top:8px;">${escapeHtml(item.why)}</div>
-          <div class="tiny" style="margin-top:8px;"><b>Base:</b> ${escapeHtml(item.src)}</div>
-        `;
-      });
-
-      triOpts.appendChild(b);
-    });
-
-    $("triHint").addEventListener("click", ()=>{
-      openModal("💡 Dica (Triagem)", "Sem entregar a resposta.", `
-        <div class="block small">
-          ${escapeHtml(item.hint)}
-        </div>
-      `);
-    });
-
-    $("triNext").addEventListener("click", ()=>{
-      state.idx.triage += 1;
-      saveState();
-      render("triage");
-    });
-  }
-
-  // QUIZ view (auto-next 5s + next button)
-  function renderQuiz(container){
-    const banks = getOrderedBanks();
-    const items = banks.quiz;
-
-    const idx = state.idx.quiz % items.length;
-    const item = items[idx];
-
-    const html = `
-      <div class="block">
-        <div class="tiny">Código da aula: <b>${escapeHtml(state.classCode)}</b> • Passo: <b>${idx}</b> • Tema: <b>${escapeHtml(item.topic)}</b> • Nível: <b>${item.lvl}</b></div>
-        <div style="font-weight:900; font-size:20px; margin-top:8px;">${escapeHtml(item.q)}</div>
-
-        <div class="hr"></div>
-
-        <div class="grid" id="quizOpts"></div>
-
-        <div class="hr"></div>
-
-        <div class="btnRow">
-          <button class="btn btnSmall" style="width:auto;" id="quizHint">💡 Dica</button>
-          <button class="btn btnPrimary btnSmall" style="width:auto;" id="quizNext">➡️ Próxima</button>
-        </div>
-
-        <div class="small muted" style="margin-top:10px;">
-          Auto-próxima após resposta: <b>5s</b> (caso não clique em Próxima).
-        </div>
-
-        <div id="quizFb" class="block small" style="margin-top:12px; display:none;"></div>
-      </div>
-    `;
-    const c = viewCard("🧠 Quiz", "Seleção verde + feedback imediato + auto-próxima.", html);
-    container.appendChild(c);
-
-    const wrap = $("quizOpts");
-    const fb = $("quizFb");
-    let locked = false;
-    let timer = null;
-
-    function pts(lvl){
-      if(lvl >= 2) return 7;
-      return 5;
-    }
-
-    item.opts.forEach((opt, i)=>{
-      const b = document.createElement("button");
-      b.className = "optBtn";
-      b.type = "button";
-      b.textContent = opt;
-
-      b.addEventListener("click", ()=>{
-        if(locked) return;
-        locked = true;
-
-        b.classList.add("selected");
-        const ok = (i === item.ans);
-
-        if(ok){
-          b.classList.add("correct");
-          state.correct += 1;
-          addScore(pts(item.lvl), `Quiz correto (${item.topic})`);
-          mascot("Correto", `+${pts(item.lvl)} pontos`);
-        }else{
-          b.classList.add("wrong");
-          state.wrong += 1;
-          mascot("Errado", "Veja a justificativa");
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
         }
 
-        logReview("quiz", `${ok?"OK":"ERRO"} — ${item.id}`);
-        saveState();
-
-        fb.style.display = "block";
-        fb.innerHTML = `
-          <div style="font-weight:900; font-size:16px;">${ok ? "✅ Correto" : "❌ Incorreto"}</div>
-          <div class="muted" style="margin-top:8px;">${escapeHtml(item.why)}</div>
-          <div class="tiny" style="margin-top:8px;"><b>Base:</b> ${escapeHtml(item.src)}</div>
-        `;
-
-        // disable other options
-        wrap.querySelectorAll("button").forEach(x=> x.disabled = true);
-        b.disabled = false;
-
-        timer = setTimeout(()=>{
-          state.idx.quiz += 1;
-          saveState();
-          render("quiz");
-        }, 5000);
-      });
-
-      wrap.appendChild(b);
-    });
-
-    $("quizHint").addEventListener("click", ()=>{
-      openModal("💡 Dica (Quiz)", "Sem entregar a resposta.", `
-        <div class="block small">${escapeHtml(item.hint)}</div>
-      `);
-    });
-
-    $("quizNext").addEventListener("click", ()=>{
-      if(timer) clearTimeout(timer);
-      state.idx.quiz += 1;
-      saveState();
-      render("quiz");
-    });
-  }
-
-  // CASES view
-  function renderCases(container){
-    const banks = getOrderedBanks();
-    const items = banks.cases;
-
-    const idx = state.idx.cases % items.length;
-    const item = items[idx];
-
-    const html = `
-      <div class="block">
-        <div class="tiny">Código da aula: <b>${escapeHtml(state.classCode)}</b> • Passo: <b>${idx}</b></div>
-        <div style="font-weight:900; font-size:22px; margin-top:8px;">📋 ${escapeHtml(item.title)}</div>
-        <div class="small muted" style="margin-top:8px;">${escapeHtml(item.stem)}</div>
-
-        <div class="hr"></div>
-
-        <div style="font-weight:900; font-size:18px;">${escapeHtml(item.q)}</div>
-        <div class="grid" style="margin-top:12px;" id="caseOpts"></div>
-
-        <div class="hr"></div>
-
-        <div class="btnRow">
-          <button class="btn btnSmall" style="width:auto;" id="caseHint">💡 Dica</button>
-          <button class="btn btnPrimary btnSmall" style="width:auto;" id="caseNext">➡️ Próximo caso</button>
-        </div>
-
-        <div id="caseFb" class="block small" style="margin-top:12px; display:none;"></div>
-      </div>
-    `;
-    const c = viewCard("📋 Casos Clínicos", "20 casos rotativos pelo Código da Aula.", html);
-    container.appendChild(c);
-
-    const wrap = $("caseOpts");
-    const fb = $("caseFb");
-    let locked = false;
-
-    item.opts.forEach((o, i)=>{
-      const b = document.createElement("button");
-      b.className = "optBtn";
-      b.type = "button";
-      b.textContent = o.t;
-
-      b.addEventListener("click", ()=>{
-        if(locked) return;
-        locked = true;
-
-        b.classList.add("selected");
-        const ok = !!o.ok;
-
-        if(ok){
-          b.classList.add("correct");
-          state.correct += 1;
-          addScore(item.pts || 10, `Caso correto (${item.title})`);
-          mascot("Correto", `+${item.pts||10} pontos`);
-        }else{
-          b.classList.add("wrong");
-          state.wrong += 1;
-          mascot("Errado", "Veja a justificativa");
+        function toggleSubmenu(id) {
+            document.getElementById(id).classList.toggle('open');
         }
 
-        logReview("case", `${ok?"OK":"ERRO"} — ${item.id}`);
-        saveState();
+        function updateStats() {
+            document.getElementById('xp-display').innerText = state.xp;
+            document.getElementById('score-display').innerText = state.score;
+            
+            // Level logic
+            let level = "Iniciante";
+            if(state.xp > 500) level = "Residente";
+            if(state.xp > 1500) level = "Especialista";
+            if(state.xp > 3000) level = "Mestre";
+            document.getElementById('user-level').innerText = level;
 
-        fb.style.display = "block";
-        fb.innerHTML = `
-          <div style="font-weight:900; font-size:16px;">${ok ? "✅ Correto" : "❌ Incorreto"}</div>
-          <div class="muted" style="margin-top:8px;">${escapeHtml(item.why)}</div>
-          <div class="tiny" style="margin-top:8px;"><b>Base:</b> ${escapeHtml(item.src)}</div>
-        `;
+            localStorage.setItem('medsim_state_v2', JSON.stringify(state));
+        }
 
-        wrap.querySelectorAll("button").forEach(x=> x.disabled = true);
-        b.disabled = false;
-      });
+        // --- ECG ENGINE (SVG) ---
+        let ecgAnimationId;
+        let ecgPoints = [];
+        const maxPoints = 200; // Resolution
+        
+        function initECG(elementId, type) {
+            const path = document.getElementById(elementId);
+            ecgPoints = new Array(maxPoints).fill(100); // Start flat
+            
+            if(ecgAnimationId) cancelAnimationFrame(ecgAnimationId);
+            
+            let offset = 0;
+            
+            function draw() {
+                // Generate new point based on rhythm
+                let y = 100; // Baseline
+                const phase = (offset % 100) / 100; // 0 to 1 cycle
 
-      wrap.appendChild(b);
-    });
+                if (type === 'sinus') {
+                    // P wave, QRS, T wave simulation
+                    if (phase > 0.1 && phase < 0.15) y -= 10; // P
+                    if (phase > 0.2 && phase < 0.22) y += 10; // Q
+                    if (phase > 0.22 && phase < 0.25) y -= 80; // R (Spike)
+                    if (phase > 0.25 && phase < 0.27) y += 15; // S
+                    if (phase > 0.4 && phase < 0.5) y -= 15; // T
+                } else if (type === 'tachy') {
+                    // Faster sinus
+                    const fastPhase = (offset % 50) / 50;
+                    if (fastPhase > 0.2 && fastPhase < 0.25) y -= 80;
+                } else if (type === 'vfib') {
+                    // Chaotic
+                    y = 100 + (Math.random() * 60 - 30);
+                } else if (type === 'asystole') {
+                    // Flat with slight wander
+                    y = 100 + (Math.random() * 4 - 2);
+                } else if (type === 'brady') {
+                     // Slow sinus
+                     const slowPhase = (offset % 150) / 150;
+                     if (slowPhase > 0.2 && slowPhase < 0.25) y -= 80;
+                } else if (type === 'afib') {
+                    // Irregular baseline + QRS
+                    y = 100 + (Math.random() * 10 - 5);
+                    if (Math.random() > 0.7) y -= 80; // Random QRS
+                } else if (type === 'pvc') {
+                    // Normal then big spike
+                    if (offset % 200 > 150) {
+                         y = 100 + (Math.random() * 40 - 20); // Premature big wave
+                    } else {
+                        const phase = (offset % 100) / 100;
+                        if (phase > 0.2 && phase < 0.25) y -= 80;
+                    }
+                }
 
-    $("caseHint").addEventListener("click", ()=>{
-      openModal("💡 Dica (Caso)", "Sem entregar a resposta.", `
-        <div class="block small">${escapeHtml(item.hint)}</div>
-      `);
-    });
+                ecgPoints.push(y);
+                ecgPoints.shift();
+                
+                // Build SVG Path
+                let d = `M 0 ${ecgPoints[0]}`;
+                const stepX = 800 / maxPoints;
+                for(let i=1; i<ecgPoints.length; i++) {
+                    d += ` L ${i*stepX} ${ecgPoints[i]}`;
+                }
+                
+                path.setAttribute('d', d);
+                offset++;
+                ecgAnimationId = requestAnimationFrame(draw);
+            }
+            draw();
+        }
 
-    $("caseNext").addEventListener("click", ()=>{
-      state.idx.cases += 1;
-      saveState();
-      render("cases");
-    });
-  }
+        // --- CASES LOGIC ---
+        function renderDashboard() {
+            document.getElementById('dash-cases').innerText = state.casesCompleted;
+            const featured = document.getElementById('featured-cases');
+            featured.innerHTML = db.cases.slice(0, 3).map(c => createCaseCard(c)).join('');
+        }
 
-  // CHECKLISTS view
-  function renderChecklists(container){
-    const banks = getOrderedBanks();
-    const items = banks.checklists;
+        function createCaseCard(c) {
+            return `
+                <div class="card">
+                    <div>
+                        <span class="tag ${c.type.toLowerCase()}">${c.type}</span>
+                        <h3>${c.title}</h3>
+                        <p>${c.desc}</p>
+                        <div style="font-size: 0.8rem; color: #666; margin-top: 10px;">
+                            <i class="fas fa-star" style="color: gold"></i> Dificuldade: ${c.diff}
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="startSimulation('${c.id}')">Iniciar Caso</button>
+                </div>
+            `;
+        }
 
-    const idx = state.idx.checklists % items.length;
-    const item = items[idx];
+        function filterCases(type) {
+            renderCasesList(type);
+        }
 
-    const html = `
-      <div class="block">
-        <div class="tiny">Código da aula: <b>${escapeHtml(state.classCode)}</b> • Passo: <b>${idx}</b></div>
-        <div style="font-weight:900; font-size:22px; margin-top:8px;">✅ ${escapeHtml(item.title)}</div>
-        <div class="small muted" style="margin-top:8px;">${escapeHtml(item.intro)}</div>
+        function renderCasesList(filter) {
+            const list = document.getElementById('cases-list');
+            const filtered = filter === 'all' ? db.cases : db.cases.filter(c => c.type === filter);
+            list.innerHTML = filtered.map(c => createCaseCard(c)).join('');
+        }
 
-        <div class="hr"></div>
+        function startSimulation(caseId) {
+            const caseData = db.cases.find(c => c.id === caseId);
+            if(!caseData) return;
 
-        <div class="grid" id="clItems"></div>
+            document.getElementById('cases-list').style.display = 'none';
+            document.getElementById('active-sim').style.display = 'block';
+            
+            state.currentSim = caseData;
+            loadStep(caseData.start);
+            
+            // Start Timer
+            startTimer(180, 'sim-timer', () => {
+                alert("Tempo esgotado! O paciente deteriorou.");
+                closeSimulation();
+            });
+        }
 
-        <div class="hr"></div>
+        function startTimer(seconds, elementId, callback) {
+            clearInterval(state.simTimer);
+            const display = document.getElementById(elementId);
+            let remaining = seconds;
+            
+            function update() {
+                const m = Math.floor(remaining / 60).toString().padStart(2, '0');
+                const s = (remaining % 60).toString().padStart(2, '0');
+                display.innerText = `${m}:${s}`;
+                
+                if(remaining <= 0) {
+                    clearInterval(state.simTimer);
+                    if(callback) callback();
+                }
+                remaining--;
+            }
+            update();
+            state.simTimer = setInterval(update, 1000);
+        }
 
-        <div class="btnRow">
-          <button class="btn btnOk btnSmall" style="width:auto;" id="clCheck">✅ Corrigir</button>
-          <button class="btn btnSmall btnSmall" style="width:auto;" id="clClear">♻️ Limpar</button>
-          <button class="btn btnPrimary btnSmall" style="width:auto;" id="clNext">➡️ Próximo checklist</button>
-        </div>
+        function loadStep(stepData) {
+            // Update Vitals UI
+            document.getElementById('sim-hr').innerText = stepData.vitals.hr;
+            document.getElementById('sim-bp').innerText = stepData.vitals.bp;
+            document.getElementById('sim-spo2').innerText = stepData.vitals.spo2;
+            document.getElementById('sim-rr').innerText = stepData.vitals.rr;
+            
+            // Update ECG
+            initECG('ecg-path', stepData.vitals.rhythm || 'sinus');
 
-        <div id="clFb" class="block small" style="margin-top:12px; display:none;"></div>
-      </div>
-    `;
-    const c = viewCard("✅ Checklists", "Banco por situação (5 cenários), cada um com itens V/F.", html);
-    container.appendChild(c);
+            // Update Text
+            document.getElementById('sim-scenario').innerText = stepData.text;
+            document.getElementById('sim-feedback').style.display = 'none';
+            
+            const optionsContainer = document.getElementById('sim-options');
+            optionsContainer.innerHTML = '';
+            
+            if(stepData.options.length === 0) {
+                const isWin = stepData.text.includes('ROSC') || stepData.text.includes('confirmado') || stepData.text.includes('Obtido');
+                optionsContainer.innerHTML = `
+                    <div style="text-align:center; padding:20px;">
+                        <h2 style="color:${isWin ? 'var(--success)' : 'var(--danger)'}">
+                            ${isWin ? 'Caso Concluído com Sucesso!' : 'Desfecho Fatal'}
+                        </h2>
+                        <p>${stepData.text}</p>
+                        <button class="btn btn-primary" style="margin-top:10px;" onclick="closeSimulation()">Voltar à Lista</button>
+                    </div>`;
+                if(isWin) {
+                    state.xp += 150;
+                    state.score += 100;
+                    state.casesCompleted++;
+                    updateStats();
+                }
+                clearInterval(state.simTimer);
+                return;
+            }
 
-    const itemsWrap = $("clItems");
-    const fb = $("clFb");
+            stepData.options.forEach(opt => {
+                const btn = document.createElement('div');
+                btn.className = 'decision-btn';
+                btn.innerHTML = `<span>${opt.text}</span> <i class="fas fa-chevron-right"></i>`;
+                btn.onclick = () => {
+                    // Show Feedback
+                    const fb = document.getElementById('sim-feedback');
+                    fb.innerText = opt.feedback;
+                    fb.style.display = 'block';
+                    fb.style.background = opt.next.includes('success') ? '#d4edda' : '#f8d7da';
+                    fb.style.color = opt.next.includes('success') ? '#155724' : '#721c24';
+                    
+                    // Disable buttons temporarily
+                    const allBtns = document.querySelectorAll('.decision-btn');
+                    allBtns.forEach(b => b.style.pointerEvents = 'none');
 
-    // render checkboxes
-    item.items.forEach((it, i)=>{
-      const row = document.createElement("label");
-      row.className = "block";
-      row.style.display = "flex";
-      row.style.gap = "12px";
-      row.style.alignItems = "flex-start";
-      row.style.cursor = "pointer";
+                    setTimeout(() => {
+                        if(state.currentSim.steps[opt.next]) {
+                            loadStep(state.currentSim.steps[opt.next]);
+                        } else {
+                            // Fallback for direct fail keys not in steps object
+                            loadStep({ text: "Erro de fluxo no caso.", vitals: {hr:0,bp:'--',spo2:'--',rr:0, rhythm:'asystole'}, options: [] });
+                        }
+                    }, 2500);
+                };
+                optionsContainer.appendChild(btn);
+            });
+        }
 
-      row.innerHTML = `
-        <input type="checkbox" id="cl_${i}" style="width:22px; height:22px; margin-top:2px; accent-color: ${it.truth ? "#22C55E" : "#F59E0B"};">
-        <div style="flex:1;">
-          <div style="font-weight:900;">${escapeHtml(it.t)}</div>
-          <div class="tiny" style="margin-top:6px; color: rgba(234,242,255,0.62);">${escapeHtml(it.why)}</div>
-        </div>
-      `;
-      itemsWrap.appendChild(row);
-    });
+        function closeSimulation() {
+            clearInterval(state.simTimer);
+            document.getElementById('active-sim').style.display = 'none';
+            document.getElementById('cases-list').style.display = 'grid';
+            state.currentSim = null;
+            nav('cases');
+        }
 
-    $("clClear").addEventListener("click", ()=>{
-      item.items.forEach((_,i)=> { const cb = $("cl_"+i); if(cb) cb.checked = false; });
-      fb.style.display = "none";
-      fb.innerHTML = "";
-      toast("Limpo", "Seleções removidas.");
-    });
+        // --- QUIZ LOGIC ---
+        function startQuiz() {
+            const spec = document.getElementById('quiz-spec').value;
+            const diff = document.getElementById('quiz-diff').value;
+            const count = parseInt(document.getElementById('quiz-count').value);
 
-    $("clCheck").addEventListener("click", ()=>{
-      let correctCount = 0;
-      const total = item.items.length;
-      const details = [];
+            // Filter Questions
+            let pool = db.questions.filter(q => {
+                const matchSpec = spec === 'all' || q.spec === spec;
+                const matchDiff = diff === 'all' || q.diff === diff;
+                return matchSpec && matchDiff;
+            });
 
-      item.items.forEach((it, i)=>{
-        const cb = $("cl_"+i);
-        const checked = !!cb?.checked;
-        const ok = (checked === it.truth);
-        if(ok) correctCount++;
+            // Shuffle and Slice
+            pool.sort(() => 0.5 - Math.random());
+            state.quizQueue = pool.slice(0, count);
+            
+            if(state.quizQueue.length === 0) {
+                alert("Não há questões suficientes para esses filtros. Tente 'Geral'.");
+                return;
+            }
 
-        details.push(`
-          <div class="block small" style="margin-top:10px;">
-            <div style="font-weight:900;">${ok ? "✅" : "❌"} ${escapeHtml(it.t)}</div>
-            <div class="tiny" style="margin-top:6px;"><b>Gabarito:</b> ${it.truth ? "Verdadeiro" : "Falso"}</div>
-          </div>
-        `);
-      });
+            state.quizIndex = 0;
+            state.quizScore = 0;
+            
+            document.getElementById('quiz-setup').classList.remove('active');
+            document.getElementById('quiz-active').classList.add('active');
+            document.getElementById('page-title').innerText = 'Quiz em Andamento';
+            
+            loadQuestion();
+        }
 
-      const pct = Math.round((correctCount/total)*100);
-      const gained = pct >= 80 ? (item.pts||14) : pct >= 60 ? 6 : 2;
+        function loadQuestion() {
+            if(state.quizIndex >= state.quizQueue.length) {
+                finishQuiz();
+                return;
+            }
 
-      fb.style.display = "block";
-      fb.innerHTML = `
-        <div style="font-weight:900; font-size:18px;">Resultado: ${pct}% (${correctCount}/${total})</div>
-        <div class="tiny" style="margin-top:8px;"><b>Base:</b> ${escapeHtml(item.src)}</div>
-        <div class="muted small" style="margin-top:10px;">+${gained} pontos (educacional)</div>
-        ${details.join("")}
-      `;
+            const q = state.quizQueue[state.quizIndex];
+            document.getElementById('quiz-progress').innerText = `Questão ${state.quizIndex + 1}/${state.quizQueue.length}`;
+            document.getElementById('quiz-score-live').innerText = `Pontos: ${state.quizScore}`;
+            document.getElementById('quiz-question').innerText = q.q;
+            document.getElementById('quiz-explanation').style.display = 'none';
+            document.getElementById('next-q-btn').style.display = 'none';
+            document.getElementById('finish-quiz-btn').style.display = 'none';
 
-      addScore(gained, `Checklist (${item.title})`);
-      if(pct >= 80){ state.correct += 1; mascot("Ótimo", `+${gained} pontos`); }
-      else if(pct >= 60){ mascot("Quase", "Refine os itens"); }
-      else { state.wrong += 1; mascot("Reforço", "Reveja o gabarito"); }
-      logReview("checklist", `${pct}% — ${item.id}`);
-      saveState();
-    });
+            const optsContainer = document.getElementById('quiz-options');
+            optsContainer.innerHTML = '';
+            
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-outline';
+                btn.style.textAlign = 'left';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(idx, q.ans, q.exp, btn);
+                optsContainer.appendChild(btn);
+            });
 
-    $("clNext").addEventListener("click", ()=>{
-      state.idx.checklists += 1;
-      saveState();
-      render("checklists");
-    });
-  }
+            // Start Timer for this question (3 mins = 180s)
+            startQuizTimer(180);
+        }
 
-  // Pathologies view
-  function renderPath(container){
-    const html = `
-      <div class="block">
-        <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between;">
-          <div>
-            <div style="font-weight:900; font-size:20px;">🧩 Patologias & Intervenções (educacional)</div>
-            <div class="small muted" style="margin-top:6px;">Busca rápida para estudo. Conteúdo conceitual.</div>
-          </div>
-          <div style="min-width: 280px; flex: 1;">
-            <input id="pathSearch" placeholder="Buscar: sepse, avc, iam, choque..." />
-          </div>
-        </div>
+        function startQuizTimer(seconds) {
+            clearInterval(state.quizTimer);
+            const bar = document.getElementById('quiz-timer-fill');
+            bar.style.width = '100%';
+            bar.style.transition = 'none'; // Reset animation
+            
+            setTimeout(() => {
+                bar.style.transition = `width ${seconds}s linear`;
+                bar.style.width = '0%';
+            }, 50);
 
-        <div class="hr"></div>
+            let remaining = seconds;
+            state.quizTimer = setInterval(() => {
+                remaining--;
+                if(remaining <= 0) {
+                    clearInterval(state.quizTimer);
+                    alert("Tempo esgotado!");
+                    nextQuestion();
+                }
+            }, 1000);
+        }
 
-        <div class="grid2" id="pathList"></div>
-      </div>
-    `;
-    const c = viewCard("🧩 Patologias", "Lista ampliada (você pode adicionar mais facilmente).", html);
-    container.appendChild(c);
+        function checkAnswer(selected, correct, explanation, btnElement) {
+            clearInterval(state.quizTimer);
+            const allBtns = document.querySelectorAll('#quiz-options .btn');
+            allBtns.forEach(b => b.disabled = true);
 
-    const list = $("pathList");
-    const search = $("pathSearch");
+            if(selected === correct) {
+                btnElement.classList.remove('btn-outline');
+                btnElement.classList.add('btn-primary');
+                btnElement.style.background = 'var(--success)';
+                btnElement.style.borderColor = 'var(--success)';
+                state.quizScore += 10;
+                state.xp += 5;
+            } else {
+                btnElement.classList.remove('btn-outline');
+                btnElement.classList.add('btn-danger');
+                // Highlight correct
+                allBtns[correct].classList.remove('btn-outline');
+                allBtns[correct].style.background = 'var(--success)';
+                allBtns[correct].style.borderColor = 'var(--success)';
+            }
 
-    function renderList(){
-      const q = (search.value||"").trim().toLowerCase();
-      const items = PATHOLOGIES.filter(p=>{
-        if(!q) return true;
-        return p.name.toLowerCase().includes(q) || (p.tags||[]).some(t=>t.toLowerCase().includes(q));
-      });
+            document.getElementById('quiz-exp-text').innerText = explanation;
+            document.getElementById('quiz-explanation').style.display = 'block';
+            
+            if(state.quizIndex < state.quizQueue.length - 1) {
+                document.getElementById('next-q-btn').style.display = 'block';
+            } else {
+                document.getElementById('finish-quiz-btn').style.display = 'block';
+            }
+            updateStats();
+        }
 
-      list.innerHTML = items.map(p=>`
-        <div class="block">
-          <div style="font-weight:900; font-size:18px;">${escapeHtml(p.name)}</div>
-          <div class="tiny" style="margin-top:8px; color: rgba(234,242,255,0.60);">
-            Tags: ${escapeHtml((p.tags||[]).join(", "))}
-          </div>
-          <div class="hr"></div>
-          <div class="small muted"><b>Intervenções iniciais (conceitos):</b></div>
-          <ul class="small muted" style="margin-top:10px; padding-left: 18px;">
-            ${(p.actions||[]).map(x=>`<li style="margin-top:6px;">${escapeHtml(x)}</li>`).join("")}
-          </ul>
-          <div class="tiny" style="margin-top:12px;"><b>Base:</b> ${escapeHtml(p.src)}</div>
-        </div>
-      `).join("") || `<div class="muted small">Nenhum resultado.</div>`;
-    }
+        function nextQuestion() {
+            state.quizIndex++;
+            loadQuestion();
+        }
 
-    search.addEventListener("input", renderList);
-    renderList();
-  }
+        function finishQuiz() {
+            document.getElementById('quiz-active').classList.remove('active');
+            document.getElementById('quiz-setup').classList.add('active');
+            document.getElementById('page-title').innerText = 'Configurar Quiz';
+            alert(`Quiz Finalizado! Pontuação: ${state.quizScore}/${state.quizQueue.length * 10}`);
+        }
 
-  // EPIs view
-  function renderEPIs(container){
-    const html = `
-      <div class="grid2">
-        ${EPIS.map(section=>`
-          <div class="block">
-            <div style="font-weight:900; font-size:18px;">${escapeHtml(section.title)}</div>
-            <div class="hr"></div>
-            <ul class="small muted" style="padding-left:18px;">
-              ${section.items.map(i=>`<li style="margin-top:8px;">${escapeHtml(i)}</li>`).join("")}
-            </ul>
-          </div>
-        `).join("")}
-      </div>
-    `;
-    container.appendChild(viewCard("🧤 EPIs", "Somente o nome EPIs, com conteúdo essencial.", html));
-  }
+        // --- MEMORY GAME ---
+        const memoryItems = [
+            { icon: 'fa-stethoscope', name: 'Estetoscópio' },
+            { icon: 'fa-syringe', name: 'Seringa' },
+            { icon: 'fa-heart-pulse', name: 'ECG' },
+            { icon: 'fa-pills', name: 'Medicação' },
+            { icon: 'fa-user-doctor', name: 'Médico' },
+            { icon: 'fa-wheelchair', name: 'Cadeira' },
+            { icon: 'fa-mask', name: 'Máscara O2' },
+            { icon: 'fa-crutch', name: 'Muleta' }
+        ];
 
-  // ER view: select scenario then tasks (sequence)
-  function renderER(container){
-    const banks = getOrderedBanks();
-    const scenarios = banks.er;
+        function startMemoryGame() {
+            document.getElementById('memory-board').style.display = 'block';
+            const grid = document.getElementById('memory-grid');
+            grid.innerHTML = '';
+            
+            // Select 6 pairs for mobile friendliness, or 8 for desktop
+            const gameItems = memoryItems.slice(0, 6); 
+            let cards = [...gameItems, ...gameItems];
+            
+            // Robust Shuffle
+            for (let i = cards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [cards[i], cards[j]] = [cards[j], cards[i]];
+            }
 
-    const idx = state.idx.er % scenarios.length;
-    const current = scenarios[idx];
+            let flippedCards = [];
+            let matchedPairs = 0;
 
-    const html = `
-      <div class="grid2">
-        <div class="block">
-          <div class="tiny">Código da aula: <b>${escapeHtml(state.classCode)}</b> • Passo: <b>${idx}</b></div>
-          <div style="font-weight:900; font-size:20px; margin-top:8px;">🚑 Situação selecionada</div>
+            cards.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'memory-card';
+                card.dataset.index = index;
+                card.dataset.name = item.name;
+                
+                card.innerHTML = `
+                    <div class="card-face card-front">
+                        <i class="fas ${item.icon}" style="font-size: 2rem; color: var(--secondary);"></i>
+                        <div class="card-text">${item.name}</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <i class="fas fa-question"></i>
+                    </div>
+                `;
+                
+                card.onclick = () => {
+                    if(flippedCards.length < 2 && !card.classList.contains('flipped')) {
+                        card.classList.add('flipped');
+                        flippedCards.push(card);
 
-          <div class="hr"></div>
+                        if(flippedCards.length === 2) {
+                            setTimeout(() => {
+                                if(flippedCards[0].dataset.name === flippedCards[1].dataset.name) {
+                                    matchedPairs++;
+                                    flippedCards = [];
+                                    if(matchedPairs === gameItems.length) {
+                                        setTimeout(() => {
+                                            alert("Parabéns! Memória de elefante!");
+                                            state.xp += 50;
+                                            updateStats();
+                                            document.getElementById('memory-board').style.display='none';
+                                        }, 500);
+                                    }
+                                } else {
+                                    flippedCards[0].classList.remove('flipped');
+                                    flippedCards[1].classList.remove('flipped');
+                                    flippedCards = [];
+                                }
+                            }, 1000);
+                        }
+                    }
+                };
+                grid.appendChild(card);
+            });
+        }
 
-          <label class="small muted"><b>Escolha a situação:</b></label>
-          <select id="erSelect" style="margin-top:10px;">
-            ${scenarios.map((s,i)=>`<option value="${i}" ${i===idx?"selected":""}>${escapeHtml(s.title)}</option>`).join("")}
-          </select>
+        // --- TOOLS ---
+        function loadTool(tool) {
+            if(tool === 'monitor') {
+                document.getElementById('tool-monitor').style.display = 'block';
+                setToolRhythm('sinus');
+            }
+        }
 
-          <div class="hr"></div>
+        function setToolRhythm(type) {
+            initECG('tool-ecg-path', type);
+        }
 
-          <div style="font-weight:900; font-size:18px;">${escapeHtml(current.title)}</div>
-          <div class="small muted" style="margin-top:8px;">${escapeHtml(current.intro)}</div>
+        // --- INIT ---
+        window.onload = () => {
+            const saved = localStorage.getItem('medsim_state_v2');
+            if(saved) state = JSON.parse(saved);
+            updateStats();
+            renderDashboard();
+            
+            // Start default ECG animation for visual flair
+            initECG('ecg-path', 'sinus');
+        };
 
-          <div class="hr"></div>
-
-          <div class="small muted"><b>Sequência (educacional):</b></div>
-          <ol class="small muted" style="margin-top:10px; padding-left: 18px;">
-            ${current.steps.map(s=>`<li style="margin-top:6px;">${escapeHtml(s)}</li>`).join("")}
-          </ol>
-
-          <div class="hr"></div>
-
-          <div class="btnRow">
-            <button class="btn btnSmall" style="width:auto;" id="erHint">💡 Dica</button>
-            <button class="btn btnPrimary btnSmall" style="width:auto;" id="erNextScenario">➡️ Próxima situação</button>
-          </div>
-
-          <div class="tiny" style="margin-top:10px;"><b>Base:</b> ${escapeHtml(current.src)}</div>
-        </div>
-
-        <div class="block">
-          <div style="font-weight:900; font-size:20px;">🧩 Etapas para marcar</div>
-          <div class="small muted" style="margin-top:8px;">Responda as 3 etapas. Ao clicar, a opção fica verde e mostra certo/errado.</div>
-
-          <div class="hr"></div>
-
-          <div class="grid" id="erTasks"></div>
-
-          <div id="erFb" class="block small" style="margin-top
+    </script>
+</body>
+</html>
