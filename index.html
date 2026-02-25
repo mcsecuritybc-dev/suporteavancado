@@ -41,12 +41,12 @@
 
         .menu { list-style: none; padding: 20px 0; flex: 1; overflow-y: auto; }
         .menu-item { cursor: pointer; transition: 0.2s; }
-        .menu-link { padding: 15px 25px; display: flex; align-items: center; gap: 15px; opacity: 0.8; text-decoration: none; color: white; }
+        .menu-link { padding: 15px 25px; display: flex; align-items: center; gap: 15px; opacity: 0.8; text-decoration: none; color: white; cursor: pointer; }
         .menu-link:hover, .menu-link.active { background: rgba(255,255,255,0.1); opacity: 1; border-left: 4px solid var(--accent); }
         
         .submenu { list-style: none; background: rgba(0,0,0,0.2); display: none; }
         .submenu.open { display: block; }
-        .submenu li a { padding: 12px 25px 12px 55px; display: block; color: #ccc; font-size: 0.9rem; text-decoration: none; }
+        .submenu li a { padding: 12px 25px 12px 55px; display: block; color: #ccc; font-size: 0.9rem; text-decoration: none; cursor: pointer; }
         .submenu li a:hover { color: white; background: rgba(255,255,255,0.05); }
 
         .user-profile { padding: 20px; background: rgba(0,0,0,0.2); font-size: 0.9rem; }
@@ -70,12 +70,14 @@
         .tag.bls { background: #e0f7fa; color: #006064; }
         .tag.acls { background: #ffebee; color: #c62828; }
         .tag.atls { background: #e8f5e9; color: #2e7d32; }
+        .tag.neonato { background: #fff3e0; color: #e65100; }
 
         .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s; width: 100%; margin-top: 10px; }
         .btn-primary { background: var(--secondary); color: var(--white); }
         .btn-primary:hover { background: var(--primary); }
         .btn-danger { background: var(--danger); color: var(--white); }
         .btn-outline { background: transparent; border: 2px solid var(--secondary); color: var(--secondary); }
+        .btn-outline:hover { background: var(--secondary); color: var(--white); }
 
         /* --- Sections --- */
         .section { display: none; animation: fadeIn 0.4s ease; }
@@ -101,7 +103,6 @@
         .vital-value { color: #0f0; font-family: 'Courier New', monospace; font-size: 2rem; font-weight: bold; text-shadow: 0 0 5px rgba(0,255,0,0.5); }
         .vital-unit { color: #0f0; font-size: 0.8rem; }
 
-        /* ECG SVG Container */
         .ecg-container { width: 100%; height: 120px; background: #001100; border: 1px solid #003300; border-radius: 8px; overflow: hidden; position: relative; }
         .ecg-grid { position: absolute; width: 100%; height: 100%; background-image: linear-gradient(#002200 1px, transparent 1px), linear-gradient(90deg, #002200 1px, transparent 1px); background-size: 20px 20px; opacity: 0.3; }
         #ecg-path { fill: none; stroke: #0f0; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 2px #0f0); }
@@ -163,12 +164,12 @@
                 <a class="menu-link active" onclick="nav('dashboard')"><i class="fas fa-home"></i> Dashboard</a>
             </li>
             <li class="menu-item">
-                <a class="menu-link" onclick="toggleSubmenu('sub-cases')"><i class="fas fa-user-nurse"></i> Casos Clínicos <i class="fas fa-chevron-down" style="margin-left: auto; font-size: 0.8rem;"></i></a>
+                <a class="menu-link" onclick="toggleSubmenu('sub-cases')"><i class="fas fa-user-nurse"></i> Casos Clínicos <i class="fas fa-chevron-down" id="cases-arrow" style="margin-left: auto; font-size: 0.8rem; transition: 0.3s;"></i></a>
                 <ul id="sub-cases" class="submenu">
-                    <li><a href="#" onclick="nav('cases'); filterCases('all')">Todos</a></li>
-                    <li><a href="#" onclick="nav('cases'); filterCases('ACLS')">ACLS</a></li>
-                    <li><a href="#" onclick="nav('cases'); filterCases('ATLS')">ATLS</a></li>
-                    <li><a href="#" onclick="nav('cases'); filterCases('Neonato')">Neonato</a></li>
+                    <li><a onclick="nav('cases'); filterCases('all'); return false;"><i class="fas fa-list"></i> Todos os Casos</a></li>
+                    <li><a onclick="nav('cases'); filterCases('ACLS'); return false;"><i class="fas fa-heartbeat"></i> ACLS</a></li>
+                    <li><a onclick="nav('cases'); filterCases('ATLS'); return false;"><i class="fas fa-user-injured"></i> ATLS</a></li>
+                    <li><a onclick="nav('cases'); filterCases('Neonato'); return false;"><i class="fas fa-baby"></i> Neonato</a></li>
                 </ul>
             </li>
             <li class="menu-item">
@@ -236,7 +237,7 @@
 
         <!-- CASES LIST & SIMULATOR -->
         <div id="cases" class="section">
-            <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+            <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
                 <button class="btn btn-outline" style="width: auto;" onclick="filterCases('all')">Todos</button>
                 <button class="btn btn-outline" style="width: auto;" onclick="filterCases('ACLS')">ACLS</button>
                 <button class="btn btn-outline" style="width: auto;" onclick="filterCases('ATLS')">ATLS</button>
@@ -399,7 +400,7 @@
                     <div class="ecg-container" style="height: 200px; margin-bottom: 20px;">
                         <div class="ecg-grid"></div>
                         <svg width="100%" height="100%" viewBox="0 0 800 200" preserveAspectRatio="none">
-                            <path id="tool-ecg-path" fill="none" stroke="#0f0" stroke-width: 2" d="M0,100 L800,100" />
+                            <path id="tool-ecg-path" fill="none" stroke="#0f0" stroke-width="2" d="M0,100 L800,100" />
                         </svg>
                     </div>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
@@ -728,24 +729,36 @@
 
         // --- NAVIGATION ---
         function nav(sectionId) {
+            // Hide all sections
             document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+            // Show target section
             document.getElementById(sectionId).classList.add('active');
             
-            // Update Menu Active State
+            // Update menu active state
             document.querySelectorAll('.menu-link').forEach(el => el.classList.remove('active'));
             
             const titles = {
-                'dashboard': 'Dashboard', 'cases': 'Casos Clínicos', 
-                'quiz-setup': 'Configurar Quiz', 'quiz-active': 'Quiz em Andamento',
-                'games': 'Jogos', 'tools': 'Equipamentos'
+                'dashboard': 'Dashboard', 
+                'cases': 'Casos Clínicos', 
+                'quiz-setup': 'Configurar Quiz', 
+                'quiz-active': 'Quiz em Andamento',
+                'games': 'Jogos', 
+                'tools': 'Equipamentos'
             };
             document.getElementById('page-title').innerText = titles[sectionId] || 'MedSim Pro';
             
-            if(window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+            // Close sidebar on mobile
+            if(window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
             
             // Reset views if needed
-            if(sectionId === 'dashboard') renderDashboard();
-            if(sectionId === 'cases') renderCasesList('all');
+            if(sectionId === 'dashboard') {
+                renderDashboard();
+            }
+            if(sectionId === 'cases') {
+                renderCasesList('all');
+            }
         }
 
         function toggleSidebar() {
@@ -753,14 +766,22 @@
         }
 
         function toggleSubmenu(id) {
-            document.getElementById(id).classList.toggle('open');
+            const submenu = document.getElementById(id);
+            const arrow = document.getElementById('cases-arrow');
+            
+            if(submenu.classList.contains('open')) {
+                submenu.classList.remove('open');
+                arrow.style.transform = 'rotate(0deg)';
+            } else {
+                submenu.classList.add('open');
+                arrow.style.transform = 'rotate(180deg)';
+            }
         }
 
         function updateStats() {
             document.getElementById('xp-display').innerText = state.xp;
             document.getElementById('score-display').innerText = state.score;
             
-            // Level logic
             let level = "Iniciante";
             if(state.xp > 500) level = "Residente";
             if(state.xp > 1500) level = "Especialista";
@@ -777,6 +798,8 @@
         
         function initECG(elementId, type) {
             const path = document.getElementById(elementId);
+            if(!path) return;
+            
             ecgPoints = new Array(maxPoints).fill(100); 
             
             if(ecgAnimationId) cancelAnimationFrame(ecgAnimationId);
@@ -860,13 +883,24 @@
 
         function renderCasesList(filter) {
             const list = document.getElementById('cases-list');
+            if(!list) return;
+            
             const filtered = filter === 'all' ? db.cases : db.cases.filter(c => c.type === filter);
+            
+            if(filtered.length === 0) {
+                list.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;"><h3>Nenhum caso encontrado nesta categoria</h3><p>Tente selecionar "Todos" para ver todos os casos disponíveis.</p></div>';
+                return;
+            }
+            
             list.innerHTML = filtered.map(c => createCaseCard(c)).join('');
         }
 
         function startSimulation(caseId) {
             const caseData = db.cases.find(c => c.id === caseId);
-            if(!caseData) return;
+            if(!caseData) {
+                alert("Caso não encontrado!");
+                return;
+            }
 
             document.getElementById('cases-list').style.display = 'none';
             document.getElementById('active-sim').style.display = 'block';
@@ -884,6 +918,8 @@
         function startTimer(seconds, elementId, callback) {
             clearInterval(state.simTimer);
             const display = document.getElementById(elementId);
+            if(!display) return;
+            
             let remaining = seconds;
             
             function update() {
@@ -902,20 +938,32 @@
         }
 
         function loadStep(stepData) {
+            if(!stepData) return;
+            
             // Update Vitals UI
-            document.getElementById('sim-hr').innerText = stepData.vitals.hr;
-            document.getElementById('sim-bp').innerText = stepData.vitals.bp;
-            document.getElementById('sim-spo2').innerText = stepData.vitals.spo2;
-            document.getElementById('sim-rr').innerText = stepData.vitals.rr;
+            const hrEl = document.getElementById('sim-hr');
+            const bpEl = document.getElementById('sim-bp');
+            const spo2El = document.getElementById('sim-spo2');
+            const rrEl = document.getElementById('sim-rr');
+            
+            if(hrEl) hrEl.innerText = stepData.vitals.hr;
+            if(bpEl) bpEl.innerText = stepData.vitals.bp;
+            if(spo2El) spo2El.innerText = stepData.vitals.spo2;
+            if(rrEl) rrEl.innerText = stepData.vitals.rr;
             
             // Update ECG
             initECG('ecg-path', stepData.vitals.rhythm || 'sinus');
 
             // Update Text
-            document.getElementById('sim-scenario').innerText = stepData.text;
-            document.getElementById('sim-feedback').style.display = 'none';
+            const scenarioEl = document.getElementById('sim-scenario');
+            if(scenarioEl) scenarioEl.innerText = stepData.text;
+            
+            const feedbackEl = document.getElementById('sim-feedback');
+            if(feedbackEl) feedbackEl.style.display = 'none';
             
             const optionsContainer = document.getElementById('sim-options');
+            if(!optionsContainer) return;
+            
             optionsContainer.innerHTML = '';
             
             if(stepData.options.length === 0) {
@@ -943,19 +991,19 @@
                 btn.className = 'decision-btn';
                 btn.innerHTML = `<span>${opt.text}</span> <i class="fas fa-chevron-right"></i>`;
                 btn.onclick = () => {
-                    // Show Feedback
                     const fb = document.getElementById('sim-feedback');
-                    fb.innerText = opt.feedback;
-                    fb.style.display = 'block';
-                    fb.style.background = opt.next.includes('success') ? '#d4edda' : '#f8d7da';
-                    fb.style.color = opt.next.includes('success') ? '#155724' : '#721c24';
+                    if(fb) {
+                        fb.innerText = opt.feedback;
+                        fb.style.display = 'block';
+                        fb.style.background = opt.next.includes('success') ? '#d4edda' : '#f8d7da';
+                        fb.style.color = opt.next.includes('success') ? '#155724' : '#721c24';
+                    }
                     
-                    // Disable buttons temporarily
                     const allBtns = document.querySelectorAll('.decision-btn');
                     allBtns.forEach(b => b.style.pointerEvents = 'none');
 
                     setTimeout(() => {
-                        if(state.currentSim.steps[opt.next]) {
+                        if(state.currentSim.steps && state.currentSim.steps[opt.next]) {
                             loadStep(state.currentSim.steps[opt.next]);
                         } else {
                             loadStep({ text: "Erro de fluxo no caso.", vitals: {hr:0,bp:'--',spo2:'--',rr:0, rhythm:'asystole'}, options: [] });
@@ -968,10 +1016,13 @@
 
         function closeSimulation() {
             clearInterval(state.simTimer);
-            document.getElementById('active-sim').style.display = 'none';
-            document.getElementById('cases-list').style.display = 'grid';
+            const activeSim = document.getElementById('active-sim');
+            const casesList = document.getElementById('cases-list');
+            
+            if(activeSim) activeSim.style.display = 'none';
+            if(casesList) casesList.style.display = 'grid';
+            
             state.currentSim = null;
-            nav('cases');
         }
 
         // --- QUIZ LOGIC ---
@@ -980,14 +1031,12 @@
             const diff = document.getElementById('quiz-diff').value;
             const count = parseInt(document.getElementById('quiz-count').value);
 
-            // Filter Questions
             let pool = db.questions.filter(q => {
                 const matchSpec = spec === 'all' || q.spec === spec;
                 const matchDiff = diff === 'all' || q.diff === diff;
                 return matchSpec && matchDiff;
             });
 
-            // Shuffle and Slice
             pool.sort(() => 0.5 - Math.random());
             state.quizQueue = pool.slice(0, count);
             
@@ -1032,7 +1081,6 @@
                 optsContainer.appendChild(btn);
             });
 
-            // Start Timer for this question (3 mins = 180s)
             startQuizTimer(180);
         }
 
