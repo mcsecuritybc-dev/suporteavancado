@@ -3,63 +3,54 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Hospital de Emergência — Treino Interativo</title>
+  <title>Centro de Treinamento Avançado</title>
 
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 
   <style>
     :root { color-scheme: dark; }
-    html, body { height: auto; }
+    html, body { height: 100%; }
     body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
 
-    /* Visual */
     .glass { background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(10px); border: 1px solid rgba(148, 163, 184, 0.18); }
     .card  { background: rgba(2, 6, 23, 0.62); border: 1px solid rgba(148, 163, 184, 0.16); }
-    .btn-big { padding: 16px 18px; border-radius: 16px; font-weight: 800; letter-spacing: 0.2px; }
+    .mono { font-feature-settings: "tnum" 1, "lnum" 1; font-variant-numeric: tabular-nums; }
+
+    .btn { border-radius: 18px; padding: 14px 16px; font-weight: 800; letter-spacing: 0.2px; }
     .btn-ghost { background: rgba(30, 41, 59, 0.55); border: 1px solid rgba(148, 163, 184, 0.18); }
     .btn-ghost:hover { background: rgba(51, 65, 85, 0.6); }
     .btn-primary { background: linear-gradient(135deg, rgba(34, 211, 238, 0.92), rgba(99, 102, 241, 0.92)); }
     .btn-primary:hover { filter: brightness(1.05); }
     .btn-danger { background: linear-gradient(135deg, rgba(248, 113, 113, 0.95), rgba(244, 63, 94, 0.95)); }
-    .btn-warning { background: linear-gradient(135deg, rgba(251, 191, 36, 0.95), rgba(245, 158, 11, 0.95)); }
     .btn-ok { background: linear-gradient(135deg, rgba(74, 222, 128, 0.95), rgba(16, 185, 129, 0.95)); }
-    .ring-soft { box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.18), 0 0 0 8px rgba(99, 102, 241, 0.10); }
-    .mono { font-feature-settings: "tnum" 1, "lnum" 1; font-variant-numeric: tabular-nums; }
+    .btn-warn { background: linear-gradient(135deg, rgba(251, 191, 36, 0.95), rgba(245, 158, 11, 0.95)); }
 
-    /* Single scroll: remove internal scroll areas */
-    .no-internal-scroll { overflow: visible !important; }
-    main { overflow: visible !important; }
+    /* Sidebar nav: fix icon width so labels never squeeze */
+    .navbtn { width: 100%; display:flex; align-items:center; justify-content:space-between; gap:12px; text-align:left; }
+    .navleft { display:flex; align-items:center; gap:12px; min-width: 0; }
+    .navicon { width: 34px; height: 34px; display:flex; align-items:center; justify-content:center; flex: 0 0 34px; font-size: 20px; }
+    .navlabel { font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .navarrow { opacity: .85; }
 
-    /* Toast / Mascote */
-    #toastArea { position: fixed; inset: auto 0 22px 0; display: flex; justify-content: center; pointer-events: none; z-index: 60; }
-    .toast { pointer-events: none; max-width: 920px; width: calc(100% - 24px); border-radius: 18px; padding: 14px 16px; }
+    /* Toast */
+    #toastArea { position: fixed; inset: auto 0 18px 0; display:flex; justify-content:center; z-index: 60; pointer-events:none; }
+    .toast { max-width: 980px; width: calc(100% - 24px); border-radius: 18px; padding: 12px 14px; pointer-events:none; }
 
-    .pop-center {
-      position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
-      z-index: 70; pointer-events: none;
-    }
-    .pop-card {
-      transform: translateY(10px) scale(0.98);
-      opacity: 0;
-      transition: transform .22s ease, opacity .22s ease;
-      border-radius: 26px;
-      padding: 18px 22px;
-      background: rgba(2, 6, 23, 0.78);
-      border: 1px solid rgba(148, 163, 184, 0.18);
-      box-shadow: 0 30px 120px rgba(0,0,0,.55);
-    }
-    .pop-center.show { display: flex; }
-    .pop-center.show .pop-card { transform: translateY(0) scale(1); opacity: 1; }
+    /* Mascote feedback */
+    #popCenter { position: fixed; inset: 0; display:none; align-items:center; justify-content:center; z-index: 70; pointer-events:none; }
+    #popCenter.show { display:flex; }
+    #popCard { border-radius: 26px; padding: 18px 22px; background: rgba(2, 6, 23, 0.78);
+      border: 1px solid rgba(148, 163, 184, 0.18); box-shadow: 0 30px 120px rgba(0,0,0,.55); }
 
     /* Modal */
     #modal { display:none; }
     #modal.show { display:block; }
 
-    /* Focus outlines */
-    button:focus { outline: none; }
+    /* Ensure clicks always work (no accidental overlays) */
+    .clickable { pointer-events:auto; }
   </style>
 </head>
 
@@ -73,11 +64,10 @@
   </div>
 
   <!-- Mobile top bar -->
-  <header class="lg:hidden sticky top-0 z-40 glass">
+  <header class="lg:hidden sticky top-0 z-40 glass clickable">
     <div class="px-4 py-3 flex items-center justify-between gap-3">
-      <button id="btnToggleSidebar" class="btn-big btn-ghost ring-soft flex items-center gap-3" type="button">
-        <span class="text-xl">🧭</span>
-        <span class="text-base font-extrabold">Menu</span>
+      <button id="btnToggleSidebar" class="btn btn-ghost flex items-center gap-3 clickable" type="button">
+        <span class="text-xl">🧭</span><span class="text-base font-extrabold">Menu</span>
       </button>
 
       <div class="flex items-center gap-3">
@@ -85,35 +75,21 @@
           <div class="text-xs text-slate-300">Score</div>
           <div class="text-lg font-extrabold" id="scoreHeader">0</div>
         </div>
-        <button id="btnQuickReset" class="btn-big btn-danger flex items-center gap-2" type="button">
+        <button id="btnQuickReset" class="btn btn-danger flex items-center gap-2 clickable" type="button">
           ♻️ <span>Reset</span>
         </button>
       </div>
     </div>
   </header>
 
-  <div class="flex no-internal-scroll">
+  <div class="flex min-h-screen">
     <!-- Sidebar -->
-    <aside id="sidebar" class="w-[320px] shrink-0 hidden lg:flex flex-col gap-3 p-4 glass border-r border-slate-700/30 sticky top-0 h-screen">
-      <div class="flex items-start justify-between gap-3">
-        <div>
-          <div class="text-2xl font-extrabold tracking-tight">🏥 Emergência — Treino</div>
-          <div class="text-slate-300 text-sm leading-snug mt-1">
-            Simulações e prática para equipe multiprofissional.
-          </div>
-        </div>
-        <button id="btnResetAll" class="btn-big btn-danger flex items-center gap-2" type="button" title="Apagar progresso">
-          🧹 <span>Limpar</span>
-        </button>
-      </div>
-
+    <aside id="sidebar" class="w-[360px] shrink-0 hidden lg:flex flex-col gap-3 p-4 glass border-r border-slate-700/30 sticky top-0 h-screen clickable">
       <div class="card rounded-3xl p-4">
-        <div class="flex items-center justify-between gap-3">
-          <div>
-            <div class="text-sm text-slate-300">Aluno</div>
-            <div class="text-lg font-extrabold" id="userNameLabel">Aluno</div>
-          </div>
-          <button id="btnChangeName" class="btn-big btn-ghost" type="button">✏️ Nome</button>
+        <div class="text-center">
+          <div class="text-xs text-slate-300">CENTRO DE TREINAMENTO AVANÇADO</div>
+          <div class="text-2xl font-extrabold tracking-tight mt-1">🏥 CTA — Emergência</div>
+          <div class="text-slate-300 text-sm mt-1">Simulações e treino multiprofissional</div>
         </div>
 
         <div class="grid grid-cols-2 gap-3 mt-4">
@@ -127,104 +103,138 @@
           </div>
         </div>
 
-        <div class="mt-3 text-xs text-slate-300 leading-relaxed">
-          Use o botão <b>Ajuda</b> dentro de cada módulo se precisar (sem entregar resposta).
+        <div class="mt-3 flex items-center justify-between gap-3">
+          <div>
+            <div class="text-xs text-slate-300">Aluno</div>
+            <div class="text-lg font-extrabold" id="userNameLabel">Aluno</div>
+          </div>
+          <button id="btnChangeName" class="btn btn-ghost clickable" type="button">✏️ Nome</button>
+        </div>
+
+        <div class="mt-3 text-xs text-slate-400">
+          Criador: <b class="text-slate-200">Dr. Moacir Carrion — Fisioterapeuta</b>
         </div>
       </div>
 
-      <nav class="card rounded-3xl p-3">
-        <div class="text-xs text-slate-300 px-2 pb-2">Módulos</div>
+      <nav class="card rounded-3xl p-3 clickable">
+        <div class="text-xs text-slate-300 px-2 pb-2">Menu</div>
+
         <div class="grid gap-2">
-          <button class="navBtn btn-big btn-primary flex items-center justify-between" data-view="dashboard" type="button">
-            <span class="flex items-center gap-3"><span class="text-xl">🧑‍⚕️</span> Painel</span><span>→</span>
+          <button class="btn navbtn btn-primary clickable" data-view="dashboard" type="button">
+            <span class="navleft">
+              <span class="navicon">🧑‍⚕️</span><span class="navlabel">Painel</span>
+            </span><span class="navarrow">→</span>
           </button>
-          <button class="navBtn btn-big btn-ghost flex items-center justify-between" data-view="triage" type="button">
-            <span class="flex items-center gap-3"><span class="text-xl">🚦</span> Triagem (ABCDE)</span><span>→</span>
+
+          <button class="btn navbtn btn-ghost clickable" data-view="er" type="button">
+            <span class="navleft">
+              <span class="navicon">🚑</span><span class="navlabel">Sala de Emergência</span>
+            </span><span class="navarrow">→</span>
           </button>
-          <button class="navBtn btn-big btn-ghost flex items-center justify-between" data-view="cases" type="button">
-            <span class="flex items-center gap-3"><span class="text-xl">📋</span> Casos Clínicos</span><span>→</span>
+
+          <button class="btn navbtn btn-ghost clickable" data-view="triage" type="button">
+            <span class="navleft">
+              <span class="navicon">🚦</span><span class="navlabel">Triagem (ABCDE)</span>
+            </span><span class="navarrow">→</span>
           </button>
-          <button class="navBtn btn-big btn-ghost flex items-center justify-between" data-view="quiz" type="button">
-            <span class="flex items-center gap-3"><span class="text-xl">🧠</span> Quiz</span><span>→</span>
+
+          <button class="btn navbtn btn-ghost clickable" data-view="cases" type="button">
+            <span class="navleft">
+              <span class="navicon">📋</span><span class="navlabel">Casos Clínicos</span>
+            </span><span class="navarrow">→</span>
           </button>
-          <button class="navBtn btn-big btn-ghost flex items-center justify-between" data-view="checklists" type="button">
-            <span class="flex items-center gap-3"><span class="text-xl">✅</span> Checklists (V/F)</span><span>→</span>
+
+          <button class="btn navbtn btn-ghost clickable" data-view="quiz" type="button">
+            <span class="navleft">
+              <span class="navicon">🧠</span><span class="navlabel">Quiz</span>
+            </span><span class="navarrow">→</span>
           </button>
-          <button class="navBtn btn-big btn-ghost flex items-center justify-between" data-view="ppe" type="button">
-            <span class="flex items-center gap-3"><span class="text-xl">🧤</span> EPIs por procedimento</span><span>→</span>
+
+          <button class="btn navbtn btn-ghost clickable" data-view="checklists" type="button">
+            <span class="navleft">
+              <span class="navicon">✅</span><span class="navlabel">Checklists (V/F)</span>
+            </span><span class="navarrow">→</span>
           </button>
-          <button class="navBtn btn-big btn-ghost flex items-center justify-between" data-view="path" type="button">
-            <span class="flex items-center gap-3"><span class="text-xl">🧩</span> Patologias & Intervenções</span><span>→</span>
+
+          <button class="btn navbtn btn-ghost clickable" data-view="epis" type="button">
+            <span class="navleft">
+              <span class="navicon">🧤</span><span class="navlabel">EPIs</span>
+            </span><span class="navarrow">→</span>
           </button>
-          <button class="navBtn btn-big btn-ghost flex items-center justify-between" data-view="review" type="button">
-            <span class="flex items-center gap-3"><span class="text-xl">📚</span> Revisão</span><span>→</span>
+
+          <button class="btn navbtn btn-ghost clickable" data-view="path" type="button">
+            <span class="navleft">
+              <span class="navicon">🧩</span><span class="navlabel">Patologias & Intervenções</span>
+            </span><span class="navarrow">→</span>
+          </button>
+
+          <button class="btn navbtn btn-ghost clickable" data-view="review" type="button">
+            <span class="navleft">
+              <span class="navicon">📚</span><span class="navlabel">Revisão</span>
+            </span><span class="navarrow">→</span>
           </button>
         </div>
       </nav>
 
-      <div class="card rounded-3xl p-3">
+      <div class="card rounded-3xl p-3 clickable">
         <div class="grid grid-cols-2 gap-2">
-          <button id="btnSound" class="btn-big btn-ghost flex items-center justify-center gap-2" type="button">
-            🔊 <span>Som</span>
-          </button>
-          <button id="btnFocus" class="btn-big btn-ghost flex items-center justify-center gap-2" type="button">
-            ✨ <span>Foco</span>
-          </button>
+          <button id="btnSound" class="btn btn-ghost clickable" type="button">🔊 Som</button>
+          <button id="btnResetAll" class="btn btn-danger clickable" type="button">🧹 Limpar</button>
         </div>
       </div>
 
-      <div class="text-xs text-slate-400 leading-relaxed px-1">
+      <div class="text-xs text-slate-400 px-1">
         Progresso fica salvo neste navegador.
       </div>
     </aside>
 
     <!-- Main -->
-    <main class="flex-1 p-4 lg:p-8 no-internal-scroll">
+    <main class="flex-1 p-4 lg:p-8 clickable">
       <div class="hidden lg:block mb-6">
-        <div class="glass rounded-3xl p-5">
-          <div class="flex items-start justify-between gap-4">
-            <div>
-              <div class="text-sm text-slate-300">Hospital de Emergência — Plataforma Interativa</div>
-              <div class="text-3xl font-extrabold tracking-tight leading-tight" id="pageTitle">Painel</div>
-              <div class="text-slate-300 text-sm mt-2 max-w-3xl" id="pageSubtitle">
-                Treine prioridades, decisões e rotinas com feedback imediato.
-              </div>
+        <div class="glass rounded-3xl p-5 clickable">
+          <div class="text-center">
+            <div class="text-xs text-slate-300">CENTRO DE TREINAMENTO AVANÇADO</div>
+            <div class="text-3xl font-extrabold tracking-tight mt-1" id="pageTitle">Painel</div>
+            <div class="text-slate-300 text-sm mt-2" id="pageSubtitle">Treine decisões e rotinas com feedback imediato.</div>
+          </div>
+
+          <div class="mt-4 flex flex-wrap justify-center gap-3">
+            <div class="card rounded-3xl p-4 mono min-w-[160px] text-center">
+              <div class="text-xs text-slate-300">Score</div>
+              <div class="text-3xl font-extrabold" id="scoreTop">0</div>
             </div>
-            <div class="flex items-center gap-3">
-              <div class="card rounded-3xl p-4 mono min-w-[150px]">
-                <div class="text-xs text-slate-300">Score</div>
-                <div class="text-3xl font-extrabold" id="scoreTop">0</div>
-              </div>
-              <div class="card rounded-3xl p-4 mono min-w-[150px]">
-                <div class="text-xs text-slate-300">Acerto</div>
-                <div class="text-3xl font-extrabold" id="accuracyTop">0%</div>
-              </div>
+            <div class="card rounded-3xl p-4 mono min-w-[160px] text-center">
+              <div class="text-xs text-slate-300">Acerto</div>
+              <div class="text-3xl font-extrabold" id="accuracyTop">0%</div>
             </div>
           </div>
         </div>
       </div>
 
-      <section id="viewContainer" class="space-y-6"></section>
+      <section id="viewContainer" class="space-y-6 clickable"></section>
 
-      <footer class="mt-10 text-xs text-slate-400 leading-relaxed">
-        <div class="card rounded-3xl p-4">
+      <footer class="mt-10 text-xs text-slate-400">
+        <div class="card rounded-3xl p-4 clickable">
           <div class="font-extrabold text-slate-200">🧷 Aviso</div>
           <div class="mt-2">
-            Material educacional para simulação. Condutas reais dependem de protocolo institucional e avaliação do paciente.
+            Material educacional para simulação. Condutas reais dependem de protocolo institucional e avaliação clínica.
+          </div>
+          <div class="mt-2">
+            Criador: <b class="text-slate-200">Dr. Moacir Carrion — Fisioterapeuta</b>
           </div>
         </div>
       </footer>
     </main>
   </div>
 
-  <!-- Toasts -->
+  <!-- Toast -->
   <div id="toastArea" aria-live="polite" aria-atomic="true"></div>
 
-  <!-- Mascote central -->
-  <div id="popCenter" class="pop-center" aria-hidden="true">
-    <div class="pop-card">
+  <!-- Mascote -->
+  <div id="popCenter" aria-hidden="true">
+    <div id="popCard">
       <div class="flex items-center gap-4">
-        <div class="text-6xl" id="popIcon">🧑‍🚒</div>
+        <div class="text-6xl">🧑‍🚒</div>
         <div>
           <div class="text-2xl font-extrabold" id="popTitle">Boa!</div>
           <div class="text-slate-300" id="popText">Você ganhou pontos.</div>
@@ -234,16 +244,16 @@
   </div>
 
   <!-- Modal -->
-  <div id="modal" class="fixed inset-0 z-50" aria-hidden="true">
-    <div class="absolute inset-0 bg-black/60" id="modalBackdrop"></div>
-    <div class="relative min-h-full flex items-center justify-center p-4">
-      <div class="card rounded-3xl w-full max-w-2xl p-5">
+  <div id="modal" class="fixed inset-0 z-50 clickable" aria-hidden="true">
+    <div class="absolute inset-0 bg-black/60 clickable" id="modalBackdrop"></div>
+    <div class="relative min-h-full flex items-center justify-center p-4 clickable">
+      <div class="card rounded-3xl w-full max-w-2xl p-5 clickable">
         <div class="flex items-start justify-between gap-3">
           <div>
             <div class="text-2xl font-extrabold" id="modalTitle">Título</div>
             <div class="text-slate-300 mt-1" id="modalSubtitle">Texto</div>
           </div>
-          <button id="modalClose" class="btn-big btn-ghost" type="button">✖️ Fechar</button>
+          <button id="modalClose" class="btn btn-ghost clickable" type="button">✖️ Fechar</button>
         </div>
         <div class="mt-4" id="modalBody"></div>
       </div>
@@ -251,8 +261,8 @@
   </div>
 
 <script>
-(() => {
-  const LS_KEY = "hospital_emergencia_v2";
+document.addEventListener("DOMContentLoaded", () => {
+  const LS_KEY = "cta_emergencia_v3";
 
   const stateDefault = {
     userName: "Aluno",
@@ -260,11 +270,11 @@
     correct: 0,
     wrong: 0,
     sound: true,
-    focusMode: false,
+    reviewLog: [],
     seenQuestionIds: [],
     seenCaseIds: [],
     seenChecklistIds: [],
-    reviewLog: [],
+    seenErSeqIds: [],
   };
 
   function loadState(){
@@ -282,9 +292,9 @@
 
   const el = (id) => document.getElementById(id);
 
-  // Simple sound
+  // Sound
   const audioCtx = { ctx: null };
-  function beep(freq=660, ms=90){
+  function beep(freq=660, ms=80){
     if(!appState.sound) return;
     try{
       if(!audioCtx.ctx) audioCtx.ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -320,18 +330,16 @@
           <div class="font-extrabold">${escapeHtml(title)}</div>
           <div class="text-slate-200/90 text-sm mt-1 leading-relaxed">${escapeHtml(message)}</div>
         </div>
-      </div>
-    `;
+      </div>`;
     area.appendChild(box);
     setTimeout(()=>{ box.style.opacity="0"; box.style.transform="translateY(6px)"; box.style.transition="all .18s ease"; }, 2600);
     setTimeout(()=>box.remove(), 3000);
   }
 
   function popCenter(title, text, ms=5000){
-    const pc = el("popCenter");
-    el("popIcon").textContent = "🧑‍🚒";
     el("popTitle").textContent = title;
     el("popText").textContent = text;
+    const pc = el("popCenter");
     pc.classList.add("show");
     pc.setAttribute("aria-hidden","false");
     setTimeout(()=>{
@@ -340,21 +348,20 @@
     }, ms);
   }
 
-  function saveState(){
-    localStorage.setItem(LS_KEY, JSON.stringify(appState));
-    renderScoreWidgets();
-  }
-
   function accuracy(){
     const total = appState.correct + appState.wrong;
     if(total === 0) return 0;
     return Math.round((appState.correct / total) * 100);
   }
 
+  function saveState(){
+    localStorage.setItem(LS_KEY, JSON.stringify(appState));
+    renderScoreWidgets();
+  }
+
   function addReview(entry){
     appState.reviewLog.unshift({ t: new Date().toISOString(), ...entry });
-    if(appState.reviewLog.length > 250) appState.reviewLog.pop();
-    saveState();
+    if(appState.reviewLog.length > 300) appState.reviewLog.pop();
   }
 
   function addScore(delta, why){
@@ -380,409 +387,7 @@
     if(el("userNameLabel")) el("userNameLabel").textContent = appState.userName || "Aluno";
   }
 
-  // --------- DATA: Specialties / Topics ----------
-  const SPECIALTIES = [
-    { key:"MIX",  label:"🌐 Mesclado (tudo)" },
-    { key:"ENF",  label:"🩺 Enfermagem" },
-    { key:"FISIO", label:"🫁 Fisioterapia" },
-    { key:"TEC",  label:"🧾 Técnico de Enfermagem" },
-    { key:"MULTI", label:"🤝 Multiprofissional" },
-  ];
-
-  // Question structure:
-  // {id, topic, specialty: ["ENF","FISIO","TEC","MULTI"], level(1-3), q, options[], answerIndex, rationale, source}
-  const QUESTION_BANK = [
-    // ABCDE / Emergência
-    {id:"q_abcd_01", topic:"ABCDE", specialty:["MULTI","ENF","TEC"], level:1,
-      q:"No ABCDE, a prioridade inicial (A) é:",
-      options:["Avaliar perfusão", "Garantir via aérea e proteção cervical quando indicado", "Avaliar Glasgow", "Checar temperatura"],
-      answerIndex:1,
-      rationale:"A = Airway. Sinais de via aérea ameaçada exigem ação imediata antes de qualquer etapa subsequente.",
-      source:"Base conceitual: atendimento primário/ABCDE (emergência e trauma)."
-    },
-    {id:"q_abcd_02", topic:"ABCDE", specialty:["MULTI","ENF","TEC"], level:1,
-      q:"Sinal clássico de risco de obstrução alta de via aérea:",
-      options:["Estridor", "Diurese aumentada", "Edema em MMII", "Sopro cardíaco"],
-      answerIndex:0,
-      rationale:"Estridor sugere obstrução de via aérea superior e risco de deterioração rápida.",
-      source:"Base: avaliação de via aérea em emergência."
-    },
-    {id:"q_abcd_03", topic:"ABCDE", specialty:["MULTI","ENF","FISIO"], level:2,
-      q:"Paciente com SpO₂ 84% em ar ambiente e esforço respiratório. Melhor ação imediata:",
-      options:["Solicitar TC e aguardar", "Iniciar oxigênio e avaliar ventilação/padrão respiratório", "Aguardar antibiótico", "Apenas analgesia e observar"],
-      answerIndex:1,
-      rationale:"No 'B' (Breathing), suporte de oxigenação/ventilação e avaliação rápida (FR, padrão, ausculta) têm prioridade.",
-      source:"Base: abordagem ABCDE e manejo inicial de insuficiência respiratória."
-    },
-
-    // Sepse
-    {id:"q_sepse_01", topic:"Sepse", specialty:["MULTI","ENF","TEC","FISIO"], level:1,
-      q:"Em suspeita de sepse, uma ação crítica nas primeiras horas é:",
-      options:["Aguardar resultado de cultura por 24h", "Iniciar antibiótico oportuno e medidas do bundle conforme protocolo", "Evitar acesso venoso", "Suspender monitorização"],
-      answerIndex:1,
-      rationale:"Sepse é tempo-dependente: antibiótico oportuno, avaliação de perfusão e intervenções iniciais aumentam chance de desfecho favorável.",
-      source:"Diretrizes: Surviving Sepsis Campaign (conceitos de bundle)."
-    },
-    {id:"q_sepse_02", topic:"Sepse", specialty:["MULTI","ENF"], level:2,
-      q:"Após reposição inicial conforme protocolo, o paciente mantém hipotensão. Próximo passo provável:",
-      options:["Considerar vasopressor para alvo de PAM e perfusão", "Diurético de alça imediato", "Alta imediata", "Suspender avaliação"],
-      answerIndex:0,
-      rationale:"Quando hipotensão persiste após volume inicial, vasopressor pode ser necessário para manter perfusão adequada (de acordo com protocolo institucional).",
-      source:"Diretrizes: Surviving Sepsis (choque séptico, suporte hemodinâmico)."
-    },
-    {id:"q_sepse_03", topic:"Sepse", specialty:["MULTI","ENF"], level:3,
-      q:"Marcador associado à hipoperfusão e maior gravidade na sepse:",
-      options:["Lactato elevado", "Sódio normal", "Temperatura 36,5°C", "Hematócrito estável"],
-      answerIndex:0,
-      rationale:"Lactato elevado é marcador de hipoperfusão e se correlaciona com gravidade; deve ser reavaliado conforme protocolo.",
-      source:"Diretrizes: Surviving Sepsis (lactato/perfusão)."
-    },
-
-    // ACLS
-    {id:"q_acls_01", topic:"RCP/ACLS", specialty:["ENF","TEC","MULTI"], level:1,
-      q:"Em PCR presenciada, prioridade imediata é:",
-      options:["Intubar antes de compressões", "RCP de alta qualidade e desfibrilar precocemente quando indicado", "Epinefrina antes de RCP", "Exame neurológico completo"],
-      answerIndex:1,
-      rationale:"RCP de alta qualidade e desfibrilação precoce em ritmos chocáveis são determinantes de sobrevida.",
-      source:"Diretrizes: AHA (ACLS/RCP) — conceitos."
-    },
-    {id:"q_acls_02", topic:"RCP/ACLS", specialty:["ENF","TEC","MULTI"], level:2,
-      q:"Ritmo FV/TV sem pulso: conduta inicial:",
-      options:["Desfibrilar e retomar RCP imediatamente", "Atropina", "Cardioversão sincronizada", "Aguardar monitorização"],
-      answerIndex:0,
-      rationale:"FV/TV sem pulso é ritmo chocável: desfibrilar e reiniciar compressões sem atrasos prolongados.",
-      source:"Diretrizes: AHA (ACLS) — ritmos chocáveis."
-    },
-    {id:"q_acls_03", topic:"RCP/ACLS", specialty:["ENF","MULTI"], level:3,
-      q:"Após ROSC, um objetivo prioritário nas primeiras horas é:",
-      options:["Otimizar oxigenação/ventilação e perfusão e investigar causa", "Suspender monitorização", "Evitar glicemia capilar", "Manter hipotensão deliberada"],
-      answerIndex:0,
-      rationale:"Cuidados pós-PCR incluem otimização de ventilação/oxigenação, estabilidade hemodinâmica e investigação de causa reversível.",
-      source:"Diretrizes: AHA (pós-parada) — conceitos."
-    },
-
-    // VM / Resp
-    {id:"q_vm_01", topic:"Ventilação Mecânica", specialty:["FISIO","ENF","MULTI"], level:1,
-      q:"Conceito de ventilação protetora (quando aplicável) costuma incluir:",
-      options:["VC alto (10–12 mL/kg)", "VC mais baixo (≈6 mL/kg de peso predito) e controle de pressões", "PEEP zero sempre", "FR sempre < 10"],
-      answerIndex:1,
-      rationale:"Ventilação protetora busca reduzir volutrauma/barotrauma, usando ajustes compatíveis com a condição clínica e metas de ventilação.",
-      source:"Base: estratégias de ventilação protetora em terapia intensiva."
-    },
-    {id:"q_vm_02", topic:"Ventilação Mecânica", specialty:["FISIO","MULTI"], level:2,
-      q:"Sinal sugestivo de auto-PEEP em paciente obstrutivo na VM:",
-      options:["Expiração incompleta/tempo expiratório curto", "Pico baixo", "ETCO₂ sempre normal", "Alarme de O₂ alto"],
-      answerIndex:0,
-      rationale:"Auto-PEEP ocorre por aprisionamento aéreo (expiração incompleta), comum em DPOC/asma com FR alta e TE insuficiente.",
-      source:"Base: mecânica ventilatória em obstrução."
-    },
-    {id:"q_vm_03", topic:"Ventilação Mecânica", specialty:["FISIO","MULTI"], level:3,
-      q:"Paciente com broncoespasmo grave e auto-PEEP na VM: medida inicial coerente é:",
-      options:["Aumentar FR e reduzir tempo expiratório", "Reduzir FR e aumentar tempo expiratório, tratando broncoespasmo", "Suspender broncodilatadores", "Zerar sedação sem avaliar"],
-      answerIndex:1,
-      rationale:"Para reduzir air trapping: aumentar TE (reduzir FR/ajustar Ti) e tratar broncoespasmo, monitorando hemodinâmica.",
-      source:"Base: VM em obstrução (asma/DPOC) e prevenção de hiperinsuflação dinâmica."
-    },
-
-    // Trauma / ATLS
-    {id:"q_trauma_01", topic:"Trauma", specialty:["ENF","TEC","MULTI"], level:1,
-      q:"No trauma, a proteção cervical é indicada quando:",
-      options:["Somente em idosos", "Mecanismo sugestivo/alteração neurológica até exclusão de lesão", "Apenas se houver fratura exposta", "Somente se houver dor abdominal"],
-      answerIndex:1,
-      rationale:"No atendimento inicial do trauma, presume-se risco de lesão cervical com mecanismo compatível até avaliação adequada.",
-      source:"Diretrizes: ATLS (conceitos de avaliação primária)."
-    },
-    {id:"q_trauma_02", topic:"Trauma", specialty:["ENF","TEC","MULTI"], level:2,
-      q:"Achados compatíveis com choque hemorrágico no trauma:",
-      options:["Pele quente e corada", "Taquicardia, hipotensão e extremidades frias", "Bradicardia com hipertensão", "Sonolência com glicemia alta"],
-      answerIndex:1,
-      rationale:"Taquicardia + hipotensão + má perfusão periférica sugerem choque, frequentemente hemorrágico no trauma.",
-      source:"ATLS (choque no trauma) — sinais clínicos."
-    },
-
-    // Segurança do Paciente / Medicação
-    {id:"q_med_01", topic:"Segurança/Medicação", specialty:["ENF","TEC","MULTI"], level:1,
-      q:"Medida que reduz erro de medicação em ambiente hospitalar:",
-      options:["Administrar sem identificação do paciente para ganhar tempo", "Checar identificação ativa e ‘direitos’ da medicação", "Evitar registro para agilizar", "Trocar frascos sem rotulagem"],
-      answerIndex:1,
-      rationale:"Práticas de segurança incluem identificação ativa e checagens padronizadas (paciente, medicamento, dose, via, horário, registro).",
-      source:"Segurança do paciente (boas práticas/checagens)."
-    },
-    {id:"q_med_02", topic:"Segurança/Medicação", specialty:["ENF","TEC"], level:2,
-      q:"Antes de administrar medicação de alto risco, é recomendado:",
-      options:["Dupla checagem quando prevista em protocolo e rotulagem clara", "Misturar diferentes drogas no mesmo frasco sem conferir compatibilidade", "Ignorar alergias se não houver reação prévia", "Aplicar sem monitorização"],
-      answerIndex:0,
-      rationale:"Drogas de alto risco exigem barreiras de segurança: rotulagem, dupla checagem, compatibilidade e monitorização conforme protocolo.",
-      source:"Boas práticas de segurança e gestão de risco."
-    },
-
-    // Oxigenoterapia / DPOC
-    {id:"q_resp_01", topic:"Respiratório", specialty:["FISIO","ENF","MULTI"], level:1,
-      q:"Objetivo da oxigenoterapia na emergência é:",
-      options:["Manter sempre SpO₂ 100%", "Garantir oxigenação adequada com alvo seguro conforme contexto clínico", "Substituir ventilação sempre", "Aumentar trabalho respiratório"],
-      answerIndex:1,
-      rationale:"Meta de oxigenação deve ser segura e individualizada (ex.: cuidado com hiperóxia/retentor de CO₂ quando aplicável).",
-      source:"Boas práticas de oxigenoterapia e insuficiência respiratória."
-    },
-    {id:"q_resp_02", topic:"Respiratório", specialty:["FISIO","MULTI"], level:2,
-      q:"Sinal clínico de falência ventilatória iminente:",
-      options:["FR 14 e fala frases completas", "Uso intenso de musculatura acessória + rebaixamento progressivo", "Tosse leve", "Temperatura 37,1°C"],
-      answerIndex:1,
-      rationale:"Esforço acentuado com alteração do nível de consciência sugere fadiga e risco de falência ventilatória.",
-      source:"Avaliação clínica de insuficiência respiratória."
-    },
-
-    // AVC / Dor torácica (rotina)
-    {id:"q_avc_01", topic:"Neurológico (AVC)", specialty:["ENF","TEC","MULTI"], level:1,
-      q:"Sinal de alerta para AVC agudo que exige fluxo rápido:",
-      options:["Dor lombar crônica", "Assimetria facial e déficit súbito de força/fala", "Prurido leve", "Edema de tornozelo"],
-      answerIndex:1,
-      rationale:"Déficit neurológico súbito é emergência tempo-dependente; acionar protocolo (janela terapêutica).",
-      source:"Protocolos de AVC (reconhecimento rápido)."
-    },
-    {id:"q_dor_01", topic:"Cardiovascular", specialty:["ENF","TEC","MULTI"], level:1,
-      q:"Em dor torácica suspeita, ação inicial adequada é:",
-      options:["Ignorar sinais vitais", "Monitorização e avaliação inicial estruturada (dor, vitais, ECG conforme fluxo)", "Alta imediata", "Aguardar melhora espontânea sem avaliação"],
-      answerIndex:1,
-      rationale:"Dor torácica exige triagem estruturada e monitorização; ECG precoce é prática comum em protocolos.",
-      source:"Fluxos de síndrome coronariana aguda (conceitos)."
-    },
-  ];
-
-  // --------- CASES ----------
-  // Case with single-choice decision list (shows correct/incorrect + rationale/source)
-  const CASE_BANK = [
-    {
-      id:"c_sepse_pnm",
-      title:"🚑 Caso: Sepse provável (pneumonia)",
-      specialty:["MULTI","ENF","FISIO","TEC"],
-      intro:"Paciente 67a: febre, tosse produtiva, confusão, pele fria.",
-      vitals:{ FR:"30", "SpO₂":"88% AA", FC:"118", PA:"86/54", T:"38,9" },
-      question:"Qual é a prioridade imediata mais coerente no início do atendimento?",
-      options:[
-        { text:"Iniciar oxigênio e avaliação ventilatória (B) + monitorização", ok:true },
-        { text:"Aguardar RX antes de qualquer intervenção", ok:false },
-        { text:"Focar apenas em exame neurológico completo antes de estabilizar", ok:false },
-        { text:"Oferecer água e observar evolução", ok:false },
-      ],
-      rationale:"Em ABCDE, hipoxemia/taquipneia exigem intervenção no B imediatamente, enquanto o bundle de sepse é acionado em paralelo conforme protocolo.",
-      source:"ABCDE + Surviving Sepsis (bundle tempo-dependente).",
-      points:10
-    },
-    {
-      id:"c_pcr_fv",
-      title:"⚡ Caso: PCR com FV no monitor",
-      specialty:["ENF","TEC","MULTI"],
-      intro:"Paciente colapsa. Inconsciente, sem respiração efetiva. Monitor: FV.",
-      vitals:{ Ritmo:"FV", Pulso:"Ausente" },
-      question:"Qual ação imediata aumenta mais a chance de sobrevida?",
-      options:[
-        { text:"Desfibrilar e retomar RCP imediatamente", ok:true },
-        { text:"Esperar médico e manter paciente em repouso", ok:false },
-        { text:"Checar pupilas por 2 minutos antes de compressões", ok:false },
-        { text:"Atropina como primeira medida", ok:false },
-      ],
-      rationale:"RCP de alta qualidade e desfibrilação precoce são essenciais em ritmos chocáveis; pausas devem ser mínimas.",
-      source:"AHA/ACLS (conceitos de FV/TV sem pulso).",
-      points:10
-    },
-    {
-      id:"c_trauma_choque",
-      title:"🩸 Caso: Trauma com choque provável",
-      specialty:["ENF","TEC","MULTI"],
-      intro:"Motociclista 24a. Palidez, sudorese, extremidades frias, dor abdominal.",
-      vitals:{ FC:"132", PA:"90/60", FR:"26" },
-      question:"Qual foco inicial é mais adequado?",
-      options:[
-        { text:"Reconhecer choque e atuar em C (circulação/hemorragia) com reavaliação", ok:true },
-        { text:"Solicitar tomografia e aguardar", ok:false },
-        { text:"Exposição completa antes de qualquer ação", ok:false },
-        { text:"Nebulização e fisioterapia respiratória como prioridade", ok:false },
-      ],
-      rationale:"No trauma, choque hemorrágico é prioridade. Avaliação primária (ABCDE) com foco em perfusão e controle de sangramento conforme fluxo.",
-      source:"ATLS (avaliação primária e choque no trauma).",
-      points:10
-    },
-    {
-      id:"c_vm_autopeep",
-      title:"🫁 Caso: VM com auto-PEEP (obstrutivo)",
-      specialty:["FISIO","MULTI","ENF"],
-      intro:"Paciente DPOC intubado. Pico alto e expiração curta; suspeita de air trapping.",
-      vitals:{ SpO₂:"92%", EtCO₂:"alto", FC:"110" },
-      question:"Qual ajuste inicial é mais coerente (educacional)?",
-      options:[
-        { text:"Reduzir FR e aumentar tempo expiratório, tratando broncoespasmo", ok:true },
-        { text:"Aumentar FR para ‘ventilar mais’ e reduzir TE", ok:false },
-        { text:"Desligar alarmes e manter igual", ok:false },
-        { text:"Suspender broncodilatadores", ok:false },
-      ],
-      rationale:"Em obstrução, expiração insuficiente gera hiperinsuflação dinâmica. Aumentar TE e tratar broncoespasmo são medidas base.",
-      source:"Conceitos de VM em asma/DPOC e auto-PEEP.",
-      points:10
-    },
-  ];
-
-  // --------- CHECKLISTS (True/False) ----------
-  // Student checks items that are TRUE (or FALSE) based on prompt; then evaluates.
-  const CHECKLIST_BANK = [
-    {
-      id:"cl_med_safe",
-      title:"✅ Checklist: Segurança na administração de medicação",
-      specialty:["ENF","TEC","MULTI"],
-      intro:"Marque as afirmações VERDADEIRAS (boas práticas).",
-      items:[
-        { text:"Confirmar identificação ativa do paciente antes de administrar.", truth:true, why:"Identificação ativa é barreira contra erro de paciente." },
-        { text:"Administrar sem checar alergias se já usou antes.", truth:false, why:"Alergia deve ser checada e registrada conforme rotina." },
-        { text:"Rotular seringas/soluções quando preparadas fora da embalagem original.", truth:true, why:"Rotulagem reduz troca e erro de droga/dose." },
-        { text:"Dupla checagem para medicações de alto risco quando previsto em protocolo.", truth:true, why:"Barreira de segurança para alto risco." },
-        { text:"Evitar registro para agilizar o fluxo.", truth:false, why:"Registro é parte da segurança e rastreabilidade." },
-      ],
-      source:"Boas práticas de segurança do paciente / medicação segura.",
-      points:12
-    },
-    {
-      id:"cl_asp_trq",
-      title:"✅ Checklist: Aspiração em via aérea artificial (rotina segura)",
-      specialty:["FISIO","ENF","TEC","MULTI"],
-      intro:"Marque as afirmações VERDADEIRAS (segurança e técnica).",
-      items:[
-        { text:"Avaliar indicação (secreção, sinais clínicos) antes de aspirar.", truth:true, why:"Aspiração sem indicação aumenta risco e desconforto." },
-        { text:"Manter técnica asséptica/limpa conforme protocolo e EPI adequado.", truth:true, why:"Reduz risco de contaminação e infecção." },
-        { text:"Prolongar aspiração continuamente por tempo indefinido.", truth:false, why:"Aspiração prolongada aumenta dessaturação e lesão." },
-        { text:"Monitorar SpO₂/FC e interromper se houver instabilidade.", truth:true, why:"Segurança: monitorização e reavaliação." },
-        { text:"Ignorar tosse e sinais de desconforto do paciente.", truth:false, why:"Sinais clínicos orientam segurança e necessidade de pausa." },
-      ],
-      source:"Rotinas de aspiração/segurança respiratória (conceitos).",
-      points:12
-    },
-    {
-      id:"cl_epi_isol",
-      title:"✅ Checklist: Isolamento e EPI (precauções)",
-      specialty:["ENF","TEC","MULTI","FISIO"],
-      intro:"Marque as afirmações VERDADEIRAS (precauções e EPI).",
-      items:[
-        { text:"Higienização de mãos antes e após contato com o paciente.", truth:true, why:"Medida mais efetiva contra transmissão." },
-        { text:"Usar EPI compatível com risco de gotículas/aerossóis conforme procedimento.", truth:true, why:"EPI depende do risco/geração de aerossol." },
-        { text:"Reutilizar luvas entre pacientes se não estiverem sujas.", truth:false, why:"Troca entre pacientes é obrigatória." },
-        { text:"Proteção ocular/face shield quando risco de respingos.", truth:true, why:"Protege mucosas." },
-        { text:"Descartar EPI de forma segura e correta.", truth:true, why:"Reduz contaminação cruzada." },
-      ],
-      source:"Boas práticas de controle de infecção e precauções.",
-      points:12
-    },
-  ];
-
-  // --------- PPE by procedure ----------
-  const PPE_MENU = [
-    {
-      title:"🩸 Punção venosa / Coleta de sangue",
-      items:["Luvas", "Higienização de mãos", "Óculos/face shield se risco de respingo", "Avental se risco de contato com fluidos"]
-    },
-    {
-      title:"🫁 Aspiração de vias aéreas / Procedimento com secreção",
-      items:["Luvas", "Máscara (avaliar risco de aerossol conforme protocolo)", "Proteção ocular/face shield", "Avental"]
-    },
-    {
-      title:"🧪 Manipulação de fluidos corporais / Curativos com exsudato",
-      items:["Luvas", "Avental", "Proteção ocular se respingo", "Máscara se risco de gotículas"]
-    },
-    {
-      title:"⚡ RCP / Atendimento emergencial com exposição a fluidos",
-      items:["Luvas", "Proteção ocular/face shield", "Máscara conforme risco", "Avental se exposição provável"]
-    },
-    {
-      title:"🧫 Precauções de contato (ex.: diarreia infecciosa)",
-      items:["Luvas", "Avental", "Higiene de mãos rigorosa", "Limpeza de superfícies conforme protocolo"]
-    },
-  ];
-
-  // --------- Pathologies & Interventions (Searchable) ----------
-  const PATH_DB = [
-    { name:"Sepse/Choque séptico", tags:["infecção","hipotensão","lactato"], initial:[
-      "Reconhecer sinais de hipoperfusão e iniciar monitorização.",
-      "Coletar exames conforme protocolo e iniciar antibiótico oportuno.",
-      "Reposição volêmica e vasopressor quando indicado (protocolo).",
-      "Reavaliação seriada (perfusão, PAM, diurese, lactato)."
-    ], source:"Surviving Sepsis (conceitos)."},
-    { name:"Asma/DPOC exacerbado", tags:["broncoespasmo","hipercapnia","fadiga"], initial:[
-      "Avaliar esforço respiratório, ausculta, SpO₂ e sinais de fadiga.",
-      "Oxigenoterapia com alvo seguro conforme contexto.",
-      "Broncodilatadores/corticoide conforme prescrição e protocolo.",
-      "Se ventilação invasiva: prevenir auto-PEEP aumentando tempo expiratório."
-    ], source:"GOLD/boas práticas respiratórias (conceitos)."},
-    { name:"PCR (FV/TV sem pulso)", tags:["acls","choque"], initial:[
-      "RCP de alta qualidade, minimizar pausas.",
-      "Desfibrilar precocemente quando indicado.",
-      "Organizar equipe e ciclos conforme protocolo.",
-      "Pós-ROSC: otimizar ventilação/perfusão e investigar causa."
-    ], source:"AHA/ACLS (conceitos)."},
-    { name:"AVC agudo (suspeita)", tags:["fala","força","face"], initial:[
-      "Reconhecimento rápido e acionar protocolo tempo-dependente.",
-      "Checar glicemia, sinais vitais e avaliação neurológica breve.",
-      "Via aérea/oxigenação se necessário.",
-      "Transporte e exames conforme fluxo institucional."
-    ], source:"Protocolos de AVC (conceitos)."},
-    { name:"Trauma com choque provável", tags:["hemorragia","hipotensão"], initial:[
-      "ABCDE com proteção cervical quando indicado.",
-      "Reconhecer choque e atuar em circulação/controle de sangramento conforme fluxo.",
-      "Aquecer paciente e reavaliar continuamente.",
-      "Acionar equipe (cirurgia/trauma) conforme gravidade."
-    ], source:"ATLS (conceitos)."},
-  ];
-
-  // --------- Helpers: pick rotating by filter ----------
-  function matchesSpecialty(itemSpecs, selected){
-    if(selected === "MIX") return true;
-    return itemSpecs.includes(selected) || itemSpecs.includes("MULTI");
-  }
-
-  function pickRotatingQuestion({topic=null, level=null, specialty="MIX"}){
-    let pool = QUESTION_BANK.slice().filter(q => matchesSpecialty(q.specialty, specialty));
-    if(topic) pool = pool.filter(q => q.topic === topic);
-    if(level) pool = pool.filter(q => q.level === level);
-
-    const seen = new Set(appState.seenQuestionIds || []);
-    let unseen = pool.filter(q => !seen.has(q.id));
-    if(unseen.length === 0) unseen = pool;
-
-    const q = unseen[Math.floor(Math.random() * unseen.length)];
-    if(q && !seen.has(q.id)){
-      appState.seenQuestionIds.push(q.id);
-      if(appState.seenQuestionIds.length > 800) appState.seenQuestionIds.shift();
-      saveState();
-    }
-    return q;
-  }
-
-  function pickRotatingCase(specialty="MIX"){
-    let pool = CASE_BANK.slice().filter(c => matchesSpecialty(c.specialty, specialty));
-    const seen = new Set(appState.seenCaseIds || []);
-    let unseen = pool.filter(c => !seen.has(c.id));
-    if(unseen.length === 0) unseen = pool;
-    const c = unseen[Math.floor(Math.random() * unseen.length)];
-    if(c && !seen.has(c.id)){
-      appState.seenCaseIds.push(c.id);
-      if(appState.seenCaseIds.length > 400) appState.seenCaseIds.shift();
-      saveState();
-    }
-    return c;
-  }
-
-  function pickRotatingChecklist(specialty="MIX"){
-    let pool = CHECKLIST_BANK.slice().filter(cl => matchesSpecialty(cl.specialty, specialty));
-    const seen = new Set(appState.seenChecklistIds || []);
-    let unseen = pool.filter(cl => !seen.has(cl.id));
-    if(unseen.length === 0) unseen = pool;
-    const cl = unseen[Math.floor(Math.random() * unseen.length)];
-    if(cl && !seen.has(cl.id)){
-      appState.seenChecklistIds.push(cl.id);
-      if(appState.seenChecklistIds.length > 400) appState.seenChecklistIds.shift();
-      saveState();
-    }
-    return cl;
-  }
-
-  // --------- UI: modal ----------
+  // Modal
   function openModal(title, subtitle, bodyHtml){
     el("modalTitle").textContent = title;
     el("modalSubtitle").textContent = subtitle || "";
@@ -797,45 +402,181 @@
   el("modalClose").addEventListener("click", closeModal);
   el("modalBackdrop").addEventListener("click", closeModal);
 
-  // --------- Routing ----------
+  // DATA (compacta; você pode ampliar depois mantendo o padrão)
+  const QUESTION_BANK = [
+    {id:"q1", topic:"ABCDE", level:1, q:"No ABCDE, a prioridade inicial (A) é:", options:[
+      "Avaliar perfusão","Garantir via aérea e proteção cervical quando indicado","Avaliar Glasgow"
+    ], answerIndex:1,
+    rationale:"A = Airway. Via aérea ameaçada tem prioridade antes de B/C/D/E.",
+    source:"Conceitos de avaliação primária/ABCDE."},
+
+    {id:"q2", topic:"RCP/ACLS", level:1, q:"Em FV/TV sem pulso, conduta inicial:", options:[
+      "Desfibrilar e retomar RCP imediatamente","Atropina","Aguardar monitorização"
+    ], answerIndex:0,
+    rationale:"Ritmo chocável: desfibrilação precoce + RCP de alta qualidade.",
+    source:"Diretrizes AHA/ACLS (conceitos)."},
+
+    {id:"q3", topic:"Sepse", level:2, q:"Em suspeita de sepse, uma ação crítica nas primeiras horas:", options:[
+      "Aguardar cultura por 24h","Iniciar antibiótico oportuno e bundle conforme protocolo","Suspender monitorização"
+    ], answerIndex:1,
+    rationale:"Sepse é tempo-dependente: intervenção precoce melhora desfecho.",
+    source:"Surviving Sepsis Campaign (conceitos de bundle)."},
+  ];
+
+  const CASE_BANK = [
+    { id:"c1", title:"🚑 Caso: Sepse provável", intro:"67a com febre, confusão, pele fria.", vitals:{FR:"30",SpO2:"88% AA",FC:"118",PA:"86/54"}, question:"Prioridade imediata no início do atendimento:",
+      options:[
+        {text:"Iniciar oxigênio e avaliação ventilatória + monitorização", ok:true},
+        {text:"Aguardar RX antes de qualquer intervenção", ok:false},
+        {text:"Oferecer água e observar", ok:false},
+      ],
+      rationale:"Hipoxemia/taquipneia exigem intervenção no B (Breathing) imediatamente; bundle de sepse segue fluxo.",
+      source:"ABCDE + Surviving Sepsis (conceitos).", points:10
+    },
+    { id:"c2", title:"⚡ Caso: PCR com FV", intro:"Colapso súbito; monitor mostra FV.", vitals:{Ritmo:"FV",Pulso:"Ausente"}, question:"Ação imediata mais efetiva:",
+      options:[
+        {text:"Desfibrilar e retomar RCP", ok:true},
+        {text:"Checar pupilas por 2 min", ok:false},
+        {text:"Atropina como 1ª medida", ok:false},
+      ],
+      rationale:"RCP de alta qualidade e desfibrilação precoce em ritmos chocáveis.",
+      source:"AHA/ACLS (conceitos).", points:10
+    },
+  ];
+
+  const CHECKLIST_BANK = [
+    { id:"cl1", title:"✅ Medicação segura", intro:"Marque as afirmações VERDADEIRAS (boas práticas).",
+      items:[
+        {text:"Confirmar identificação ativa do paciente.", truth:true, why:"Barreira contra erro de paciente."},
+        {text:"Administrar sem checar alergias.", truth:false, why:"Alergias devem ser verificadas."},
+        {text:"Rotular seringas/soluções preparadas.", truth:true, why:"Reduz troca e erro de droga/dose."},
+      ],
+      source:"Boas práticas de segurança do paciente (conceitos).", points:12
+    }
+  ];
+
+  const EPIS = [
+    {title:"🧤 EPIs essenciais (base)", items:["Higienização de mãos","Luvas quando indicado","Máscara conforme risco","Proteção ocular quando respingos","Avental quando contato com fluidos"]},
+    {title:"🧼 Boas práticas", items:["Troca de luvas entre pacientes","Descarte correto","Não tocar face/máscara","Limpeza de superfícies conforme protocolo"]},
+  ];
+
+  const PATH_DB = [
+    { name:"Sepse/Choque séptico", tags:["infecção","hipotensão","lactato"], initial:[
+      "Reconhecer sinais de hipoperfusão e iniciar monitorização.",
+      "Coletar exames conforme protocolo e iniciar antibiótico oportuno.",
+      "Reposição volêmica e vasopressor quando indicado (protocolo).",
+      "Reavaliação seriada (perfusão, diurese, lactato)."
+    ], source:"Surviving Sepsis (conceitos)."},
+    { name:"PCR (FV/TV sem pulso)", tags:["acls","choque"], initial:[
+      "RCP de alta qualidade, minimizar pausas.",
+      "Desfibrilar precocemente quando indicado.",
+      "Organizar equipe e ciclos conforme protocolo.",
+      "Pós-ROSC: otimizar ventilação/perfusão e investigar causa."
+    ], source:"AHA/ACLS (conceitos)."},
+  ];
+
+  // Sala de emergência: sequências + “ligar no paciente”
+  const ER_SEQUENCES = [
+    {
+      id:"er_pcr",
+      title:"🚑 Sequência: PCR (adulto) — base educacional",
+      steps:[
+        "Avaliar responsividade e respiração/pulso rapidamente",
+        "Acionar ajuda e iniciar RCP de alta qualidade",
+        "Desfibrilar se ritmo chocável (FV/TVsp) e retomar RCP",
+        "Reavaliar ritmos em ciclos e tratar causas reversíveis",
+        "Pós-ROSC: otimizar ventilação/perfusão e investigar causa"
+      ],
+      source:"AHA/ACLS (conceitos)."
+    },
+    {
+      id:"er_sepse",
+      title:"🩸 Sequência: Sepse provável — base educacional",
+      steps:[
+        "Reconhecer sinais de gravidade e iniciar monitorização",
+        "Oxigenar/ventilar se necessário (ABCDE)",
+        "Coletar exames/culturas conforme protocolo e iniciar antibiótico oportuno",
+        "Reposição volêmica e reavaliação de perfusão",
+        "Escalonar suporte (vasopressor/UTI) quando indicado pelo protocolo"
+      ],
+      source:"Surviving Sepsis (conceitos)."
+    },
+  ];
+
+  // Atividade “ligar no paciente” (números no corpo)
+  // O aluno escolhe qual etapa (em ordem) corresponde a cada número.
+  // Aqui usamos a sequência de RCP como default (você pode trocar/duplicar depois).
+  const ER_LINK_GAME = {
+    title:"🧩 Atividade: Ligar sequência no paciente (decúbito dorsal)",
+    description:"Para cada número no corpo, selecione a etapa correta da sequência (ordem).",
+    sequenceId:"er_pcr",
+    spots:[
+      { n:1, label:"Cabeça/Consciência" },
+      { n:2, label:"Tórax (compressões)" },
+      { n:3, label:"Desfibrilador/choque" },
+      { n:4, label:"Acesso/medicações (conceito)" },
+      { n:5, label:"Monitor/ritmo" },
+      { n:6, label:"Pós-ROSC (cuidados)" },
+    ],
+    // gabarito por número -> índice da etapa (1..steps.length)
+    answerBySpot: { 1:1, 2:2, 3:3, 4:4, 5:4, 6:5 }, // 4 e 5 podem “convergir” na etapa 4 (ciclos/ritmo/causas)
+    points: 20
+  };
+
+  // Helpers: rotation
+  function pickRotating(arr, seenKey){
+    const seen = new Set(appState[seenKey] || []);
+    let unseen = arr.filter(x => !seen.has(x.id));
+    if(unseen.length === 0) unseen = arr;
+    const item = unseen[Math.floor(Math.random() * unseen.length)];
+    if(item && !seen.has(item.id)){
+      appState[seenKey].push(item.id);
+      if(appState[seenKey].length > 500) appState[seenKey].shift();
+      saveState();
+    }
+    return item;
+  }
+
+  // Views
   const VIEW_META = {
     dashboard: { title:"Painel", subtitle:"Escolha um módulo e treine com feedback imediato." },
+    er: { title:"Sala de Emergência", subtitle:"Sequências de procedimentos + atividade prática." },
     triage: { title:"Triagem (ABCDE)", subtitle:"Decida prioridades e receba correção." },
     cases: { title:"Casos Clínicos", subtitle:"Casos rotativos com resposta e justificativa." },
     quiz: { title:"Quiz", subtitle:"Responda e avance automaticamente em 5 segundos." },
-    checklists: { title:"Checklists (V/F)", subtitle:"Marque itens corretos e finalize para ver a pontuação." },
-    ppe: { title:"EPIs por procedimento", subtitle:"Guia prático de EPIs por risco/procedimento (educacional)." },
-    path: { title:"Patologias & Intervenções", subtitle:"Consulte condutas iniciais e intervenções por condição (educacional)." },
-    review: { title:"Revisão", subtitle:"Veja seu histórico e onde precisa reforçar." },
+    checklists: { title:"Checklists (V/F)", subtitle:"Marque itens corretos e finalize para ver o resultado." },
+    epis: { title:"EPIs", subtitle:"Resumo educacional de EPIs e boas práticas." },
+    path: { title:"Patologias & Intervenções", subtitle:"Consulta rápida para estudo (educacional)." },
+    review: { title:"Revisão", subtitle:"Histórico e plano rápido de reforço." },
   };
+
+  const viewContainer = el("viewContainer");
 
   function setHeader(view){
     const m = VIEW_META[view] || VIEW_META.dashboard;
-    if(el("pageTitle")) el("pageTitle").textContent = m.title;
-    if(el("pageSubtitle")) el("pageSubtitle").textContent = m.subtitle;
-    document.title = `Emergência — ${m.title}`;
+    el("pageTitle").textContent = m.title;
+    el("pageSubtitle").textContent = m.subtitle;
+    document.title = `Centro de Treinamento Avançado — ${m.title}`;
   }
 
   function sectionCard(title, subtitle, innerHtml){
     const wrap = document.createElement("div");
-    wrap.className = "card rounded-3xl p-5";
+    wrap.className = "card rounded-3xl p-5 clickable";
     wrap.innerHTML = `
-      <div class="flex items-start justify-between gap-4">
-        <div>
-          <div class="text-2xl font-extrabold">${escapeHtml(title)}</div>
-          ${subtitle ? `<div class="text-slate-300 mt-1">${escapeHtml(subtitle)}</div>` : ""}
-        </div>
+      <div>
+        <div class="text-2xl font-extrabold">${escapeHtml(title)}</div>
+        ${subtitle ? `<div class="text-slate-300 mt-1">${escapeHtml(subtitle)}</div>` : ""}
       </div>
       <div class="mt-4">${innerHtml}</div>
     `;
     return wrap;
   }
 
-  const viewContainer = el("viewContainer");
   function go(view){
     setHeader(view);
-    renderView(view);
-    document.querySelectorAll(".navBtn").forEach(b=>{
+
+    // highlight nav
+    document.querySelectorAll("[data-view]").forEach(b=>{
       if(b.dataset.view === view){
         b.classList.remove("btn-ghost");
         b.classList.add("btn-primary");
@@ -844,6 +585,10 @@
         b.classList.add("btn-ghost");
       }
     });
+
+    renderView(view);
+
+    // close sidebar on mobile
     if(window.innerWidth < 1024){
       el("sidebar").classList.add("hidden");
     }
@@ -852,49 +597,41 @@
   function renderView(view){
     viewContainer.innerHTML = "";
     if(view === "dashboard") return renderDashboard();
+    if(view === "er") return renderER();
     if(view === "triage") return renderTriage();
     if(view === "cases") return renderCases();
     if(view === "quiz") return renderQuiz();
     if(view === "checklists") return renderChecklists();
-    if(view === "ppe") return renderPPE();
+    if(view === "epis") return renderEPIs();
     if(view === "path") return renderPath();
     if(view === "review") return renderReview();
     return renderDashboard();
   }
 
-  // --------- Common: Specialty filter UI ----------
-  function specialtySelect(id){
-    return `
-      <select id="${id}" class="rounded-2xl bg-slate-900/60 border border-slate-700/30 px-4 py-3 font-extrabold">
-        ${SPECIALTIES.map(s => `<option value="${s.key}">${escapeHtml(s.label)}</option>`).join("")}
-      </select>
-    `;
-  }
-
-  // --------- Dashboard ----------
+  // Dashboard
   function renderDashboard(){
     const html = `
       <div class="grid lg:grid-cols-2 gap-4">
         <div class="rounded-3xl bg-slate-900/60 border border-slate-700/30 p-5">
-          <div class="text-xl font-extrabold">🚀 Começar agora</div>
-          <div class="text-slate-300 mt-2">Escolha um módulo e treine (sem cadastro).</div>
+          <div class="text-xl font-extrabold">🚀 Iniciar</div>
+          <div class="text-slate-300 mt-2">Escolha um módulo e treine.</div>
 
           <div class="grid sm:grid-cols-2 gap-3 mt-4">
-            <button class="btn-big btn-primary w-full" data-go="triage">🚦 Triagem ABCDE</button>
-            <button class="btn-big btn-primary w-full" data-go="cases">📋 Casos Clínicos</button>
-            <button class="btn-big btn-ghost w-full" data-go="quiz">🧠 Quiz (auto)</button>
-            <button class="btn-big btn-ghost w-full" data-go="checklists">✅ Checklists (V/F)</button>
-            <button class="btn-big btn-ghost w-full" data-go="ppe">🧤 EPIs</button>
-            <button class="btn-big btn-ghost w-full" data-go="path">🧩 Patologias</button>
+            <button class="btn btn-primary clickable" data-go="er">🚑 Sala de Emergência</button>
+            <button class="btn btn-primary clickable" data-go="triage">🚦 Triagem ABCDE</button>
+            <button class="btn btn-ghost clickable" data-go="cases">📋 Casos Clínicos</button>
+            <button class="btn btn-ghost clickable" data-go="quiz">🧠 Quiz</button>
+            <button class="btn btn-ghost clickable" data-go="checklists">✅ Checklists</button>
+            <button class="btn btn-ghost clickable" data-go="epis">🧤 EPIs</button>
           </div>
         </div>
 
         <div class="rounded-3xl bg-slate-900/60 border border-slate-700/30 p-5">
-          <div class="text-xl font-extrabold">📌 Regras do treino</div>
+          <div class="text-xl font-extrabold">📌 Como funciona</div>
           <div class="mt-3 grid gap-3 text-slate-300 text-sm">
             <div class="rounded-3xl bg-slate-950/40 border border-slate-700/30 p-4">
               <div class="font-extrabold">✅ Seleção</div>
-              <div class="mt-1">Ao clicar, a opção fica <b>verde</b> (selecionada) e aparece <b>Correto/Errado</b>.</div>
+              <div class="mt-1">Ao clicar, a opção fica <b>verde</b> e aparece <b>Correto/Errado</b>.</div>
             </div>
             <div class="rounded-3xl bg-slate-950/40 border border-slate-700/30 p-4">
               <div class="font-extrabold">⏱️ Quiz automático</div>
@@ -902,325 +639,444 @@
             </div>
             <div class="rounded-3xl bg-slate-950/40 border border-slate-700/30 p-4">
               <div class="font-extrabold">📚 Embasamento</div>
-              <div class="mt-1">Cada item tem justificativa baseada em diretrizes e boas práticas (conceitos).</div>
+              <div class="mt-1">Cada item traz justificativa baseada em diretrizes/boas práticas (conceitos).</div>
             </div>
-          </div>
-          <div class="mt-4">
-            <button class="btn-big btn-warning w-full" data-go="review">📚 Ver Revisão</button>
           </div>
         </div>
       </div>
     `;
-    const card = sectionCard("🧑‍⚕️ Painel", "Escolha o módulo para treinar.", html);
+    const card = sectionCard("🧑‍⚕️ Painel", "Centro de Treinamento Avançado.", html);
     viewContainer.appendChild(card);
-    card.querySelectorAll("[data-go]").forEach(btn => btn.addEventListener("click", ()=>go(btn.dataset.go)));
+    card.querySelectorAll("[data-go]").forEach(btn => btn.addEventListener("click", () => go(btn.dataset.go)));
   }
 
-  // --------- Triagem (ABCDE) ----------
-  function renderTriage(){
-    const scenarios = [
-      {
-        title:"Adulto com ruído inspiratório agudo",
-        text:"Fala entrecortada e estridor. História de alergia recente.",
-        vitals:{ "FR":"34", "SpO₂":"90% AA", "FC":"124", "PA":"118/72" },
-        correctIndex:0,
-        options:[
-          "A — Priorizar via aérea (A) e preparo de suporte conforme protocolo",
-          "C — Iniciar volume e aguardar",
-          "D — Exame neurológico completo antes de A/B",
-          "E — Expor e procurar lesões antes de A"
-        ],
-        rationale:"Estridor + fala comprometida sugerem via aérea ameaçada (A) e risco de deterioração rápida.",
-        source:"ABCDE (avaliação primária)."
-      },
-      {
-        title:"Idoso confuso e hipotenso com febre",
-        text:"Pele fria, taquipneia e dessaturação em ar ambiente.",
-        vitals:{ "FR":"30", "SpO₂":"88% AA", "FC":"118", "PA":"86/54" },
-        correctIndex:0,
-        options:[
-          "B — Oxigênio e avaliação ventilatória imediata",
-          "E — Aguardar exames para agir",
-          "D — Avaliar neuro completo antes de estabilizar",
-          "A — Intubar sem avaliação e sem sinais claros de via aérea ameaçada"
-        ],
-        rationale:"Hipoxemia/taquipneia exigem intervenção no B imediatamente, enquanto medidas de sepse são iniciadas em paralelo.",
-        source:"ABCDE + conceitos de bundle em sepse."
-      },
-    ];
-
-    let idx = Math.floor(Math.random()*scenarios.length);
+  // Sala de Emergência
+  function renderER(){
+    const seqCards = ER_SEQUENCES.map(seq => `
+      <div class="rounded-3xl bg-slate-950/40 border border-slate-700/30 p-5">
+        <div class="text-xl font-extrabold">${escapeHtml(seq.title)}</div>
+        <ol class="mt-3 list-decimal pl-6 space-y-1 text-slate-300 text-sm">
+          ${seq.steps.map(s => `<li>${escapeHtml(s)}</li>`).join("")}
+        </ol>
+        <div class="text-slate-400 text-xs mt-3"><b>Base:</b> ${escapeHtml(seq.source)}</div>
+      </div>
+    `).join("");
 
     const html = `
       <div class="grid lg:grid-cols-2 gap-4">
         <div class="rounded-3xl bg-slate-900/60 border border-slate-700/30 p-5">
           <div class="flex items-center justify-between gap-3">
             <div>
-              <div class="text-2xl font-extrabold">🚦 Triagem ABCDE</div>
-              <div class="text-slate-300 mt-2">Escolha a prioridade imediata.</div>
+              <div class="text-2xl font-extrabold">🚑 Sequências de Procedimentos</div>
+              <div class="text-slate-300 mt-2">Fluxos educacionais para treino mental.</div>
             </div>
-            <button id="btnTriageHelp" class="btn-big btn-ghost">❓ Ajuda</button>
+            <button id="btnErHelp" class="btn btn-ghost clickable" type="button">❓ Ajuda</button>
           </div>
 
-          <div class="mt-4 rounded-3xl bg-slate-950/40 border border-slate-700/30 p-4">
-            <div class="text-sm text-slate-400">Cenário</div>
-            <div class="text-xl font-extrabold mt-1" id="triTitle"></div>
-            <div class="text-slate-300 mt-2" id="triText"></div>
-            <div class="grid sm:grid-cols-2 gap-3 mt-3 text-sm" id="triVitals"></div>
-          </div>
-
-          <div class="mt-4 grid gap-3" id="triOptions"></div>
-
-          <div class="mt-4 hidden rounded-3xl bg-slate-950/40 border border-slate-700/30 p-4" id="triFeedback"></div>
-
-          <div class="mt-4 flex flex-wrap gap-3">
-            <button id="btnTriNext" class="btn-big btn-primary">🔄 Próximo cenário</button>
+          <div class="mt-4 grid gap-4">
+            ${seqCards}
           </div>
         </div>
 
         <div class="rounded-3xl bg-slate-900/60 border border-slate-700/30 p-5">
-          <div class="text-2xl font-extrabold">🧾 Lembrete ABCDE</div>
-          <div class="text-slate-300 mt-2">Use como guia mental (sem entregar resposta).</div>
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <div class="text-2xl font-extrabold">${escapeHtml(ER_LINK_GAME.title)}</div>
+              <div class="text-slate-300 mt-2">${escapeHtml(ER_LINK_GAME.description)}</div>
+            </div>
+            <button id="btnErReset" class="btn btn-danger clickable" type="button">♻️ Limpar</button>
+          </div>
 
-          <div class="mt-4 grid gap-3 text-slate-300 text-sm">
-            ${miniNote("A — Via aérea","Fala? ruído? estridor? proteção cervical quando indicado.")}
-            ${miniNote("B — Respiração","FR/padrão/SpO₂/ausculta e suporte de oxigenação/ventilação.")}
-            ${miniNote("C — Circulação","PA/FC/perfusão/hemorragia e reavaliação seriada.")}
-            ${miniNote("D — Neurológico","Glasgow, pupilas, glicemia e reavaliação após estabilização." )}
-            ${miniNote("E — Exposição","Temperatura, lesões ocultas e prevenção de hipotermia." )}
+          <div class="mt-4 grid md:grid-cols-2 gap-4">
+            <div class="rounded-3xl bg-slate-950/40 border border-slate-700/30 p-4">
+              ${renderPatientSVG()}
+              <div class="text-xs text-slate-400 mt-2">Paciente em decúbito dorsal (visual educacional).</div>
+            </div>
+
+            <div class="rounded-3xl bg-slate-950/40 border border-slate-700/30 p-4">
+              <div class="text-sm text-slate-300 font-extrabold">Selecione a etapa para cada número</div>
+              <div id="erSelectors" class="mt-3 grid gap-3"></div>
+
+              <div class="mt-4 flex gap-3">
+                <button id="btnErCheck" class="btn btn-ok clickable" type="button">✅ Corrigir</button>
+                <button id="btnErNext" class="btn btn-primary clickable" type="button">🔄 Novo treino</button>
+              </div>
+
+              <div id="erFeedback" class="mt-4 hidden rounded-3xl bg-slate-900/60 border border-slate-700/30 p-4"></div>
+            </div>
           </div>
         </div>
       </div>
     `;
 
-    viewContainer.appendChild(sectionCard("🚦 Triagem", "Prioridades com correção imediata.", html));
+    viewContainer.appendChild(sectionCard("🚑 Sala de Emergência", "Procedimentos + atividade prática.", html));
 
-    const triTitle = document.getElementById("triTitle");
-    const triText  = document.getElementById("triText");
-    const triVitals = document.getElementById("triVitals");
-    const triOptions = document.getElementById("triOptions");
-    const triFeedback = document.getElementById("triFeedback");
+    const seq = ER_SEQUENCES.find(s => s.id === ER_LINK_GAME.sequenceId) || ER_SEQUENCES[0];
+    const steps = seq.steps;
 
-    function renderScenario(){
-      const s = scenarios[idx];
-      triTitle.textContent = s.title;
-      triText.textContent  = s.text;
-      triVitals.innerHTML = Object.entries(s.vitals).map(([k,v])=>`
-        <div class="rounded-2xl bg-slate-900/60 border border-slate-700/30 p-3">
-          <div class="text-xs text-slate-400">${escapeHtml(k)}</div>
-          <div class="font-extrabold mono">${escapeHtml(v)}</div>
-        </div>
-      `).join("");
+    const selectors = el("erSelectors");
+    const feedback = el("erFeedback");
 
-      triOptions.innerHTML = "";
-      triFeedback.classList.add("hidden");
-      triFeedback.innerHTML = "";
-
-      let locked = false;
-
-      s.options.forEach((label, i)=>{
-        const b = document.createElement("button");
-        b.className = "btn-big btn-ghost w-full text-left";
-        b.type="button";
-        b.textContent = label;
-        b.addEventListener("click", ()=>{
-          if(locked) return;
-          locked = true;
-
-          // selected green (always)
-          b.classList.remove("btn-ghost");
-          b.classList.add("btn-ok");
-
-          const ok = i === s.correctIndex;
-          if(ok){
-            appState.correct += 1;
-            addScore(6, "Triagem correta");
-            beep(880, 90);
-            popCenter("Correto!", "+6 pontos (Triagem).", 5000);
-            addReview({type:"triage", ok:true, scenario:s.title, choice:label});
-          } else {
-            appState.wrong += 1;
-            beep(220, 120);
-            addReview({type:"triage", ok:false, scenario:s.title, choice:label});
-          }
-
-          triFeedback.classList.remove("hidden");
-          triFeedback.innerHTML = `
-            <div class="text-lg font-extrabold">${ok ? "✅ Correto" : "❌ Incorreto"}</div>
-            <div class="text-slate-300 mt-2">${escapeHtml(s.rationale)}</div>
-            <div class="text-slate-400 text-sm mt-2"><b>Base:</b> ${escapeHtml(s.source)}</div>
-          `;
-
-          saveState();
-        });
-        triOptions.appendChild(b);
-      });
+    function renderSelectors(){
+      selectors.innerHTML = ER_LINK_GAME.spots.map(spot => {
+        const opts = steps.map((s, idx) => `<option value="${idx+1}">${idx+1}. ${escapeHtml(s)}</option>`).join("");
+        return `
+          <div class="rounded-3xl bg-slate-900/55 border border-slate-700/30 p-3">
+            <div class="text-xs text-slate-400">Número ${spot.n} — ${escapeHtml(spot.label)}</div>
+            <select id="er_sel_${spot.n}" class="mt-2 w-full rounded-2xl bg-slate-900/60 border border-slate-700/30 px-3 py-3 font-extrabold">
+              <option value="">Selecione…</option>
+              ${opts}
+            </select>
+          </div>
+        `;
+      }).join("");
+      feedback.classList.add("hidden");
+      feedback.innerHTML = "";
     }
 
-    document.getElementById("btnTriNext").addEventListener("click", ()=>{
-      idx = (idx + 1) % scenarios.length;
-      renderScenario();
-    });
+    function clearSelections(){
+      ER_LINK_GAME.spots.forEach(s => {
+        const sel = el(`er_sel_${s.n}`);
+        if(sel) sel.value = "";
+      });
+      feedback.classList.add("hidden");
+      feedback.innerHTML = "";
+    }
 
-    document.getElementById("btnTriageHelp").addEventListener("click", ()=>{
-      openModal("❓ Ajuda — Triagem", "Dica curta (sem entregar resposta)", `
-        <div class="rounded-3xl bg-slate-900/60 border border-slate-700/30 p-4 text-slate-300">
-          Pense em <b>ameaça imediata à vida</b>. Se houver risco de via aérea/ventilação/perfusão, isso vem primeiro.
-        </div>
-      `);
-    });
+    function checkGame(){
+      let filled = 0;
+      let correct = 0;
+      const lines = [];
 
-    renderScenario();
-  }
+      ER_LINK_GAME.spots.forEach(spot => {
+        const sel = el(`er_sel_${spot.n}`);
+        const v = sel ? Number(sel.value || 0) : 0;
+        if(v) filled++;
+        const ans = ER_LINK_GAME.answerBySpot[spot.n];
+        const ok = v && (v === ans);
+        if(ok) correct++;
 
-  // --------- Cases (single-choice with immediate correct/incorrect) ----------
-  function renderCases(){
-    const html = `
-      <div class="rounded-3xl bg-slate-900/60 border border-slate-700/30 p-5">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <div class="text-2xl font-extrabold">📋 Casos Clínicos</div>
-            <div class="text-slate-300 mt-2">Selecione especialidade para filtrar os casos.</div>
+        lines.push(`
+          <div class="rounded-2xl bg-slate-950/40 border border-slate-700/30 p-3">
+            <div class="font-extrabold">${ok ? "✅" : "❌"} Nº ${spot.n} — ${escapeHtml(spot.label)}</div>
+            <div class="text-slate-300 text-sm mt-1">
+              Você: ${v ? `<b>${v}</b>` : "<b>não selecionado</b>"} • Correto: <b>${ans}</b>
+            </div>
           </div>
-          <div class="flex flex-wrap gap-2 items-center">
-            ${specialtySelect("caseSpec")}
-            <button id="btnCaseHelp" class="btn-big btn-ghost">❓ Ajuda</button>
-            <button id="btnCaseNext" class="btn-big btn-primary">🔄 Próximo caso</button>
-          </div>
-        </div>
+        `);
+      });
 
-        <div class="mt-4 rounded-3xl bg-slate-950/40 border border-slate-700/30 p-5" id="caseBox"></div>
-      </div>
-    `;
-    viewContainer.appendChild(sectionCard("📋 Casos Clínicos", "Correção imediata + justificativa.", html));
-
-    const caseBox = document.getElementById("caseBox");
-    const selSpec = document.getElementById("caseSpec");
-
-    function renderOne(){
-      const spec = selSpec.value || "MIX";
-      const c = pickRotatingCase(spec);
-      if(!c){
-        caseBox.innerHTML = `<div class="text-slate-300">Sem casos para este filtro.</div>`;
+      if(filled < ER_LINK_GAME.spots.length){
+        toast("warn","Faltou selecionar","Selecione uma etapa para todos os números antes de corrigir.");
         return;
       }
 
-      const vitalsHtml = Object.entries(c.vitals || {}).map(([k,v])=>`
-        <div class="rounded-2xl bg-slate-900/60 border border-slate-700/30 p-3">
-          <div class="text-xs text-slate-400">${escapeHtml(k)}</div>
-          <div class="font-extrabold mono">${escapeHtml(v)}</div>
-        </div>
-      `).join("");
+      const pct = Math.round((correct / ER_LINK_GAME.spots.length) * 100);
+      const gained = pct >= 85 ? ER_LINK_GAME.points : pct >= 60 ? 10 : 4;
 
-      caseBox.innerHTML = `
-        <div class="text-sm text-slate-400">Caso</div>
-        <div class="text-2xl font-extrabold mt-1">${escapeHtml(c.title)}</div>
-        <div class="text-slate-300 mt-2">${escapeHtml(c.intro)}</div>
+      if(pct >= 85){
+        appState.correct += 1;
+        addScore(gained, "Sala de Emergência (sequência no paciente) — alto desempenho");
+        beep(880, 90);
+        popCenter("Excelente!", `+${gained} pontos.`, 5000);
+      } else if(pct >= 60){
+        addScore(gained, "Sala de Emergência (sequência no paciente) — parcial");
+        beep(520, 90);
+        toast("warn","Quase lá","Revise a sequência e tente novamente.");
+      } else {
+        appState.wrong += 1;
+        addScore(gained, "Sala de Emergência (sequência no paciente) — reforço");
+        beep(220, 120);
+        toast("bad","Reforço necessário","Revise a sequência e repita o treino.");
+      }
 
-        <div class="grid sm:grid-cols-3 gap-3 mt-4 text-sm">${vitalsHtml}</div>
+      addReview({type:"er_link", pct, correct});
+      saveState();
 
-        <div class="mt-4 rounded-3xl bg-slate-900/50 border border-slate-700/30 p-4">
-          <div class="font-extrabold text-lg">Pergunta</div>
-          <div class="text-slate-200 mt-1 text-lg font-extrabold">${escapeHtml(c.question)}</div>
-        </div>
-
-        <div class="mt-4 grid gap-3" id="caseOptions"></div>
-
-        <div class="mt-4 hidden rounded-3xl bg-slate-900/50 border border-slate-700/30 p-4" id="caseFeedback"></div>
+      feedback.classList.remove("hidden");
+      feedback.innerHTML = `
+        <div class="text-lg font-extrabold">Resultado: ${pct}% (${correct}/${ER_LINK_GAME.spots.length})</div>
+        <div class="text-slate-300 mt-2">Sequência usada: <b>${escapeHtml(seq.title)}</b></div>
+        <div class="text-slate-400 text-sm mt-2"><b>Base:</b> ${escapeHtml(seq.source)}</div>
+        <div class="mt-4 grid gap-2">${lines.join("")}</div>
       `;
-
-      const optWrap = document.getElementById("caseOptions");
-      const fb = document.getElementById("caseFeedback");
-
-      let locked = false;
-      c.options.forEach((o, i)=>{
-        const b = document.createElement("button");
-        b.className = "btn-big btn-ghost w-full text-left";
-        b.type="button";
-        b.innerHTML = `<span class="font-extrabold">${String.fromCharCode(65+i)}.</span> ${escapeHtml(o.text)}`;
-        b.addEventListener("click", ()=>{
-          if(locked) return;
-          locked = true;
-
-          // selection always green
-          b.classList.remove("btn-ghost");
-          b.classList.add("btn-ok");
-
-          const ok = !!o.ok;
-          if(ok){
-            appState.correct += 1;
-            addScore(c.points || 10, `Caso correto (${c.title})`);
-            beep(880, 90);
-            popCenter("Correto!", `+${c.points||10} pontos (Caso).`, 5000);
-          } else {
-            appState.wrong += 1;
-            beep(220, 120);
-          }
-
-          addReview({type:"case", ok, caseId:c.id, title:c.title, selected:o.text});
-
-          fb.classList.remove("hidden");
-          fb.innerHTML = `
-            <div class="text-lg font-extrabold">${ok ? "✅ Correto" : "❌ Incorreto"}</div>
-            <div class="text-slate-300 mt-2">${escapeHtml(c.rationale)}</div>
-            <div class="text-slate-400 text-sm mt-2"><b>Base:</b> ${escapeHtml(c.source)}</div>
-          `;
-
-          saveState();
-        });
-
-        optWrap.appendChild(b);
-      });
     }
 
-    document.getElementById("btnCaseNext").addEventListener("click", renderOne);
-    selSpec.addEventListener("change", renderOne);
+    el("btnErCheck").addEventListener("click", checkGame);
+    el("btnErReset").addEventListener("click", clearSelections);
+    el("btnErNext").addEventListener("click", () => {
+      // Alterna a sequência para variar o treino
+      const other = ER_SEQUENCES.find(s => s.id !== seq.id) || ER_SEQUENCES[0];
+      ER_LINK_GAME.sequenceId = other.id;
+      go("er");
+    });
 
-    document.getElementById("btnCaseHelp").addEventListener("click", ()=>{
-      openModal("❓ Ajuda — Casos", "Dica curta (sem resposta)", `
+    el("btnErHelp").addEventListener("click", () => {
+      openModal("❓ Ajuda — Sala de Emergência", "Dica curta (sem entregar respostas)", `
         <div class="rounded-3xl bg-slate-900/60 border border-slate-700/30 p-4 text-slate-300">
-          Use a lógica <b>ABCDE</b>: priorize risco imediato (via aérea/ventilação/perfusão) e pense em <b>tempo-dependência</b> (sepse, PCR, AVC, trauma).
+          Pense em <b>prioridade</b> (ABCDE), <b>tempo-dependência</b> (PCR/sepse/AVC/trauma) e <b>segurança</b> (monitorização e barreiras).
         </div>
       `);
     });
 
-    renderOne();
+    renderSelectors();
   }
 
-  // --------- QUIZ (auto next in 5 seconds) ----------
-  function renderQuiz(){
-    const topics = [...new Set(QUESTION_BANK.map(q=>q.topic))].sort((a,b)=>a.localeCompare(b));
+  function renderPatientSVG(){
+    // Desenho vetorial simples (sem imagens externas) + números em regiões
+    return `
+      <svg viewBox="0 0 340 520" class="w-full h-auto">
+        <defs>
+          <linearGradient id="g1" x1="0" x2="1">
+            <stop offset="0" stop-color="rgba(34,211,238,0.22)"/>
+            <stop offset="1" stop-color="rgba(99,102,241,0.18)"/>
+          </linearGradient>
+        </defs>
+
+        <rect x="10" y="10" width="320" height="500" rx="28" fill="url(#g1)" stroke="rgba(148,163,184,0.28)"/>
+
+        <!-- Cabeça -->
+        <ellipse cx="170" cy="80" rx="48" ry="55" fill="rgba(15,23,42,0.55)" stroke="rgba(148,163,184,0.32)"/>
+        <!-- Pescoço -->
+        <rect x="148" y="125" width="44" height="25" rx="12" fill="rgba(15,23,42,0.55)" stroke="rgba(148,163,184,0.32)"/>
+        <!-- Tronco -->
+        <rect x="110" y="150" width="120" height="190" rx="36" fill="rgba(15,23,42,0.55)" stroke="rgba(148,163,184,0.32)"/>
+        <!-- Abdômen -->
+        <rect x="118" y="285" width="104" height="90" rx="28" fill="rgba(15,23,42,0.45)" stroke="rgba(148,163,184,0.24)"/>
+        <!-- Braços -->
+        <rect x="55" y="170" width="50" height="210" rx="22" fill="rgba(15,23,42,0.45)" stroke="rgba(148,163,184,0.24)"/>
+        <rect x="235" y="170" width="50" height="210" rx="22" fill="rgba(15,23,42,0.45)" stroke="rgba(148,163,184,0.24)"/>
+        <!-- Pernas -->
+        <rect x="128" y="375" width="72" height="120" rx="26" fill="rgba(15,23,42,0.45)" stroke="rgba(148,163,184,0.24)"/>
+        <rect x="205" y="375" width="72" height="120" rx="26" fill="rgba(15,23,42,0.45)" stroke="rgba(148,163,184,0.24)"/>
+
+        <!-- Números / Spots -->
+        ${spot(1, 170, 60)}
+        ${spot(2, 170, 220)}
+        ${spot(3, 240, 240)}
+        ${spot(4, 70, 250)}
+        ${spot(5, 170, 305)}
+        ${spot(6, 170, 430)}
+
+        <text x="170" y="505" text-anchor="middle" font-size="12" fill="rgba(226,232,240,0.75)">
+          Treino educacional — CTA
+        </text>
+      </svg>
+    `;
+
+    function spot(n, x, y){
+      return `
+        <circle cx="${x}" cy="${y}" r="18" fill="rgba(74,222,128,0.85)" stroke="rgba(15,23,42,0.65)" stroke-width="2"/>
+        <text x="${x}" y="${y+5}" text-anchor="middle" font-size="14" font-weight="800" fill="rgba(2,6,23,0.95)">${n}</text>
+      `;
+    }
+  }
+
+  // Triagem (simples)
+  function renderTriage(){
+    const s = {
+      title:"Estridor + fala comprometida",
+      text:"Ruído inspiratório agudo e dificuldade para falar.",
+      vitals:{ FR:"34", SpO2:"90% AA", FC:"124", PA:"118/72" },
+      correctIndex:0,
+      options:[
+        "A — Priorizar via aérea (A) e preparo de suporte conforme protocolo",
+        "C — Iniciar volume e aguardar",
+        "D — Exame neurológico completo antes de A/B"
+      ],
+      rationale:"Estridor sugere risco de obstrução de via aérea (A).",
+      source:"Conceitos ABCDE."
+    };
 
     const html = `
       <div class="rounded-3xl bg-slate-900/60 border border-slate-700/30 p-5">
-        <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center justify-between gap-3">
           <div>
-            <div class="text-2xl font-extrabold">🧠 Quiz</div>
-            <div class="text-slate-300 mt-2">Depois de responder, a próxima aparece automaticamente em <b>5s</b>.</div>
+            <div class="text-2xl font-extrabold">🚦 Triagem ABCDE</div>
+            <div class="text-slate-300 mt-2">Escolha a prioridade imediata.</div>
           </div>
-          <div class="flex flex-wrap gap-2 items-center">
-            ${specialtySelect("quizSpec")}
-            <select id="quizTopic" class="rounded-2xl bg-slate-900/60 border border-slate-700/30 px-4 py-3 font-extrabold">
-              <option value="">🌐 Todos temas</option>
-              ${topics.map(t=>`<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("")}
-            </select>
-            <select id="quizLevel" class="rounded-2xl bg-slate-900/60 border border-slate-700/30 px-4 py-3 font-extrabold">
-              <option value="">🎚️ Todos níveis</option>
-              <option value="1">Nível 1</option>
-              <option value="2">Nível 2</option>
-              <option value="3">Nível 3</option>
-            </select>
+          <button id="btnTriageHelp" class="btn btn-ghost clickable" type="button">❓ Ajuda</button>
+        </div>
 
-            <button id="btnQuizHelp" class="btn-big btn-ghost">❓ Ajuda</button>
-            <button id="btnQuizNext" class="btn-big btn-primary">➡️ Próxima</button>
+        <div class="mt-4 rounded-3xl bg-slate-950/40 border border-slate-700/30 p-4">
+          <div class="text-sm text-slate-400">Cenário</div>
+          <div class="text-xl font-extrabold mt-1">${escapeHtml(s.title)}</div>
+          <div class="text-slate-300 mt-2">${escapeHtml(s.text)}</div>
+
+          <div class="grid sm:grid-cols-2 gap-3 mt-3 text-sm">
+            ${Object.entries(s.vitals).map(([k,v])=>`
+              <div class="rounded-2xl bg-slate-900/60 border border-slate-700/30 p-3">
+                <div class="text-xs text-slate-400">${escapeHtml(k)}</div>
+                <div class="font-extrabold mono">${escapeHtml(v)}</div>
+              </div>
+            `).join("")}
           </div>
         </div>
 
-        <div class="mt-4 rounded-3xl bg-slate-950/40 border border-slate-700/30 p-5" id="quizBox">
-          <div class="text-sm text-slate-400" id="quizMeta">—</div>
-          <div class="text-2xl font-extrabold mt-2" id="quizQuestion">—</div>
-          <div class="grid gap-3 mt-4" id="quizOptions"></div>
+        <div class="mt-4 grid gap-3" id="triOptions"></div>
+        <div class="mt-4 hidden rounded-3xl bg-slate-950/40 border border-slate-700/30 p-4" id="triFeedback"></div>
+      </div>
+    `;
 
+    viewContainer.appendChild(sectionCard("🚦 Triagem", "Correção imediata.", html));
+
+    const optWrap = el("triOptions");
+    const fb = el("triFeedback");
+    let locked = false;
+
+    s.options.forEach((label, i)=>{
+      const b = document.createElement("button");
+      b.className = "btn btn-ghost clickable w-full text-left";
+      b.type = "button";
+      b.textContent = label;
+
+      b.addEventListener("click", ()=>{
+        if(locked) return;
+        locked = true;
+
+        b.classList.remove("btn-ghost");
+        b.classList.add("btn-ok");
+
+        const ok = i === s.correctIndex;
+        if(ok){
+          appState.correct += 1;
+          addScore(6, "Triagem correta");
+          beep(880, 90);
+          popCenter("Correto!", "+6 pontos (Triagem).", 5000);
+        } else {
+          appState.wrong += 1;
+          beep(220, 120);
+        }
+
+        addReview({type:"triage", ok, scenario:s.title, choice:label});
+        saveState();
+
+        fb.classList.remove("hidden");
+        fb.innerHTML = `
+          <div class="text-lg font-extrabold">${ok ? "✅ Correto" : "❌ Incorreto"}</div>
+          <div class="text-slate-300 mt-2">${escapeHtml(s.rationale)}</div>
+          <div class="text-slate-400 text-sm mt-2"><b>Base:</b> ${escapeHtml(s.source)}</div>
+        `;
+      });
+
+      optWrap.appendChild(b);
+    });
+
+    el("btnTriageHelp").addEventListener("click", ()=>{
+      openModal("❓ Ajuda — Triagem", "Dica curta (sem resposta)", `
+        <div class="rounded-3xl bg-slate-900/60 border border-slate-700/30 p-4 text-slate-300">
+          Priorize ameaça imediata à vida. Se houver risco de via aérea/ventilação, isso vem antes.
+        </div>
+      `);
+    });
+  }
+
+  // Casos
+  function renderCases(){
+    const c = pickRotating(CASE_BANK, "seenCaseIds");
+    const vitalsHtml = Object.entries(c.vitals || {}).map(([k,v])=>`
+      <div class="rounded-2xl bg-slate-900/60 border border-slate-700/30 p-3">
+        <div class="text-xs text-slate-400">${escapeHtml(k)}</div>
+        <div class="font-extrabold mono">${escapeHtml(v)}</div>
+      </div>
+    `).join("");
+
+    const html = `
+      <div class="rounded-3xl bg-slate-900/60 border border-slate-700/30 p-5">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <div class="text-2xl font-extrabold">📋 Casos Clínicos</div>
+            <div class="text-slate-300 mt-2">Selecione uma conduta e veja justificativa.</div>
+          </div>
+          <button id="btnCaseNext" class="btn btn-primary clickable" type="button">🔄 Próximo</button>
+        </div>
+
+        <div class="mt-4 rounded-3xl bg-slate-950/40 border border-slate-700/30 p-5">
+          <div class="text-sm text-slate-400">Caso</div>
+          <div class="text-2xl font-extrabold mt-1">${escapeHtml(c.title)}</div>
+          <div class="text-slate-300 mt-2">${escapeHtml(c.intro)}</div>
+
+          <div class="grid sm:grid-cols-3 gap-3 mt-4 text-sm">${vitalsHtml}</div>
+
+          <div class="mt-4 rounded-3xl bg-slate-900/50 border border-slate-700/30 p-4">
+            <div class="font-extrabold text-lg">Pergunta</div>
+            <div class="text-slate-200 mt-1 text-lg font-extrabold">${escapeHtml(c.question)}</div>
+          </div>
+
+          <div class="mt-4 grid gap-3" id="caseOptions"></div>
+          <div class="mt-4 hidden rounded-3xl bg-slate-900/50 border border-slate-700/30 p-4" id="caseFeedback"></div>
+        </div>
+      </div>
+    `;
+
+    viewContainer.appendChild(sectionCard("📋 Casos Clínicos", "Feedback imediato.", html));
+
+    const optWrap = el("caseOptions");
+    const fb = el("caseFeedback");
+    let locked = false;
+
+    c.options.forEach((o, i)=>{
+      const b = document.createElement("button");
+      b.className = "btn btn-ghost clickable w-full text-left";
+      b.type="button";
+      b.innerHTML = `<span class="font-extrabold">${String.fromCharCode(65+i)}.</span> ${escapeHtml(o.text)}`;
+
+      b.addEventListener("click", ()=>{
+        if(locked) return;
+        locked = true;
+
+        b.classList.remove("btn-ghost");
+        b.classList.add("btn-ok");
+
+        const ok = !!o.ok;
+        if(ok){
+          appState.correct += 1;
+          addScore(c.points || 10, `Caso correto (${c.title})`);
+          beep(880, 90);
+          popCenter("Correto!", `+${c.points||10} pontos (Caso).`, 5000);
+        } else {
+          appState.wrong += 1;
+          beep(220, 120);
+        }
+        addReview({type:"case", ok, title:c.title, selected:o.text});
+        saveState();
+
+        fb.classList.remove("hidden");
+        fb.innerHTML = `
+          <div class="text-lg font-extrabold">${ok ? "✅ Correto" : "❌ Incorreto"}</div>
+          <div class="text-slate-300 mt-2">${escapeHtml(c.rationale)}</div>
+          <div class="text-slate-400 text-sm mt-2"><b>Base:</b> ${escapeHtml(c.source)}</div>
+        `;
+      });
+
+      optWrap.appendChild(b);
+    });
+
+    el("btnCaseNext").addEventListener("click", ()=> go("cases"));
+  }
+
+  // Quiz (auto-next 5s)
+  function renderQuiz(){
+    const q = pickRotating(QUESTION_BANK, "seenQuestionIds");
+
+    const html = `
+      <div class="rounded-3xl bg-slate-900/60 border border-slate-700/30 p-5">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <div class="text-2xl font-extrabold">🧠 Quiz</div>
+            <div class="text-slate-300 mt-2">Após responder, a próxima aparece automaticamente em <b>5s</b>.</div>
+          </div>
+          <div class="flex gap-2">
+            <button id="btnQuizHelp" class="btn btn-ghost clickable" type="button">❓ Ajuda</button>
+            <button id="btnQuizNext" class="btn btn-primary clickable" type="button">➡️ Próxima</button>
+          </div>
+        </div>
+
+        <div class="mt-4 rounded-3xl bg-slate-950/40 border border-slate-700/30 p-5">
+          <div class="text-sm text-slate-400">Tema: ${escapeHtml(q.topic)} • Nível ${q.level}</div>
+          <div class="text-2xl font-extrabold mt-2">${escapeHtml(q.q)}</div>
+
+          <div class="grid gap-3 mt-4" id="quizOptions"></div>
           <div class="mt-4 hidden rounded-3xl bg-slate-900/60 border border-slate-700/30 p-4" id="quizFeedback"></div>
 
           <div class="mt-4 text-sm text-slate-300">
@@ -1229,29 +1085,16 @@
         </div>
       </div>
     `;
+
     viewContainer.appendChild(sectionCard("🧠 Quiz", "Seleção verde + correção + auto-próxima.", html));
 
-    const selSpec  = document.getElementById("quizSpec");
-    const selTopic = document.getElementById("quizTopic");
-    const selLevel = document.getElementById("quizLevel");
+    const optWrap = el("quizOptions");
+    const fb = el("quizFeedback");
+    const autoNextLabel = el("autoNextLabel");
 
-    const qMeta = document.getElementById("quizMeta");
-    const qText = document.getElementById("quizQuestion");
-    const qOpts = document.getElementById("quizOptions");
-    const fb    = document.getElementById("quizFeedback");
-    const autoNextLabel = document.getElementById("autoNextLabel");
-
-    let currentQ = null;
     let answered = false;
     let timer = null;
     let countdown = null;
-    let secondsLeft = 0;
-
-    function ptsFor(level){
-      if(level === 3) return 9;
-      if(level === 2) return 7;
-      return 5;
-    }
 
     function clearTimers(){
       if(timer) clearTimeout(timer);
@@ -1260,300 +1103,205 @@
       autoNextLabel.textContent = "—";
     }
 
-    function loadQ(){
-      clearTimers();
-
-      const spec  = selSpec.value || "MIX";
-      const topic = selTopic.value || null;
-      const level = selLevel.value ? Number(selLevel.value) : null;
-
-      currentQ = pickRotatingQuestion({topic, level, specialty: spec});
-      answered = false;
-      fb.classList.add("hidden");
-      fb.innerHTML = "";
-      qOpts.innerHTML = "";
-
-      if(!currentQ){
-        qMeta.textContent = "Sem questões para este filtro.";
-        qText.textContent = "Ajuste tema/nível/especialidade.";
-        return;
-      }
-
-      qMeta.textContent = `Especialidade: ${SPECIALTIES.find(s=>s.key===spec)?.label || "Mesclado"} • Tema: ${currentQ.topic} • Nível ${currentQ.level}`;
-      qText.textContent = currentQ.q;
-
-      currentQ.options.forEach((opt, idx)=>{
-        const b = document.createElement("button");
-        b.className = "btn-big btn-ghost w-full text-left";
-        b.type="button";
-        b.innerHTML = `<span class="font-extrabold">${String.fromCharCode(65+idx)}.</span> ${escapeHtml(opt)}`;
-
-        b.addEventListener("click", ()=>{
-          if(answered) return;
-          answered = true;
-
-          // selected always green
-          b.classList.remove("btn-ghost");
-          b.classList.add("btn-ok");
-
-          const ok = idx === currentQ.answerIndex;
-          if(ok){
-            const pts = ptsFor(currentQ.level);
-            appState.correct += 1;
-            addScore(pts, `Quiz correto (${currentQ.topic}, N${currentQ.level})`);
-            beep(880, 90);
-            popCenter("Correto!", `+${pts} pontos (Quiz).`, 5000);
-          } else {
-            appState.wrong += 1;
-            beep(220, 120);
-          }
-
-          addReview({
-            type:"quiz",
-            ok,
-            qid: currentQ.id,
-            topic: currentQ.topic,
-            level: currentQ.level,
-            chosen: idx,
-            answer: currentQ.answerIndex
-          });
-
-          fb.classList.remove("hidden");
-          fb.innerHTML = `
-            <div class="text-lg font-extrabold">${ok ? "✅ Correto" : "❌ Incorreto"}</div>
-            <div class="text-slate-300 mt-2">${escapeHtml(currentQ.rationale)}</div>
-            <div class="text-slate-400 text-sm mt-2"><b>Base:</b> ${escapeHtml(currentQ.source)}</div>
-          `;
-
-          // Auto-next in 5 seconds
-          secondsLeft = 5;
-          autoNextLabel.textContent = `Próxima em ${secondsLeft}s…`;
-          countdown = setInterval(()=>{
-            secondsLeft -= 1;
-            if(secondsLeft <= 0){
-              clearTimers();
-              return;
-            }
-            autoNextLabel.textContent = `Próxima em ${secondsLeft}s…`;
-          }, 1000);
-
-          timer = setTimeout(()=>{
-            clearTimers();
-            loadQ();
-          }, 5000);
-
-          // lock other buttons (optional)
-          qOpts.querySelectorAll("button").forEach(btn => btn.disabled = true);
-          b.disabled = false; // keep selected visible
-          saveState();
-        });
-
-        qOpts.appendChild(b);
-      });
+    function ptsFor(level){
+      if(level === 3) return 9;
+      if(level === 2) return 7;
+      return 5;
     }
 
-    document.getElementById("btnQuizNext").addEventListener("click", loadQ);
-    selSpec.addEventListener("change", loadQ);
-    selTopic.addEventListener("change", loadQ);
-    selLevel.addEventListener("change", loadQ);
+    q.options.forEach((opt, idx)=>{
+      const b = document.createElement("button");
+      b.className = "btn btn-ghost clickable w-full text-left";
+      b.type="button";
+      b.innerHTML = `<span class="font-extrabold">${String.fromCharCode(65+idx)}.</span> ${escapeHtml(opt)}`;
 
-    document.getElementById("btnQuizHelp").addEventListener("click", ()=>{
-      openModal("❓ Ajuda — Quiz", "Dica curta (sem entregar resposta)", `
-        <div class="rounded-3xl bg-slate-900/60 border border-slate-700/30 p-4 text-slate-300">
-          Antes de responder, identifique: <b>prioridade</b> (ABCDE), <b>tempo-dependência</b> (PCR/sepse/AVC/trauma) e <b>segurança</b> (checagens/EPI/monitorização).
-        </div>
-      `);
-    });
+      b.addEventListener("click", ()=>{
+        if(answered) return;
+        answered = true;
 
-    loadQ();
-  }
+        b.classList.remove("btn-ghost");
+        b.classList.add("btn-ok");
 
-  // --------- CHECKLISTS (V/F) ----------
-  function renderChecklists(){
-    const html = `
-      <div class="rounded-3xl bg-slate-900/60 border border-slate-700/30 p-5">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <div class="text-2xl font-extrabold">✅ Checklists (V/F)</div>
-            <div class="text-slate-300 mt-2">Marque itens verdadeiros e finalize para corrigir.</div>
-          </div>
-          <div class="flex flex-wrap gap-2 items-center">
-            ${specialtySelect("clSpec")}
-            <button id="btnClHelp" class="btn-big btn-ghost">❓ Ajuda</button>
-            <button id="btnClNext" class="btn-big btn-primary">🔄 Próximo checklist</button>
-          </div>
-        </div>
-
-        <div class="mt-4 rounded-3xl bg-slate-950/40 border border-slate-700/30 p-5" id="clBox"></div>
-      </div>
-    `;
-    viewContainer.appendChild(sectionCard("✅ Checklists", "Selecione V/F (verdadeiro) e avalie.", html));
-
-    const clBox = document.getElementById("clBox");
-    const selSpec = document.getElementById("clSpec");
-
-    function renderOne(){
-      const spec = selSpec.value || "MIX";
-      const cl = pickRotatingChecklist(spec);
-      if(!cl){
-        clBox.innerHTML = `<div class="text-slate-300">Sem checklists para este filtro.</div>`;
-        return;
-      }
-
-      clBox.innerHTML = `
-        <div class="text-sm text-slate-400">Checklist</div>
-        <div class="text-2xl font-extrabold mt-1">${escapeHtml(cl.title)}</div>
-        <div class="text-slate-300 mt-2">${escapeHtml(cl.intro)}</div>
-
-        <div class="mt-4 grid gap-2" id="clItems">
-          ${cl.items.map((it, i)=>`
-            <label class="flex items-start gap-3 rounded-3xl bg-slate-900/55 border border-slate-700/30 p-4 cursor-pointer">
-              <input type="checkbox" class="mt-1 h-6 w-6 accent-emerald-400" id="cl_it_${i}">
-              <span class="font-extrabold">${escapeHtml(it.text)}</span>
-            </label>
-          `).join("")}
-        </div>
-
-        <div class="mt-4 flex flex-wrap gap-3">
-          <button id="btnClFinish" class="btn-big btn-ok">✅ Finalizar e corrigir</button>
-          <button id="btnClClear" class="btn-big btn-ghost">♻️ Limpar seleção</button>
-        </div>
-
-        <div class="mt-4 hidden rounded-3xl bg-slate-900/60 border border-slate-700/30 p-4" id="clFeedback"></div>
-      `;
-
-      const fb = document.getElementById("clFeedback");
-
-      document.getElementById("btnClClear").addEventListener("click", ()=>{
-        cl.items.forEach((_, i)=> document.getElementById(`cl_it_${i}`).checked = false);
-        fb.classList.add("hidden");
-        fb.innerHTML = "";
-      });
-
-      document.getElementById("btnClFinish").addEventListener("click", ()=>{
-        let correctCount = 0;
-        const lines = [];
-
-        cl.items.forEach((it, i)=>{
-          const checked = document.getElementById(`cl_it_${i}`).checked;
-          const ok = (checked === it.truth); // if true item and checked OR false item and unchecked
-          if(ok) correctCount++;
-
-          lines.push(`
-            <div class="rounded-2xl bg-slate-950/40 border border-slate-700/30 p-3">
-              <div class="font-extrabold">${ok ? "✅" : "❌"} ${escapeHtml(it.text)}</div>
-              <div class="text-slate-300 text-sm mt-1">${escapeHtml(it.why)}</div>
-              <div class="text-slate-400 text-xs mt-1"><b>Gabarito:</b> ${it.truth ? "Verdadeiro" : "Falso"}</div>
-            </div>
-          `);
-        });
-
-        const pct = Math.round((correctCount / cl.items.length) * 100);
-        fb.classList.remove("hidden");
-        fb.innerHTML = `
-          <div class="text-lg font-extrabold">Resultado: ${pct}%</div>
-          <div class="text-slate-300 mt-2">Acertos: ${correctCount}/${cl.items.length}</div>
-          <div class="text-slate-400 text-sm mt-2"><b>Base:</b> ${escapeHtml(cl.source)}</div>
-          <div class="mt-4 grid gap-2">${lines.join("")}</div>
-        `;
-
-        const gained = pct >= 80 ? (cl.points||12) : pct >= 60 ? 6 : 2;
-        if(pct >= 80){
+        const ok = idx === q.answerIndex;
+        if(ok){
+          const pts = ptsFor(q.level);
           appState.correct += 1;
-          addScore(gained, `Checklist alto desempenho (${cl.title})`);
+          addScore(pts, `Quiz correto (${q.topic})`);
           beep(880, 90);
-          popCenter("Ótimo!", `+${gained} pontos (Checklist).`, 5000);
-        } else if(pct >= 60){
-          addScore(gained, `Checklist desempenho parcial (${cl.title})`);
-          beep(520, 80);
-          toast("warn","Ajuste fino", "Revise os itens errados e repita outro checklist.");
+          popCenter("Correto!", `+${pts} pontos (Quiz).`, 5000);
         } else {
-          addScore(gained, `Checklist baixo desempenho (${cl.title})`);
+          appState.wrong += 1;
           beep(220, 120);
-          toast("bad","Reforço necessário", "Revise justificativas e tente novamente.");
         }
 
-        addReview({type:"checklist", id:cl.id, title:cl.title, pct, correct:correctCount});
+        addReview({type:"quiz", ok, topic:q.topic, level:q.level});
         saveState();
+
+        fb.classList.remove("hidden");
+        fb.innerHTML = `
+          <div class="text-lg font-extrabold">${ok ? "✅ Correto" : "❌ Incorreto"}</div>
+          <div class="text-slate-300 mt-2">${escapeHtml(q.rationale)}</div>
+          <div class="text-slate-400 text-sm mt-2"><b>Base:</b> ${escapeHtml(q.source)}</div>
+        `;
+
+        // auto next 5s
+        clearTimers();
+        let secondsLeft = 5;
+        autoNextLabel.textContent = `Próxima em ${secondsLeft}s…`;
+        countdown = setInterval(()=>{
+          secondsLeft--;
+          if(secondsLeft <= 0){
+            clearTimers();
+            return;
+          }
+          autoNextLabel.textContent = `Próxima em ${secondsLeft}s…`;
+        }, 1000);
+
+        timer = setTimeout(()=>{
+          clearTimers();
+          go("quiz");
+        }, 5000);
+
+        // lock others
+        optWrap.querySelectorAll("button").forEach(x=>x.disabled = true);
+        b.disabled = false;
       });
-    }
 
-    document.getElementById("btnClNext").addEventListener("click", renderOne);
-    selSpec.addEventListener("change", renderOne);
+      optWrap.appendChild(b);
+    });
 
-    document.getElementById("btnClHelp").addEventListener("click", ()=>{
-      openModal("❓ Ajuda — Checklists", "Dica curta (sem resposta)", `
+    el("btnQuizNext").addEventListener("click", ()=>{ clearTimers(); go("quiz"); });
+    el("btnQuizHelp").addEventListener("click", ()=>{
+      openModal("❓ Ajuda — Quiz", "Dica curta (sem resposta)", `
         <div class="rounded-3xl bg-slate-900/60 border border-slate-700/30 p-4 text-slate-300">
-          Marque apenas o que é <b>boa prática</b> e <b>seguro</b>. Se aumentar risco de evento adverso, geralmente é falso.
+          Identifique prioridade (ABCDE) e tempo-dependência (PCR/sepse/AVC/trauma). Foque em segurança e monitorização.
         </div>
       `);
     });
-
-    renderOne();
   }
 
-  // --------- PPE view ----------
-  function renderPPE(){
+  // Checklists
+  function renderChecklists(){
+    const cl = pickRotating(CHECKLIST_BANK, "seenChecklistIds");
+
     const html = `
       <div class="rounded-3xl bg-slate-900/60 border border-slate-700/30 p-5">
         <div class="flex items-center justify-between gap-3">
           <div>
-            <div class="text-2xl font-extrabold">🧤 EPIs por tipo de procedimento</div>
-            <div class="text-slate-300 mt-2">Guia educacional por risco/procedimento (ajuste ao protocolo local).</div>
+            <div class="text-2xl font-extrabold">✅ Checklists (V/F)</div>
+            <div class="text-slate-300 mt-2">${escapeHtml(cl.intro)}</div>
           </div>
-          <button id="btnPPEHelp" class="btn-big btn-ghost">❓ Ajuda</button>
+          <button id="btnClNext" class="btn btn-primary clickable" type="button">🔄 Próximo</button>
         </div>
 
-        <div class="mt-4 grid lg:grid-cols-2 gap-4">
-          ${PPE_MENU.map(p=>`
-            <div class="rounded-3xl bg-slate-950/40 border border-slate-700/30 p-5">
-              <div class="text-xl font-extrabold">${escapeHtml(p.title)}</div>
-              <ul class="mt-3 text-slate-300 text-sm list-disc pl-5 space-y-1">
-                ${p.items.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}
-              </ul>
-            </div>
-          `).join("")}
-        </div>
+        <div class="mt-4 rounded-3xl bg-slate-950/40 border border-slate-700/30 p-5">
+          <div class="text-2xl font-extrabold">${escapeHtml(cl.title)}</div>
 
-        <div class="mt-4 rounded-3xl bg-slate-950/40 border border-slate-700/30 p-4 text-slate-300 text-sm">
-          <b>Nota:</b> EPIs podem variar conforme precaução (contato/gotículas/aerossóis) e procedimento gerador de aerossol.
+          <div class="mt-4 grid gap-2" id="clItems">
+            ${cl.items.map((it, i)=>`
+              <label class="flex items-start gap-3 rounded-3xl bg-slate-900/55 border border-slate-700/30 p-4 cursor-pointer">
+                <input type="checkbox" class="mt-1 h-6 w-6 accent-emerald-400" id="cl_it_${i}">
+                <span class="font-extrabold">${escapeHtml(it.text)}</span>
+              </label>
+            `).join("")}
+          </div>
+
+          <div class="mt-4 flex flex-wrap gap-3">
+            <button id="btnClFinish" class="btn btn-ok clickable" type="button">✅ Finalizar e corrigir</button>
+            <button id="btnClClear" class="btn btn-ghost clickable" type="button">♻️ Limpar seleção</button>
+          </div>
+
+          <div class="mt-4 hidden rounded-3xl bg-slate-900/60 border border-slate-700/30 p-4" id="clFeedback"></div>
         </div>
       </div>
     `;
-    viewContainer.appendChild(sectionCard("🧤 EPIs", "Seleção rápida por procedimento.", html));
 
-    document.getElementById("btnPPEHelp").addEventListener("click", ()=>{
-      openModal("❓ Ajuda — EPI", "Dica curta (sem protocolo específico)", `
-        <div class="rounded-3xl bg-slate-900/60 border border-slate-700/30 p-4 text-slate-300">
-          Pense em <b>risco de contato com fluidos</b> (luvas/avental) e <b>risco de respingo/aerossol</b> (proteção ocular/máscara apropriada).
-        </div>
-      `);
+    viewContainer.appendChild(sectionCard("✅ Checklists", "Marque verdadeiras e corrija.", html));
+
+    const fb = el("clFeedback");
+
+    el("btnClClear").addEventListener("click", ()=>{
+      cl.items.forEach((_, i)=> el(`cl_it_${i}`).checked = false);
+      fb.classList.add("hidden");
+      fb.innerHTML = "";
     });
+
+    el("btnClFinish").addEventListener("click", ()=>{
+      let correctCount = 0;
+      const lines = [];
+
+      cl.items.forEach((it, i)=>{
+        const checked = el(`cl_it_${i}`).checked;
+        const ok = (checked === it.truth);
+        if(ok) correctCount++;
+
+        lines.push(`
+          <div class="rounded-2xl bg-slate-950/40 border border-slate-700/30 p-3">
+            <div class="font-extrabold">${ok ? "✅" : "❌"} ${escapeHtml(it.text)}</div>
+            <div class="text-slate-300 text-sm mt-1">${escapeHtml(it.why)}</div>
+            <div class="text-slate-400 text-xs mt-1"><b>Gabarito:</b> ${it.truth ? "Verdadeiro" : "Falso"}</div>
+          </div>
+        `);
+      });
+
+      const pct = Math.round((correctCount / cl.items.length) * 100);
+      fb.classList.remove("hidden");
+      fb.innerHTML = `
+        <div class="text-lg font-extrabold">Resultado: ${pct}%</div>
+        <div class="text-slate-300 mt-2">Acertos: ${correctCount}/${cl.items.length}</div>
+        <div class="text-slate-400 text-sm mt-2"><b>Base:</b> ${escapeHtml(cl.source)}</div>
+        <div class="mt-4 grid gap-2">${lines.join("")}</div>
+      `;
+
+      const gained = pct >= 80 ? (cl.points||12) : pct >= 60 ? 6 : 2;
+      addScore(gained, `Checklist (${cl.title})`);
+      if(pct >= 80){ beep(880, 90); popCenter("Ótimo!", `+${gained} pontos.`, 5000); appState.correct += 1; }
+      else if(pct >= 60){ beep(520, 90); toast("warn","Ajuste fino","Revise itens errados e tente outro checklist."); }
+      else { beep(220, 120); toast("bad","Reforço","Reveja justificativas e repita."); appState.wrong += 1; }
+      addReview({type:"checklist", title:cl.title, pct});
+      saveState();
+    });
+
+    el("btnClNext").addEventListener("click", ()=> go("checklists"));
   }
 
-  // --------- Pathologies view ----------
+  // EPIs
+  function renderEPIs(){
+    const html = `
+      <div class="grid lg:grid-cols-2 gap-4">
+        ${EPIS.map(p=>`
+          <div class="rounded-3xl bg-slate-950/40 border border-slate-700/30 p-5">
+            <div class="text-xl font-extrabold">${escapeHtml(p.title)}</div>
+            <ul class="mt-3 text-slate-300 text-sm list-disc pl-5 space-y-1">
+              ${p.items.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}
+            </ul>
+          </div>
+        `).join("")}
+      </div>
+    `;
+    viewContainer.appendChild(sectionCard("🧤 EPIs", "Resumo educacional de EPIs e boas práticas.", html));
+  }
+
+  // Patologias
   function renderPath(){
     const html = `
       <div class="rounded-3xl bg-slate-900/60 border border-slate-700/30 p-5">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
             <div class="text-2xl font-extrabold">🧩 Patologias & Intervenções</div>
-            <div class="text-slate-300 mt-2">Busque uma condição e veja intervenções iniciais (educacional).</div>
+            <div class="text-slate-300 mt-2">Busque uma condição para estudo.</div>
           </div>
-          <div class="flex gap-2 items-center">
-            <input id="pathSearch" class="w-[280px] rounded-2xl bg-slate-900/60 border border-slate-700/30 px-4 py-3 font-extrabold"
-              placeholder="Buscar: sepse, trauma, DPOC..." />
-            <button id="btnPathHelp" class="btn-big btn-ghost">❓ Ajuda</button>
-          </div>
+          <input id="pathSearch" class="w-[300px] rounded-2xl bg-slate-900/60 border border-slate-700/30 px-4 py-3 font-extrabold clickable"
+            placeholder="Buscar: sepse, PCR..." />
         </div>
 
         <div class="mt-4 grid lg:grid-cols-2 gap-4" id="pathList"></div>
       </div>
     `;
-    viewContainer.appendChild(sectionCard("🧩 Patologias", "Consulta rápida para estudo.", html));
+    viewContainer.appendChild(sectionCard("🧩 Patologias", "Consulta rápida.", html));
 
-    const list = document.getElementById("pathList");
-    const search = document.getElementById("pathSearch");
+    const list = el("pathList");
+    const search = el("pathSearch");
 
     function renderList(){
       const q = (search.value || "").trim().toLowerCase();
@@ -1573,26 +1321,14 @@
           </div>
           <div class="text-slate-400 text-xs mt-3"><b>Base:</b> ${escapeHtml(p.source)}</div>
         </div>
-      `).join("");
-
-      if(items.length === 0){
-        list.innerHTML = `<div class="text-slate-300">Nenhum resultado para essa busca.</div>`;
-      }
+      `).join("") || `<div class="text-slate-300">Nenhum resultado.</div>`;
     }
 
     search.addEventListener("input", renderList);
-    document.getElementById("btnPathHelp").addEventListener("click", ()=>{
-      openModal("❓ Ajuda — Patologias", "Dica curta", `
-        <div class="rounded-3xl bg-slate-900/60 border border-slate-700/30 p-4 text-slate-300">
-          Use como <b>check mental</b> para estudo. Na prática real, siga o <b>protocolo institucional</b> e a avaliação clínica.
-        </div>
-      `);
-    });
-
     renderList();
   }
 
-  // --------- Review ----------
+  // Revisão
   function renderReview(){
     const logs = appState.reviewLog || [];
     const top = logs.slice(0, 40);
@@ -1600,14 +1336,12 @@
     const html = `
       <div class="grid lg:grid-cols-3 gap-4">
         <div class="lg:col-span-2 rounded-3xl bg-slate-900/60 border border-slate-700/30 p-5">
-          <div class="flex items-start justify-between gap-3">
+          <div class="flex items-center justify-between gap-3">
             <div>
               <div class="text-2xl font-extrabold">📚 Revisão</div>
-              <div class="text-slate-300 mt-2">Seu histórico recente.</div>
+              <div class="text-slate-300 mt-2">Histórico recente.</div>
             </div>
-            <div class="flex flex-wrap gap-2">
-              <button id="btnClearReview" class="btn-big btn-danger">🧹 Limpar</button>
-            </div>
+            <button id="btnClearReview" class="btn btn-danger clickable" type="button">🧹 Limpar</button>
           </div>
 
           <div class="mt-4 grid gap-3" id="reviewList"></div>
@@ -1615,44 +1349,53 @@
 
         <div class="rounded-3xl bg-slate-900/60 border border-slate-700/30 p-5">
           <div class="text-2xl font-extrabold">🎯 Plano rápido</div>
-          <div class="text-slate-300 mt-2">Gerado a partir de erros recentes.</div>
+          <div class="text-slate-300 mt-2">Foque onde errou mais.</div>
           <div class="mt-4 rounded-3xl bg-slate-950/40 border border-slate-700/30 p-4" id="studyPlan"></div>
         </div>
       </div>
     `;
-    viewContainer.appendChild(sectionCard("📚 Revisão", "Histórico e reforço de temas.", html));
 
-    const list = document.getElementById("reviewList");
+    viewContainer.appendChild(sectionCard("📚 Revisão", "Histórico e reforço.", html));
+
+    const list = el("reviewList");
     if(top.length === 0){
       list.innerHTML = `<div class="rounded-3xl bg-slate-950/40 border border-slate-700/30 p-4 text-slate-300">Sem histórico ainda.</div>`;
     } else {
-      list.innerHTML = top.map(item => reviewCard(item)).join("");
+      list.innerHTML = top.map(item => {
+        const d = new Date(item.t);
+        const stamp = isNaN(d.getTime()) ? "" : d.toLocaleString("pt-BR");
+        const title = item.type === "score" ? `Score ${item.delta>0?"+":""}${item.delta}` : (item.type || "Registro");
+        const body = item.why || item.topic || item.title || item.scenario || "";
+        return `
+          <div class="rounded-3xl bg-slate-950/40 border border-slate-700/30 p-4">
+            <div class="flex items-center justify-between gap-2">
+              <div class="font-extrabold">${escapeHtml(title)}</div>
+              <div class="text-xs text-slate-400">${escapeHtml(stamp)}</div>
+            </div>
+            <div class="text-slate-300 text-sm mt-1">${escapeHtml(body)}</div>
+          </div>
+        `;
+      }).join("");
     }
 
-    // plan
-    const wrongs = logs.filter(x=>x.type==="quiz" && x.ok===false);
+    const wrongQuiz = logs.filter(x => x.type === "quiz" && x.ok === false);
     const counts = {};
-    wrongs.forEach(w => counts[w.topic] = (counts[w.topic]||0)+1);
+    wrongQuiz.forEach(w => counts[w.topic] = (counts[w.topic]||0) + 1);
     const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
-    const plan = document.getElementById("studyPlan");
+    const plan = el("studyPlan");
 
     if(sorted.length === 0){
-      plan.innerHTML = `
-        <div class="font-extrabold">✅ Sem erros recentes em quiz</div>
-        <div class="text-slate-300 mt-2">Suba nível e varie tema/especialidade.</div>
-      `;
+      plan.innerHTML = `<div class="font-extrabold">✅ Sem erros recentes em quiz</div><div class="text-slate-300 mt-2">Aumente variedade de módulos.</div>`;
     } else {
       const [t, n] = sorted[0];
       plan.innerHTML = `
-        <div class="font-extrabold">Tema mais fraco: ${escapeHtml(t)}</div>
+        <div class="font-extrabold">Tema prioritário: ${escapeHtml(t)}</div>
         <div class="text-slate-300 mt-2">Erros recentes: <b>${n}</b></div>
-        <div class="text-slate-300 text-sm mt-3">
-          Faça <b>5 questões</b> desse tema e <b>1 caso</b> relacionado, focando em: prioridade, tempo-dependência e segurança.
-        </div>
+        <div class="text-slate-300 text-sm mt-3">Faça 5 questões desse tema e 1 caso clínico relacionado.</div>
       `;
     }
 
-    document.getElementById("btnClearReview").addEventListener("click", ()=>{
+    el("btnClearReview").addEventListener("click", ()=>{
       appState.reviewLog = [];
       saveState();
       toast("warn","Revisão apagada","Histórico removido (score mantido).");
@@ -1660,80 +1403,10 @@
     });
   }
 
-  function reviewCard(item){
-    const d = new Date(item.t);
-    const stamp = isNaN(d.getTime()) ? "" : d.toLocaleString("pt-BR");
-    let icon="ℹ️", title="Registro", body="";
-
-    if(item.type === "quiz"){
-      icon = item.ok ? "✅" : "❌";
-      title = `Quiz • ${item.topic} • N${item.level}`;
-      body = item.ok ? "Acerto." : "Erro (revise a justificativa no módulo Quiz).";
-    } else if(item.type === "case"){
-      icon = item.ok ? "📋" : "📋";
-      title = `Caso • ${item.title}`;
-      body = `${item.ok ? "Correto." : "Incorreto."} Seleção: ${item.selected || "-"}`;
-    } else if(item.type === "triage"){
-      icon = item.ok ? "🚦" : "🚦";
-      title = `Triagem • ${item.scenario}`;
-      body = `${item.ok ? "Correto." : "Incorreto."} Seleção: ${item.choice || "-"}`;
-    } else if(item.type === "checklist"){
-      icon = "✅";
-      title = `Checklist • ${item.title}`;
-      body = `Resultado: ${item.pct}% (${item.correct} acertos)`;
-    } else if(item.type === "score"){
-      icon = item.delta > 0 ? "✨" : "—";
-      title = `Score ${item.delta>0?"+":""}${item.delta}`;
-      body = item.why || "";
-    }
-
-    return `
-      <div class="rounded-3xl bg-slate-950/40 border border-slate-700/30 p-4">
-        <div class="flex items-start gap-3">
-          <div class="text-2xl">${icon}</div>
-          <div class="flex-1">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <div class="font-extrabold">${escapeHtml(title)}</div>
-              <div class="text-xs text-slate-400">${escapeHtml(stamp)}</div>
-            </div>
-            <div class="text-slate-300 text-sm mt-1">${escapeHtml(body)}</div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  // --------- Small UI helpers ----------
-  function miniNote(title, text){
-    return `
-      <div class="rounded-3xl bg-slate-950/40 border border-slate-700/30 p-4">
-        <div class="font-extrabold">${escapeHtml(title)}</div>
-        <div class="text-slate-300 text-sm mt-1">${escapeHtml(text)}</div>
-      </div>
-    `;
-  }
-
-  // --------- Top actions / sidebar controls ----------
-  el("btnToggleSidebar")?.addEventListener("click", ()=> el("sidebar").classList.toggle("hidden"));
+  // Sidebar controls / navigation
+  el("btnToggleSidebar")?.addEventListener("click", () => el("sidebar").classList.toggle("hidden"));
   el("btnResetAll")?.addEventListener("click", resetProgress);
   el("btnQuickReset")?.addEventListener("click", resetProgress);
-
-  el("btnChangeName")?.addEventListener("click", ()=>{
-    openModal("✏️ Nome do aluno","Digite como aparecerá no painel.", `
-      <div class="space-y-3">
-        <input id="nameInput" class="w-full rounded-2xl bg-slate-900/60 border border-slate-700/30 px-4 py-3 font-extrabold" value="${escapeHtml(appState.userName||"Aluno")}"/>
-        <button id="btnSaveName" class="btn-big btn-ok w-full">💾 Salvar</button>
-      </div>
-    `);
-    setTimeout(()=>document.getElementById("nameInput")?.focus(), 50);
-    document.getElementById("btnSaveName").addEventListener("click", ()=>{
-      const v = (document.getElementById("nameInput").value || "").trim();
-      appState.userName = v || "Aluno";
-      saveState();
-      closeModal();
-      toast("ok","Atualizado","Nome salvo.");
-    });
-  });
 
   el("btnSound")?.addEventListener("click", ()=>{
     appState.sound = !appState.sound;
@@ -1742,19 +1415,33 @@
     beep(740, 60);
   });
 
-  el("btnFocus")?.addEventListener("click", ()=>{
-    appState.focusMode = !appState.focusMode;
-    saveState();
-    toast("info","Foco", appState.focusMode ? "Modo foco ligado." : "Modo foco desligado.");
+  el("btnChangeName")?.addEventListener("click", ()=>{
+    openModal("✏️ Nome do aluno","Digite como aparecerá no painel.", `
+      <div class="space-y-3">
+        <input id="nameInput" class="w-full rounded-2xl bg-slate-900/60 border border-slate-700/30 px-4 py-3 font-extrabold clickable"
+          value="${escapeHtml(appState.userName||"Aluno")}"/>
+        <button id="btnSaveName" class="btn btn-ok w-full clickable" type="button">💾 Salvar</button>
+      </div>
+    `);
+    setTimeout(()=> el("nameInput")?.focus(), 30);
+    el("btnSaveName").addEventListener("click", ()=>{
+      const v = (el("nameInput").value || "").trim();
+      appState.userName = v || "Aluno";
+      saveState();
+      closeModal();
+      toast("ok","Atualizado","Nome salvo.");
+    });
   });
 
-  // Nav
-  document.querySelectorAll(".navBtn").forEach(btn => btn.addEventListener("click", ()=>go(btn.dataset.view)));
+  // Nav click
+  document.querySelectorAll("[data-view]").forEach(btn => {
+    btn.addEventListener("click", () => go(btn.dataset.view));
+  });
 
-  // Init
+  // Start
   renderScoreWidgets();
   go("dashboard");
-})();
+});
 </script>
 </body>
 </html>
