@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedSim Pro - Plataforma de Treinamento em Saúde</title>
+    <title>Plataforma de Treinamento em Saúde</title>
     <!-- Ícones -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -18,6 +18,8 @@
             --warning: #e9c46a;
             --text-dark: #333;
             --sidebar-width: 280px;
+            --show-bg: #1a0b2e; /* Roxo Show do Milhão */
+            --show-gold: #ffd700;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
@@ -36,8 +38,9 @@
             box-shadow: 4px 0 10px rgba(0,0,0,0.1);
         }
 
-        .brand { padding: 25px; font-size: 1.6rem; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 12px; }
-        .brand i { color: var(--accent); }
+        .brand { padding: 20px; font-size: 1.2rem; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; gap: 5px; }
+        .brand i { color: var(--accent); font-size: 1.5rem; }
+        .brand-sub { font-size: 0.7rem; font-weight: 400; opacity: 0.8; }
 
         .menu { list-style: none; padding: 20px 0; flex: 1; overflow-y: auto; }
         .menu-item { cursor: pointer; transition: 0.2s; }
@@ -78,6 +81,7 @@
         .btn-danger { background: var(--danger); color: var(--white); }
         .btn-outline { background: transparent; border: 2px solid var(--secondary); color: var(--secondary); }
         .btn-outline:hover { background: var(--secondary); color: var(--white); }
+        .btn-gold { background: var(--show-gold); color: #000; font-weight: bold; border: 2px solid #fff; }
 
         /* --- Sections --- */
         .section { display: none; animation: fadeIn 0.4s ease; }
@@ -101,7 +105,6 @@
         .vital-card { background: #000; border: 1px solid #333; padding: 10px; border-radius: 8px; text-align: center; }
         .vital-label { color: #888; font-size: 0.8rem; text-transform: uppercase; }
         .vital-value { color: #0f0; font-family: 'Courier New', monospace; font-size: 2rem; font-weight: bold; text-shadow: 0 0 5px rgba(0,255,0,0.5); }
-        .vital-unit { color: #0f0; font-size: 0.8rem; }
 
         .ecg-container { width: 100%; height: 120px; background: #001100; border: 1px solid #003300; border-radius: 8px; overflow: hidden; position: relative; }
         .ecg-grid { position: absolute; width: 100%; height: 100%; background-image: linear-gradient(#002200 1px, transparent 1px), linear-gradient(90deg, #002200 1px, transparent 1px); background-size: 20px 20px; opacity: 0.3; }
@@ -142,6 +145,51 @@
         .card-back { background: linear-gradient(135deg, var(--secondary), var(--primary)); color: white; font-size: 2rem; }
         .card-text { font-size: 0.8rem; margin-top: 5px; font-weight: bold; text-align: center; padding: 0 5px; }
 
+        /* --- Show do Milhão --- */
+        .show-stage {
+            background: radial-gradient(circle, #2a0a4a 0%, #000 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            border: 4px solid var(--show-gold);
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.2);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .show-prize { font-size: 2rem; color: var(--show-gold); margin-bottom: 20px; font-weight: bold; text-shadow: 0 0 10px var(--show-gold); }
+        .show-lifelines { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
+        .lifeline-btn { background: #333; border: 2px solid var(--show-gold); color: var(--show-gold); padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: bold; }
+        .lifeline-btn:disabled { opacity: 0.3; cursor: not-allowed; border-color: #555; color: #555; }
+        .show-question { font-size: 1.5rem; margin-bottom: 30px; min-height: 80px; }
+        .show-options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .show-opt { background: rgba(255,255,255,0.1); border: 2px solid #555; padding: 15px; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+        .show-opt:hover { background: rgba(255,255,255,0.2); border-color: white; }
+        .show-opt.selected { background: var(--show-gold); color: black; border-color: white; }
+
+        /* --- Hangman (Forca) --- */
+        .hangman-container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; text-align: center; }
+        .hangman-draw { height: 200px; border-bottom: 4px solid #333; position: relative; margin: 0 auto 20px; width: 150px; }
+        .hangman-part { position: absolute; background: #333; display: none; }
+        .hm-base { width: 100%; height: 4px; bottom: 0; left: 0; display: block !important; }
+        .hm-pole { width: 4px; height: 100%; bottom: 0; left: 10px; display: block !important; }
+        .hm-top { width: 80px; height: 4px; top: 10px; left: 10px; display: block !important; }
+        .hm-rope { width: 4px; height: 30px; top: 10px; left: 86px; display: block !important; }
+        
+        .word-display { font-size: 2rem; letter-spacing: 10px; margin: 20px 0; font-family: monospace; font-weight: bold; }
+        .keyboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
+        .key-btn { width: 35px; height: 35px; border: 1px solid #ccc; background: #f9f9f9; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        .key-btn:hover { background: #ddd; }
+        .key-btn.used { background: #ccc; color: #888; cursor: not-allowed; }
+
+        /* --- Ventilator --- */
+        .ventilator-ui { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; background: #eee; padding: 20px; border-radius: 10px; }
+        .vent-controls { background: white; padding: 20px; border-radius: 8px; }
+        .vent-screen { background: #000; color: #0f0; padding: 20px; border-radius: 8px; font-family: monospace; position: relative; overflow: hidden; }
+        .lung-bag { width: 100px; height: 150px; border: 2px solid #0f0; border-radius: 50%; margin: 20px auto; transition: transform 0.5s ease-in-out; transform-origin: bottom center; background: rgba(0, 255, 0, 0.1); }
+        .vent-param { display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center; }
+        .vent-param input { width: 80px; padding: 5px; }
+
         /* Responsive */
         @media (max-width: 768px) {
             #sidebar { position: fixed; left: -280px; height: 100%; }
@@ -149,6 +197,8 @@
             .btn-toggle { display: block; }
             .vitals-grid { grid-template-columns: repeat(2, 1fr); }
             .memory-grid { grid-template-columns: repeat(3, 1fr); }
+            .show-options { grid-template-columns: 1fr; }
+            .ventilator-ui { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -157,7 +207,11 @@
     <!-- Sidebar -->
     <nav id="sidebar">
         <div class="brand">
-            <i class="fas fa-heart-pulse"></i> MedSim Pro
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="fas fa-heart-pulse"></i> 
+                <span>Plataforma de Treinamento em Saúde</span>
+            </div>
+            <span class="brand-sub">Dr. Moacir Carrion - Fisioterapeuta</span>
         </div>
         <ul class="menu">
             <li class="menu-item">
@@ -360,9 +414,14 @@
                     <button class="btn btn-primary" onclick="startMemoryGame()">Jogar Agora</button>
                 </div>
                 <div class="card">
-                    <h3><i class="fas fa-crown"></i> Show do Milhão</h3>
-                    <p>Modo sobrevivência com ajudas.</p>
-                    <button class="btn btn-primary" disabled style="opacity: 0.6; cursor: not-allowed;">Em Breve</button>
+                    <h3><i class="fas fa-tv"></i> Show do Milhão</h3>
+                    <p>Teste seus conhecimentos e ganhe prêmios virtuais!</p>
+                    <button class="btn btn-gold" onclick="startShowDoMilhao()">Jogar Agora</button>
+                </div>
+                <div class="card">
+                    <h3><i class="fas fa-hanger"></i> Jogo da Forca</h3>
+                    <p>Adivinhe o termo médico antes de perder.</p>
+                    <button class="btn btn-primary" onclick="startHangman()">Jogar Agora</button>
                 </div>
             </div>
 
@@ -373,6 +432,45 @@
                     <button class="btn btn-danger" style="width: auto;" onclick="document.getElementById('memory-board').style.display='none'">Sair</button>
                 </div>
                 <div class="memory-grid" id="memory-grid"></div>
+            </div>
+
+            <!-- Show do Milhão Board -->
+            <div id="show-board" style="display: none;">
+                <div class="show-stage">
+                    <div class="show-prize" id="show-prize-display">R$ 1.000</div>
+                    <div class="show-lifelines">
+                        <button class="lifeline-btn" id="ll-skip" onclick="useLifeline('skip')"><i class="fas fa-forward"></i> Pular</button>
+                        <button class="lifeline-btn" id="ll-cards" onclick="useLifeline('cards')"><i class="fas fa-th-large"></i> Cartas</button>
+                        <button class="lifeline-btn" id="ll-ropes" onclick="useLifeline('ropes')"><i class="fas fa-users"></i> Cabos</button>
+                    </div>
+                    <div class="show-question" id="show-question-text">Carregando pergunta...</div>
+                    <div class="show-options" id="show-options-container">
+                        <!-- Options -->
+                    </div>
+                    <button class="btn btn-danger" style="margin-top: 30px; width: auto;" onclick="document.getElementById('show-board').style.display='none'">Desistir</button>
+                </div>
+            </div>
+
+            <!-- Hangman Board -->
+            <div id="hangman-board" style="display: none;">
+                <div class="hangman-container">
+                    <h3>Jogo da Forca Médica</h3>
+                    <div class="hangman-draw" id="hangman-draw">
+                        <div class="hangman-part hm-base"></div>
+                        <div class="hangman-part hm-pole"></div>
+                        <div class="hangman-part hm-top"></div>
+                        <div class="hangman-part hm-rope"></div>
+                        <div class="hangman-part" id="hm-head" style="width: 40px; height: 40px; border-radius: 50%; border: 3px solid #333; top: 40px; left: 53px;"></div>
+                        <div class="hangman-part" id="hm-body" style="width: 4px; height: 60px; top: 80px; left: 73px;"></div>
+                        <div class="hangman-part" id="hm-arm-l" style="width: 30px; height: 3px; top: 90px; left: 43px; transform: rotate(30deg);"></div>
+                        <div class="hangman-part" id="hm-arm-r" style="width: 30px; height: 3px; top: 90px; left: 73px; transform: rotate(-30deg);"></div>
+                        <div class="hangman-part" id="hm-leg-l" style="width: 30px; height: 3px; top: 135px; left: 43px; transform: rotate(-30deg);"></div>
+                        <div class="hangman-part" id="hm-leg-r" style="width: 30px; height: 3px; top: 135px; left: 73px; transform: rotate(30deg);"></div>
+                    </div>
+                    <div class="word-display" id="hangman-word">_ _ _ _ _</div>
+                    <div class="keyboard" id="hangman-keyboard"></div>
+                    <button class="btn btn-danger" style="margin-top: 20px; width: auto;" onclick="document.getElementById('hangman-board').style.display='none'">Sair</button>
+                </div>
             </div>
         </div>
 
@@ -386,8 +484,8 @@
                 </div>
                 <div class="card">
                     <h3>Ventilador Mecânico</h3>
-                    <p>Configuração de modos (VC, PC, PSV).</p>
-                    <button class="btn btn-primary" onclick="alert('Funcionalidade em desenvolvimento')">Em Breve</button>
+                    <p>Configuração de modos (VCV, PSV) e parâmetros.</p>
+                    <button class="btn btn-primary" onclick="loadTool('ventilator')">Abrir Ferramenta</button>
                 </div>
             </div>
 
@@ -410,6 +508,59 @@
                         <button class="btn btn-danger" style="width: auto;" onclick="setToolRhythm('vfib')">Fibrilação Ventricular</button>
                         <button class="btn btn-outline" style="width: auto;" onclick="setToolRhythm('asystole')">Assistolia</button>
                         <button class="btn btn-outline" style="width: auto;" onclick="setToolRhythm('pvc')">Extra-sístole (PVC)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VENTILATOR TOOL -->
+            <div id="tool-ventilator" style="margin-top: 30px; display: none;">
+                <div class="patient-monitor" style="max-width: 900px; margin: 0 auto; background: #333;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <h3 style="color: white;">Ventilador Mecânico (Simulador)</h3>
+                        <button class="btn btn-danger" style="width: auto; padding: 5px 10px;" onclick="document.getElementById('tool-ventilator').style.display='none'">X</button>
+                    </div>
+                    <div class="ventilator-ui">
+                        <div class="vent-controls">
+                            <h4 style="margin-bottom: 15px; color: #333;">Parâmetros</h4>
+                            <div class="vent-param">
+                                <label>Modo:</label>
+                                <select id="vent-mode" class="form-control" style="width: auto;" onchange="updateVent()">
+                                    <option value="VCV">VCV (Vol. Controlado)</option>
+                                    <option value="PSV">PSV (Pressão Suporte)</option>
+                                </select>
+                            </div>
+                            <div class="vent-param">
+                                <label>Vol. Corrente (ml):</label>
+                                <input type="number" id="vent-vt" value="500" min="200" max="1000" onchange="updateVent()">
+                            </div>
+                            <div class="vent-param">
+                                <label>Fr. Resp. (rpm):</label>
+                                <input type="number" id="vent-rr" value="12" min="5" max="40" onchange="updateVent()">
+                            </div>
+                            <div class="vent-param">
+                                <label>FiO2 (%):</label>
+                                <input type="number" id="vent-fio2" value="40" min="21" max="100" onchange="updateVent()">
+                            </div>
+                            <div class="vent-param">
+                                <label>PEEP (cmH2O):</label>
+                                <input type="number" id="vent-peep" value="5" min="0" max="20" onchange="updateVent()">
+                            </div>
+                            <button class="btn btn-primary" onclick="alert('Configurações aplicadas!')">Aplicar</button>
+                        </div>
+                        <div class="vent-screen">
+                            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #0f0; padding-bottom: 10px; margin-bottom: 10px;">
+                                <span>MODE: <span id="disp-mode">VCV</span></span>
+                                <span>FiO2: <span id="disp-fio2">40</span>%</span>
+                            </div>
+                            <div style="text-align: center;">
+                                <div class="lung-bag" id="lung-bag"></div>
+                                <div style="font-size: 0.8rem;">Simulação Visual do Pulmão</div>
+                            </div>
+                            <div style="margin-top: 20px; font-size: 0.9rem;">
+                                <div>Pico de Pressão: <span id="disp-pip" style="color: yellow;">--</span> cmH2O</div>
+                                <div>Vol. Minuto: <span id="disp-mv" style="color: yellow;">--</span> L/min</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -508,215 +659,61 @@
             ],
             questions: [
                 // --- BANCO DE QUESTÕES BLS (20 QUESTÕES) ---
-                {
-                    q: "Frequência das compressões no adulto?",
-                    options: ["60–80 cpm", "80–100 cpm", "100–120 cpm", "140–160 cpm"],
-                    ans: 2,
-                    exp: "A diretriz atual recomenda 100-120 compressões por minuto para máxima eficácia.",
-                    spec: "BLS",
-                    diff: "easy"
-                },
-                {
-                    q: "Profundidade da compressão torácica no adulto?",
-                    options: ["2 cm", "3 cm", "5–6 cm", "8 cm"],
-                    ans: 2,
-                    exp: "A profundidade ideal é de pelo menos 5 cm, não excedendo 6 cm, para evitar lesões.",
-                    spec: "BLS",
-                    diff: "easy"
-                },
-                {
-                    q: "Relação compressão/ventilação para adulto com 1 socorrista?",
-                    options: ["15:2", "30:2", "20:2", "10:2"],
-                    ans: 1,
-                    exp: "Para adultos, a relação é sempre 30 compressões para 2 ventilações, independente do número de socorristas.",
-                    spec: "BLS",
-                    diff: "easy"
-                },
-                {
-                    q: "Primeira ação ao encontrar uma vítima inconsciente?",
-                    options: ["Ventilar", "Checar pulso", "Garantir segurança da cena", "Aplicar DEA"],
-                    ans: 2,
-                    exp: "A segurança da cena é sempre a prioridade #1 para evitar que o socorrista também se torne vítima.",
-                    spec: "BLS",
-                    diff: "easy"
-                },
-                {
-                    q: "Tempo máximo para checagem de pulso carotídeo?",
-                    options: ["5–10 segundos", "20 segundos", "30 segundos", "1 minuto"],
-                    ans: 0,
-                    exp: "A verificação do pulso não deve exceder 10 segundos para não atrasar o início das compressões.",
-                    spec: "BLS",
-                    diff: "medium"
-                },
-                {
-                    q: "Qual ritmo cardíaco é indicação para choque com DEA?",
-                    options: ["Assistolia", "Fibrilação Ventricular (FV)", "Atividade Elétrica Sem Pulso (AESP)", "Bradicardia extrema"],
-                    ans: 1,
-                    exp: "O DEA só aplica choque em ritmos chocáveis: Fibrilação Ventricular e Taquicardia Ventricular sem pulso.",
-                    spec: "BLS",
-                    diff: "medium"
-                },
-                {
-                    q: "Após a aplicação de um choque pelo DEA, o que fazer imediatamente?",
-                    options: ["Checar pulso", "Ventilar", "Retomar compressões torácicas", "Administrar drogas"],
-                    ans: 2,
-                    exp: "Após o choque, retome as compressões imediatamente por 2 minutos antes de reanalisar o ritmo.",
-                    spec: "BLS",
-                    diff: "medium"
-                },
-                {
-                    q: "Qual destes é um ritmo NÃO chocável?",
-                    options: ["Fibrilação Ventricular", "Taquicardia Ventricular sem pulso", "Atividade Elétrica Sem Pulso (AESP)", "Taquicardia Ventricular com pulso"],
-                    ans: 2,
-                    exp: "AESP e Assistolia são ritmos não chocáveis; o tratamento é RCP de qualidade e adrenalina.",
-                    spec: "BLS",
-                    diff: "hard"
-                },
-                {
-                    q: "As compressões torácicas devem ser realizadas:",
-                    options: ["Lentamente", "Superficialmente", "Com recuo total do tórax", "De forma intermitente"],
-                    ans: 2,
-                    exp: "O recuo total permite o enchimento cardíaco; compressões incompletas reduzem drasticamente o fluxo sanguíneo.",
-                    spec: "BLS",
-                    diff: "easy"
-                },
-                {
-                    q: "A troca de socorrista nas compressões deve ocorrer a cada:",
-                    options: ["1 minuto", "2 minutos", "5 minutos", "10 minutos"],
-                    ans: 1,
-                    exp: "A fadiga reduz a qualidade das compressões após ~2 minutos; trocas rápidas (<5s) são essenciais.",
-                    spec: "BLS",
-                    diff: "medium"
-                },
-                {
-                    q: "Na criança, a Parada Cardiorrespiratória (PCR) geralmente tem origem:",
-                    options: ["Primariamente cardíaca", "Primariamente respiratória", "Primariamente elétrica", "Primariamente traumática"],
-                    ans: 1,
-                    exp: "Em pediatria, a PCR é geralmente secundária à hipóxia/insuficiência respiratória, diferentemente do adulto.",
-                    spec: "BLS",
-                    diff: "medium"
-                },
-                {
-                    q: "Qual a relação compressão/ventilação para criança com 2 socorristas?",
-                    options: ["30:2", "20:2", "15:2", "10:1"],
-                    ans: 2,
-                    exp: "Em pediatria com 2 socorristas treinados, usa-se 15:2 para priorizar ventilação adequada.",
-                    spec: "BLS",
-                    diff: "hard"
-                },
-                {
-                    q: "Para compressões em lactente, a técnica recomendada é:",
-                    options: ["Duas mãos", "Uma mão", "Dois dedos ou dois polegares", "Punho fechado"],
-                    ans: 2,
-                    exp: "Use 2 dedos (técnica de 1 socorrista) ou 2 polegares envolvendo o tórax (2 socorristas) no lactente.",
-                    spec: "BLS",
-                    diff: "medium"
-                },
-                {
-                    q: "O sinal clínico definitivo de Parada Cardiorrespiratória é:",
-                    options: ["Confusão mental", "Cianose periférica", "Apneia + ausência de pulso central", "Dor torácica"],
-                    ans: 2,
-                    exp: "PCR é diagnosticada pela ausência de responsividade, apneia ou respiração agônica e ausência de pulso.",
-                    spec: "BLS",
-                    diff: "easy"
-                },
-                {
-                    q: "Posição correta das mãos para compressões no adulto:",
-                    options: ["Epigástrio", "Centro do esterno (linha intermamilar)", "Clavícula", "Ápice cardíaco"],
-                    ans: 1,
-                    exp: "Posicione o calcanhar da mão no centro do esterno, evitando o apêndice xifoide para não lesionar órgãos.",
-                    spec: "BLS",
-                    diff: "easy"
-                },
-                {
-                    q: "Sobre o uso de oxigênio suplementar no BLS:",
-                    options: ["Sempre obrigatório", "Nunca deve ser usado", "Usar se disponível, sem atrasar compressões", "Apenas em ambiente hospitalar"],
-                    ans: 2,
-                    exp: "O oxigênio é benéfico, mas nunca deve atrasar o início das compressões ou a desfibrilação.",
-                    spec: "BLS",
-                    diff: "medium"
-                },
-                {
-                    q: "O ritmo inicial mais comum na PCR extra-hospitalar de causa cardíaca é:",
-                    options: ["Fibrilação Ventricular", "Atividade Elétrica Sem Pulso", "Bloqueio AV total", "Fibrilação Atrial"],
-                    ans: 0,
-                    exp: "A FV é o ritmo mais frequente nos primeiros minutos de PCR súbita de origem cardíaca.",
-                    spec: "BLS",
-                    diff: "hard"
-                },
-                {
-                    q: "A Cadeia de Sobrevivência do BLS inclui como elo essencial:",
-                    options: ["Desfibrilação precoce", "Sedação rápida", "Antibioticoterapia", "Intubação imediata"],
-                    ans: 0,
-                    exp: "Os elos são: reconhecimento/ativação, RCP precoce, desfibrilação precoce, suporte avançado e cuidados pós-PCR.",
-                    spec: "BLS",
-                    diff: "easy"
-                },
-                {
-                    q: "A interrupção máxima permitida das compressões torácicas é de:",
-                    options: ["2 segundos", "5 segundos", "10 segundos", "20 segundos"],
-                    ans: 2,
-                    exp: "Pausas >10s reduzem a perfusão coronariana e cerebral; minimize interrupções para análise de ritmo/choque.",
-                    spec: "BLS",
-                    diff: "medium"
-                },
-                {
-                    q: "O objetivo principal do Suporte Básico de Vida (BLS) é:",
-                    options: ["Reverter a causa da PCR", "Manter perfusão cerebral e coronariana", "Sedar o paciente", "Realizar intubação"],
-                    ans: 1,
-                    exp: "O BLS mantém fluxo sanguíneo mínimo ao cérebro e coração até que o suporte avançado possa tratar a causa.",
-                    spec: "BLS",
-                    diff: "easy"
-                },
-                // --- OUTRAS QUESTÕES (ACLS/ATLS GERAIS) ---
-                {
-                    q: "Qual a dose de Amiodarona na 3ª choque em PCR por FV/TV?",
-                    options: ["150mg", "300mg", "1mg/kg", "5mg/kg"],
-                    ans: 1,
-                    exp: "300mg em bolus é a dose inicial para FV/TV refratária.",
-                    spec: "ACLS",
-                    diff: "hard"
-                },
-                {
-                    q: "Qual a frequência de ventilação em via aérea avançada na PCR?",
-                    options: ["10 rpm", "12 rpm", "20 rpm", "30 rpm"],
-                    ans: 0,
-                    exp: "1 ventilação a cada 6 segundos (10 rpm) sem pausar compressões.",
-                    spec: "ACLS",
-                    diff: "medium"
-                },
-                {
-                    q: "Sinal de Grey-Turner indica:",
-                    options: ["Fratura de crânio", "Sangramento retroperitoneal", "Pneumotórax", "Ruptura de baço"],
-                    ans: 1,
-                    exp: "Equimose em flancos, sugere sangramento retroperitoneal.",
-                    spec: "ATLS",
-                    diff: "hard"
-                },
-                {
-                    q: "Glasgow 8 indica:",
-                    options: ["Trauma leve", "Necessidade de intubação", "Óbito cerebral", "Coma profundo"],
-                    ans: 1,
-                    exp: "Glasgow <= 8, intube (G8). Protege a via aérea.",
-                    spec: "ATLS",
-                    diff: "medium"
-                },
-                {
-                    q: "Dose de Adrenalina em PCR pediátrica (IV/IO)?",
-                    options: ["0.01 mg/kg", "0.1 mg/kg", "1 mg fixo", "0.5 mg/kg"],
-                    ans: 0,
-                    exp: "0.01 mg/kg (0.1 mL/kg da solução 1:10.000).",
-                    spec: "Pediatria",
-                    diff: "hard"
-                },
-                {
-                    q: "FC normal para recém-nascido termo:",
-                    options: ["60-80", "80-100", "120-160", "160-180"],
-                    ans: 2,
-                    exp: "Entre 120 e 160 bpm é o esperado.",
-                    spec: "Pediatria",
-                    diff: "easy"
-                }
+                { q: "Frequência das compressões no adulto?", options: ["60–80 cpm", "80–100 cpm", "100–120 cpm", "140–160 cpm"], ans: 2, exp: "A diretriz atual recomenda 100-120 compressões por minuto.", spec: "BLS", diff: "easy" },
+                { q: "Profundidade da compressão torácica no adulto?", options: ["2 cm", "3 cm", "5–6 cm", "8 cm"], ans: 2, exp: "A profundidade ideal é de pelo menos 5 cm, não excedendo 6 cm.", spec: "BLS", diff: "easy" },
+                { q: "Relação compressão/ventilação para adulto com 1 socorrista?", options: ["15:2", "30:2", "20:2", "10:2"], ans: 1, exp: "Para adultos, a relação é sempre 30 compressões para 2 ventilações.", spec: "BLS", diff: "easy" },
+                { q: "Primeira ação ao encontrar uma vítima inconsciente?", options: ["Ventilar", "Checar pulso", "Garantir segurança da cena", "Aplicar DEA"], ans: 2, exp: "A segurança da cena é sempre a prioridade #1.", spec: "BLS", diff: "easy" },
+                { q: "Tempo máximo para checagem de pulso carotídeo?", options: ["5–10 segundos", "20 segundos", "30 segundos", "1 minuto"], ans: 0, exp: "A verificação do pulso não deve exceder 10 segundos.", spec: "BLS", diff: "medium" },
+                { q: "Qual ritmo cardíaco é indicação para choque com DEA?", options: ["Assistolia", "Fibrilação Ventricular (FV)", "AESP", "Bradicardia extrema"], ans: 1, exp: "O DEA só aplica choque em ritmos chocáveis: FV e TV sem pulso.", spec: "BLS", diff: "medium" },
+                { q: "Após a aplicação de um choque pelo DEA, o que fazer imediatamente?", options: ["Checar pulso", "Ventilar", "Retomar compressões torácicas", "Administrar drogas"], ans: 2, exp: "Após o choque, retome as compressões imediatamente por 2 minutos.", spec: "BLS", diff: "medium" },
+                { q: "Qual destes é um ritmo NÃO chocável?", options: ["Fibrilação Ventricular", "Taquicardia Ventricular sem pulso", "Atividade Elétrica Sem Pulso (AESP)", "Taquicardia Ventricular com pulso"], ans: 2, exp: "AESP e Assistolia são ritmos não chocáveis.", spec: "BLS", diff: "hard" },
+                { q: "As compressões torácicas devem ser realizadas:", options: ["Lentamente", "Superficialmente", "Com recuo total do tórax", "De forma intermitente"], ans: 2, exp: "O recuo total permite o enchimento cardíaco.", spec: "BLS", diff: "easy" },
+                { q: "A troca de socorrista nas compressões deve ocorrer a cada:", options: ["1 minuto", "2 minutos", "5 minutos", "10 minutos"], ans: 1, exp: "A fadiga reduz a qualidade das compressões após ~2 minutos.", spec: "BLS", diff: "medium" },
+                { q: "Na criança, a Parada Cardiorrespiratória (PCR) geralmente tem origem:", options: ["Primariamente cardíaca", "Primariamente respiratória", "Primariamente elétrica", "Primariamente traumática"], ans: 1, exp: "Em pediatria, a PCR é geralmente secundária à hipóxia.", spec: "BLS", diff: "medium" },
+                { q: "Qual a relação compressão/ventilação para criança com 2 socorristas?", options: ["30:2", "20:2", "15:2", "10:1"], ans: 2, exp: "Em pediatria com 2 socorristas treinados, usa-se 15:2.", spec: "BLS", diff: "hard" },
+                { q: "Para compressões em lactente, a técnica recomendada é:", options: ["Duas mãos", "Uma mão", "Dois dedos ou dois polegares", "Punho fechado"], ans: 2, exp: "Use 2 dedos ou 2 polegares envolvendo o tórax no lactente.", spec: "BLS", diff: "medium" },
+                { q: "O sinal clínico definitivo de Parada Cardiorrespiratória é:", options: ["Confusão mental", "Cianose periférica", "Apneia + ausência de pulso central", "Dor torácica"], ans: 2, exp: "PCR é diagnosticada pela ausência de responsividade, apneia e ausência de pulso.", spec: "BLS", diff: "easy" },
+                { q: "Posição correta das mãos para compressões no adulto:", options: ["Epigástrio", "Centro do esterno (linha intermamilar)", "Clavícula", "Ápice cardíaco"], ans: 1, exp: "Posicione o calcanhar da mão no centro do esterno.", spec: "BLS", diff: "easy" },
+                { q: "Sobre o uso de oxigênio suplementar no BLS:", options: ["Sempre obrigatório", "Nunca deve ser usado", "Usar se disponível, sem atrasar compressões", "Apenas em ambiente hospitalar"], ans: 2, exp: "O oxigênio é benéfico, mas nunca deve atrasar as compressões.", spec: "BLS", diff: "medium" },
+                { q: "O ritmo inicial mais comum na PCR extra-hospitalar de causa cardíaca é:", options: ["Fibrilação Ventricular", "Atividade Elétrica Sem Pulso", "Bloqueio AV total", "Fibrilação Atrial"], ans: 0, exp: "A FV é o ritmo mais frequente nos primeiros minutos.", spec: "BLS", diff: "hard" },
+                { q: "A Cadeia de Sobrevivência do BLS inclui como elo essencial:", options: ["Desfibrilação precoce", "Sedação rápida", "Antibioticoterapia", "Intubação imediata"], ans: 0, exp: "Os elos são: reconhecimento, RCP, desfibrilação, suporte avançado.", spec: "BLS", diff: "easy" },
+                { q: "A interrupção máxima permitida das compressões torácicas é de:", options: ["2 segundos", "5 segundos", "10 segundos", "20 segundos"], ans: 2, exp: "Pausas >10s reduzem a perfusão coronariana e cerebral.", spec: "BLS", diff: "medium" },
+                { q: "O objetivo principal do Suporte Básico de Vida (BLS) é:", options: ["Reverter a causa da PCR", "Manter perfusão cerebral e coronariana", "Sedar o paciente", "Realizar intubação"], ans: 1, exp: "O BLS mantém fluxo sanguíneo mínimo até o suporte avançado.", spec: "BLS", diff: "easy" },
+                
+                // --- NOVAS QUESTÕES ACLS (20 QUESTÕES) ---
+                { q: "Droga de escolha para FV refratária?", options: ["Atropina", "Adrenalina", "Amiodarona", "Lidocaína"], ans: 2, exp: "Amiodarona 300mg é a droga antiarrítmica de escolha na FV/TV refratária.", spec: "ACLS", diff: "medium" },
+                { q: "Dose de adrenalina na PCR do adulto?", options: ["0,1 mg", "1 mg", "5 mg", "10 mg"], ans: 1, exp: "1 mg de Adrenalina (1:10.000) a cada 3-5 minutos.", spec: "ACLS", diff: "easy" },
+                { q: "Intervalo de administração da adrenalina?", options: ["1 min", "3–5 min", "10 min", "15 min"], ans: 1, exp: "A cada 3 a 5 minutos durante a RCP.", spec: "ACLS", diff: "easy" },
+                { q: "Qual ritmo é chocável?", options: ["AESP", "Assistolia", "Fibrilação Ventricular", "BAV"], ans: 2, exp: "Apenas FV e TV sem pulso são ritmos chocáveis.", spec: "ACLS", diff: "easy" },
+                { q: "Valor ideal de Capnografia (EtCO2) durante RCP de qualidade?", options: ["<10", "10–20", ">20 mmHg", "50"], ans: 2, exp: "EtCO2 > 20 mmHg indica compressões eficazes e retorno venoso.", spec: "ACLS", diff: "hard" },
+                { q: "Foco principal no cuidado Pós-ROSC?", options: ["Sedação profunda", "Oxigenação e Hemodinâmica", "Hiperventilar", "Suspender O2"], ans: 1, exp: "Manter oxigenação adequada (SpO2 92-98%) e pressão arterial.", spec: "ACLS", diff: "medium" },
+                { q: "Causas reversíveis 5H inclui:", options: ["Hipoglicemia", "Hipóxia", "Hipotensão", "Hipertermia"], ans: 1, exp: "Os 5H são: Hipovolemia, Hipóxia, Íons (H+/K+), Hipotermia, Toxinas.", spec: "ACLS", diff: "medium" },
+                { q: "Tratamento inicial para Taquicardia com Pulso Estável (TVSP)?", options: ["Atropina", "Choque sincronizado", "Massagem", "Manobras vagais / Adenosina"], ans: 3, exp: "Se estável, iniciar com manobras vagais ou adenosina. Choque é para instáveis.", spec: "ACLS", diff: "hard" },
+                { q: "Droga de primeira linha para Bradicardia Sintomática?", options: ["Adenosina", "Atropina", "Amiodarona", "Adrenalina IM"], ans: 1, exp: "Atropina 1mg é a primeira escolha.", spec: "ACLS", diff: "easy" },
+                { q: "Dose de Atropina na bradicardia?", options: ["0,1 mg", "0,5 mg", "1 mg", "5 mg"], ans: 2, exp: "1 mg IV, pode repetir a cada 3-5 min até max 3mg.", spec: "ACLS", diff: "easy" },
+                { q: "Padrão ouro para confirmar intubação traqueal?", options: ["RX de Tórax", "Ausculta pulmonar", "Capnografia", "Saturação"], ans: 2, exp: "A detecção de CO2 (Capnografia) é o método mais confiável.", spec: "ACLS", diff: "medium" },
+                { q: "Conduta na Assistolia?", options: ["Choque", "Adrenalina + RCP", "Amiodarona", "Cardioversão"], ans: 1, exp: "RCP de alta qualidade e Adrenalina. Não há choque.", spec: "ACLS", diff: "easy" },
+                { q: "O que é AESP?", options: ["Ritmo organizado sem pulso", "Assistolia", "FV", "BAV"], ans: 0, exp: "Atividade Elétrica Sem Pulso: há ritmo no monitor, mas não há pulso palpável.", spec: "ACLS", diff: "medium" },
+                { q: "Energia inicial recomendada para choque bifásico?", options: ["50J", "100J", "120-200J", "360J"], ans: 2, exp: "Seguir recomendação do fabricante, geralmente 120-200J.", spec: "ACLS", diff: "medium" },
+                { q: "No pós-PCR, deve-se evitar:", options: ["Hipóxia", "Normotermia", "Hipotensão", "Monitorização"], ans: 0, exp: "Evitar hipóxia e hiperóxia. Manter SpO2 entre 92-98%.", spec: "ACLS", diff: "medium" },
+                { q: "Tratamento para Taquicardia Instável com pulso?", options: ["Observa", "Cardioversão Sincronizada", "Beta-bloqueador", "Alta"], ans: 1, exp: "Instabilidade (hipotensão, dor, IC) indica cardioversão imediata.", spec: "ACLS", diff: "hard" },
+                { q: "Saturação alvo de O2 no pós-ROSC?", options: ["85%", "92–98%", "100%", "70%"], ans: 1, exp: "Evitar hiperóxia. Alvo 92-98%.", spec: "ACLS", diff: "medium" },
+                { q: "Via preferencial para drogas na PCR?", options: ["IM", "VO", "IV/IO", "SC"], ans: 2, exp: "Intravenosa (IV) ou Intraóssea (IO).", spec: "ACLS", diff: "easy" },
+                { q: "Tempo máximo de pausa nas compressões para intubação?", options: ["Sim longa", "≤10s", "30s", "1min"], ans: 1, exp: "Qualquer interrupção deve ser menor que 10 segundos.", spec: "ACLS", diff: "medium" },
+                { q: "Monitorização ideal durante a PCR?", options: ["ECG + Capnografia", "Só ECG", "Oximetria", "PA manual"], ans: 0, exp: "ECG para ritmo e Capnografia para qualidade da RCP e ROSC.", spec: "ACLS", diff: "hard" },
+
+                // --- OUTRAS QUESTÕES GERAIS ---
+                { q: "Sinal de Grey-Turner indica:", options: ["Fratura de crânio", "Sangramento retroperitoneal", "Pneumotórax", "Ruptura de baço"], ans: 1, exp: "Equimose em flancos, sugere sangramento retroperitoneal.", spec: "ATLS", diff: "hard" },
+                { q: "Glasgow 8 indica:", options: ["Trauma leve", "Necessidade de intubação", "Óbito cerebral", "Coma profundo"], ans: 1, exp: "Glasgow <= 8, intube (G8). Protege a via aérea.", spec: "ATLS", diff: "medium" },
+                { q: "Dose de Adrenalina em PCR pediátrica (IV/IO)?", options: ["0.01 mg/kg", "0.1 mg/kg", "1 mg fixo", "0.5 mg/kg"], ans: 0, exp: "0.01 mg/kg (0.1 mL/kg da solução 1:10.000).", spec: "Pediatria", diff: "hard" },
+                { q: "FC normal para recém-nascido termo:", options: ["60-80", "80-100", "120-160", "160-180"], ans: 2, exp: "Entre 120 e 160 bpm é o esperado.", spec: "Pediatria", diff: "easy" }
+            ],
+            hangmanWords: [
+                "ADRENALINA", "AMIODARONA", "FIBRILACAO", "VENTILACAO", "TRAQUEIA", 
+                "HEMODINAMICA", "HIPOXIA", "ISQUEMIA", "ELETROCARDIOGRAMA", "DESFIBRILADOR",
+                "RCP", "ATLS", "BLS", "ACLS", "PEDIATRIA", "NEONATO", "OBSTETRICA",
+                "CARDIOLOGIA", "PNEUMOLOGIA", "NEUROLOGIA", "ANESTESIA", "TERAPIA",
+                "INTENSIVO", "EMERGENCIA", "URGÊNCIA", "TRIAGEM", "PROTOCOLO", "ALGORITMO"
             ]
         };
 
@@ -724,41 +721,29 @@
         let state = {
             xp: 0, score: 0, casesCompleted: 0,
             currentSim: null, simTimer: null,
-            quizQueue: [], quizIndex: 0, quizScore: 0, quizTimer: null
+            quizQueue: [], quizIndex: 0, quizScore: 0, quizTimer: null,
+            showPrizeIndex: 0, showLifelines: { skip: true, cards: true, ropes: true },
+            hangmanWord: "", hangmanGuessed: [], hangmanErrors: 0
         };
 
         // --- NAVIGATION ---
         function nav(sectionId) {
-            // Hide all sections
             document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-            // Show target section
             document.getElementById(sectionId).classList.add('active');
             
-            // Update menu active state
             document.querySelectorAll('.menu-link').forEach(el => el.classList.remove('active'));
             
             const titles = {
-                'dashboard': 'Dashboard', 
-                'cases': 'Casos Clínicos', 
-                'quiz-setup': 'Configurar Quiz', 
-                'quiz-active': 'Quiz em Andamento',
-                'games': 'Jogos', 
-                'tools': 'Equipamentos'
+                'dashboard': 'Dashboard', 'cases': 'Casos Clínicos', 
+                'quiz-setup': 'Configurar Quiz', 'quiz-active': 'Quiz em Andamento',
+                'games': 'Jogos', 'tools': 'Equipamentos'
             };
-            document.getElementById('page-title').innerText = titles[sectionId] || 'MedSim Pro';
+            document.getElementById('page-title').innerText = titles[sectionId] || 'Plataforma de Treinamento';
             
-            // Close sidebar on mobile
-            if(window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.remove('open');
-            }
+            if(window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
             
-            // Reset views if needed
-            if(sectionId === 'dashboard') {
-                renderDashboard();
-            }
-            if(sectionId === 'cases') {
-                renderCasesList('all');
-            }
+            if(sectionId === 'dashboard') renderDashboard();
+            if(sectionId === 'cases') renderCasesList('all');
         }
 
         function toggleSidebar() {
@@ -768,7 +753,6 @@
         function toggleSubmenu(id) {
             const submenu = document.getElementById(id);
             const arrow = document.getElementById('cases-arrow');
-            
             if(submenu.classList.contains('open')) {
                 submenu.classList.remove('open');
                 arrow.style.transform = 'rotate(0deg)';
@@ -781,17 +765,15 @@
         function updateStats() {
             document.getElementById('xp-display').innerText = state.xp;
             document.getElementById('score-display').innerText = state.score;
-            
             let level = "Iniciante";
             if(state.xp > 500) level = "Residente";
             if(state.xp > 1500) level = "Especialista";
             if(state.xp > 3000) level = "Mestre";
             document.getElementById('user-level').innerText = level;
-
-            localStorage.setItem('medsim_state_v2', JSON.stringify(state));
+            localStorage.setItem('medsim_state_v3', JSON.stringify(state));
         }
 
-        // --- ECG ENGINE (SVG) ---
+        // --- ECG ENGINE ---
         let ecgAnimationId;
         let ecgPoints = [];
         const maxPoints = 200; 
@@ -799,17 +781,13 @@
         function initECG(elementId, type) {
             const path = document.getElementById(elementId);
             if(!path) return;
-            
             ecgPoints = new Array(maxPoints).fill(100); 
-            
             if(ecgAnimationId) cancelAnimationFrame(ecgAnimationId);
-            
             let offset = 0;
             
             function draw() {
                 let y = 100; 
                 const phase = (offset % 100) / 100; 
-
                 if (type === 'sinus') {
                     if (phase > 0.1 && phase < 0.15) y -= 10; 
                     if (phase > 0.2 && phase < 0.22) y += 10; 
@@ -830,23 +808,16 @@
                     y = 100 + (Math.random() * 10 - 5);
                     if (Math.random() > 0.7) y -= 80; 
                 } else if (type === 'pvc') {
-                    if (offset % 200 > 150) {
-                         y = 100 + (Math.random() * 40 - 20); 
-                    } else {
+                    if (offset % 200 > 150) y = 100 + (Math.random() * 40 - 20); 
+                    else {
                         const phase = (offset % 100) / 100;
                         if (phase > 0.2 && phase < 0.25) y -= 80;
                     }
                 }
-
-                ecgPoints.push(y);
-                ecgPoints.shift();
-                
+                ecgPoints.push(y); ecgPoints.shift();
                 let d = `M 0 ${ecgPoints[0]}`;
                 const stepX = 800 / maxPoints;
-                for(let i=1; i<ecgPoints.length; i++) {
-                    d += ` L ${i*stepX} ${ecgPoints[i]}`;
-                }
-                
+                for(let i=1; i<ecgPoints.length; i++) d += ` L ${i*stepX} ${ecgPoints[i]}`;
                 path.setAttribute('d', d);
                 offset++;
                 ecgAnimationId = requestAnimationFrame(draw);
@@ -877,60 +848,39 @@
             `;
         }
 
-        function filterCases(type) {
-            renderCasesList(type);
-        }
+        function filterCases(type) { renderCasesList(type); }
 
         function renderCasesList(filter) {
             const list = document.getElementById('cases-list');
             if(!list) return;
-            
             const filtered = filter === 'all' ? db.cases : db.cases.filter(c => c.type === filter);
-            
             if(filtered.length === 0) {
-                list.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;"><h3>Nenhum caso encontrado nesta categoria</h3><p>Tente selecionar "Todos" para ver todos os casos disponíveis.</p></div>';
+                list.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;"><h3>Nenhum caso encontrado</h3></div>';
                 return;
             }
-            
             list.innerHTML = filtered.map(c => createCaseCard(c)).join('');
         }
 
         function startSimulation(caseId) {
             const caseData = db.cases.find(c => c.id === caseId);
-            if(!caseData) {
-                alert("Caso não encontrado!");
-                return;
-            }
-
+            if(!caseData) return;
             document.getElementById('cases-list').style.display = 'none';
             document.getElementById('active-sim').style.display = 'block';
-            
             state.currentSim = caseData;
             loadStep(caseData.start);
-            
-            // Start Timer
-            startTimer(180, 'sim-timer', () => {
-                alert("Tempo esgotado! O paciente deteriorou.");
-                closeSimulation();
-            });
+            startTimer(180, 'sim-timer', () => { alert("Tempo esgotado!"); closeSimulation(); });
         }
 
         function startTimer(seconds, elementId, callback) {
             clearInterval(state.simTimer);
             const display = document.getElementById(elementId);
             if(!display) return;
-            
             let remaining = seconds;
-            
             function update() {
                 const m = Math.floor(remaining / 60).toString().padStart(2, '0');
                 const s = (remaining % 60).toString().padStart(2, '0');
                 display.innerText = `${m}:${s}`;
-                
-                if(remaining <= 0) {
-                    clearInterval(state.simTimer);
-                    if(callback) callback();
-                }
+                if(remaining <= 0) { clearInterval(state.simTimer); if(callback) callback(); }
                 remaining--;
             }
             update();
@@ -939,53 +889,29 @@
 
         function loadStep(stepData) {
             if(!stepData) return;
-            
-            // Update Vitals UI
             const hrEl = document.getElementById('sim-hr');
             const bpEl = document.getElementById('sim-bp');
             const spo2El = document.getElementById('sim-spo2');
             const rrEl = document.getElementById('sim-rr');
-            
             if(hrEl) hrEl.innerText = stepData.vitals.hr;
             if(bpEl) bpEl.innerText = stepData.vitals.bp;
             if(spo2El) spo2El.innerText = stepData.vitals.spo2;
             if(rrEl) rrEl.innerText = stepData.vitals.rr;
-            
-            // Update ECG
             initECG('ecg-path', stepData.vitals.rhythm || 'sinus');
-
-            // Update Text
             const scenarioEl = document.getElementById('sim-scenario');
             if(scenarioEl) scenarioEl.innerText = stepData.text;
-            
             const feedbackEl = document.getElementById('sim-feedback');
             if(feedbackEl) feedbackEl.style.display = 'none';
-            
             const optionsContainer = document.getElementById('sim-options');
             if(!optionsContainer) return;
-            
             optionsContainer.innerHTML = '';
-            
             if(stepData.options.length === 0) {
-                const isWin = stepData.text.includes('ROSC') || stepData.text.includes('confirmado') || stepData.text.includes('Obtido');
-                optionsContainer.innerHTML = `
-                    <div style="text-align:center; padding:20px;">
-                        <h2 style="color:${isWin ? 'var(--success)' : 'var(--danger)'}">
-                            ${isWin ? 'Caso Concluído com Sucesso!' : 'Desfecho Fatal'}
-                        </h2>
-                        <p>${stepData.text}</p>
-                        <button class="btn btn-primary" style="margin-top:10px;" onclick="closeSimulation()">Voltar à Lista</button>
-                    </div>`;
-                if(isWin) {
-                    state.xp += 150;
-                    state.score += 100;
-                    state.casesCompleted++;
-                    updateStats();
-                }
+                const isWin = stepData.text.includes('ROSC') || stepData.text.includes('confirmado');
+                optionsContainer.innerHTML = `<div style="text-align:center; padding:20px;"><h2 style="color:${isWin ? 'var(--success)' : 'var(--danger)'}">${isWin ? 'Sucesso!' : 'Falha'}</h2><p>${stepData.text}</p><button class="btn btn-primary" style="margin-top:10px;" onclick="closeSimulation()">Voltar</button></div>`;
+                if(isWin) { state.xp += 150; state.score += 100; state.casesCompleted++; updateStats(); }
                 clearInterval(state.simTimer);
                 return;
             }
-
             stepData.options.forEach(opt => {
                 const btn = document.createElement('div');
                 btn.className = 'decision-btn';
@@ -993,21 +919,15 @@
                 btn.onclick = () => {
                     const fb = document.getElementById('sim-feedback');
                     if(fb) {
-                        fb.innerText = opt.feedback;
-                        fb.style.display = 'block';
+                        fb.innerText = opt.feedback; fb.style.display = 'block';
                         fb.style.background = opt.next.includes('success') ? '#d4edda' : '#f8d7da';
                         fb.style.color = opt.next.includes('success') ? '#155724' : '#721c24';
                     }
-                    
                     const allBtns = document.querySelectorAll('.decision-btn');
                     allBtns.forEach(b => b.style.pointerEvents = 'none');
-
                     setTimeout(() => {
-                        if(state.currentSim.steps && state.currentSim.steps[opt.next]) {
-                            loadStep(state.currentSim.steps[opt.next]);
-                        } else {
-                            loadStep({ text: "Erro de fluxo no caso.", vitals: {hr:0,bp:'--',spo2:'--',rr:0, rhythm:'asystole'}, options: [] });
-                        }
+                        if(state.currentSim.steps && state.currentSim.steps[opt.next]) loadStep(state.currentSim.steps[opt.next]);
+                        else loadStep({ text: "Erro de fluxo.", vitals: {hr:0,bp:'--',spo2:'--',rr:0, rhythm:'asystole'}, options: [] });
                     }, 2500);
                 };
                 optionsContainer.appendChild(btn);
@@ -1018,10 +938,8 @@
             clearInterval(state.simTimer);
             const activeSim = document.getElementById('active-sim');
             const casesList = document.getElementById('cases-list');
-            
             if(activeSim) activeSim.style.display = 'none';
             if(casesList) casesList.style.display = 'grid';
-            
             state.currentSim = null;
         }
 
@@ -1030,37 +948,23 @@
             const spec = document.getElementById('quiz-spec').value;
             const diff = document.getElementById('quiz-diff').value;
             const count = parseInt(document.getElementById('quiz-count').value);
-
             let pool = db.questions.filter(q => {
                 const matchSpec = spec === 'all' || q.spec === spec;
                 const matchDiff = diff === 'all' || q.diff === diff;
                 return matchSpec && matchDiff;
             });
-
             pool.sort(() => 0.5 - Math.random());
             state.quizQueue = pool.slice(0, count);
-            
-            if(state.quizQueue.length === 0) {
-                alert("Não há questões suficientes para esses filtros. Tente 'Geral'.");
-                return;
-            }
-
-            state.quizIndex = 0;
-            state.quizScore = 0;
-            
+            if(state.quizQueue.length === 0) { alert("Não há questões suficientes."); return; }
+            state.quizIndex = 0; state.quizScore = 0;
             document.getElementById('quiz-setup').classList.remove('active');
             document.getElementById('quiz-active').classList.add('active');
             document.getElementById('page-title').innerText = 'Quiz em Andamento';
-            
             loadQuestion();
         }
 
         function loadQuestion() {
-            if(state.quizIndex >= state.quizQueue.length) {
-                finishQuiz();
-                return;
-            }
-
+            if(state.quizIndex >= state.quizQueue.length) { finishQuiz(); return; }
             const q = state.quizQueue[state.quizIndex];
             document.getElementById('quiz-progress').innerText = `Questão ${state.quizIndex + 1}/${state.quizQueue.length}`;
             document.getElementById('quiz-score-live').innerText = `Pontos: ${state.quizScore}`;
@@ -1068,41 +972,26 @@
             document.getElementById('quiz-explanation').style.display = 'none';
             document.getElementById('next-q-btn').style.display = 'none';
             document.getElementById('finish-quiz-btn').style.display = 'none';
-
             const optsContainer = document.getElementById('quiz-options');
             optsContainer.innerHTML = '';
-            
             q.options.forEach((opt, idx) => {
                 const btn = document.createElement('button');
-                btn.className = 'btn btn-outline';
-                btn.style.textAlign = 'left';
-                btn.innerText = opt;
+                btn.className = 'btn btn-outline'; btn.style.textAlign = 'left'; btn.innerText = opt;
                 btn.onclick = () => checkAnswer(idx, q.ans, q.exp, btn);
                 optsContainer.appendChild(btn);
             });
-
             startQuizTimer(180);
         }
 
         function startQuizTimer(seconds) {
             clearInterval(state.quizTimer);
             const bar = document.getElementById('quiz-timer-fill');
-            bar.style.width = '100%';
-            bar.style.transition = 'none'; 
-            
-            setTimeout(() => {
-                bar.style.transition = `width ${seconds}s linear`;
-                bar.style.width = '0%';
-            }, 50);
-
+            bar.style.width = '100%'; bar.style.transition = 'none'; 
+            setTimeout(() => { bar.style.transition = `width ${seconds}s linear`; bar.style.width = '0%'; }, 50);
             let remaining = seconds;
             state.quizTimer = setInterval(() => {
                 remaining--;
-                if(remaining <= 0) {
-                    clearInterval(state.quizTimer);
-                    alert("Tempo esgotado!");
-                    nextQuestion();
-                }
+                if(remaining <= 0) { clearInterval(state.quizTimer); alert("Tempo esgotado!"); nextQuestion(); }
             }, 1000);
         }
 
@@ -1110,38 +999,23 @@
             clearInterval(state.quizTimer);
             const allBtns = document.querySelectorAll('#quiz-options .btn');
             allBtns.forEach(b => b.disabled = true);
-
             if(selected === correct) {
-                btnElement.classList.remove('btn-outline');
-                btnElement.classList.add('btn-primary');
-                btnElement.style.background = 'var(--success)';
-                btnElement.style.borderColor = 'var(--success)';
-                state.quizScore += 10;
-                state.xp += 5;
+                btnElement.classList.remove('btn-outline'); btnElement.classList.add('btn-primary');
+                btnElement.style.background = 'var(--success)'; btnElement.style.borderColor = 'var(--success)';
+                state.quizScore += 10; state.xp += 5;
             } else {
-                btnElement.classList.remove('btn-outline');
-                btnElement.classList.add('btn-danger');
+                btnElement.classList.remove('btn-outline'); btnElement.classList.add('btn-danger');
                 allBtns[correct].classList.remove('btn-outline');
-                allBtns[correct].style.background = 'var(--success)';
-                allBtns[correct].style.borderColor = 'var(--success)';
+                allBtns[correct].style.background = 'var(--success)'; allBtns[correct].style.borderColor = 'var(--success)';
             }
-
             document.getElementById('quiz-exp-text').innerText = explanation;
             document.getElementById('quiz-explanation').style.display = 'block';
-            
-            if(state.quizIndex < state.quizQueue.length - 1) {
-                document.getElementById('next-q-btn').style.display = 'block';
-            } else {
-                document.getElementById('finish-quiz-btn').style.display = 'block';
-            }
+            if(state.quizIndex < state.quizQueue.length - 1) document.getElementById('next-q-btn').style.display = 'block';
+            else document.getElementById('finish-quiz-btn').style.display = 'block';
             updateStats();
         }
 
-        function nextQuestion() {
-            state.quizIndex++;
-            loadQuestion();
-        }
-
+        function nextQuestion() { state.quizIndex++; loadQuestion(); }
         function finishQuiz() {
             document.getElementById('quiz-active').classList.remove('active');
             document.getElementById('quiz-setup').classList.add('active');
@@ -1149,40 +1023,31 @@
             alert(`Quiz Finalizado! Pontuação: ${state.quizScore}/${state.quizQueue.length * 10}`);
         }
 
-        // --- MEMORY GAME ---
+        // --- MEMORY GAME (FIXED) ---
         const memoryItems = [
-            { icon: 'fa-stethoscope', name: 'Estetoscópio' },
-            { icon: 'fa-syringe', name: 'Seringa' },
-            { icon: 'fa-heart-pulse', name: 'ECG' },
-            { icon: 'fa-pills', name: 'Medicação' },
-            { icon: 'fa-user-doctor', name: 'Médico' },
-            { icon: 'fa-wheelchair', name: 'Cadeira' },
-            { icon: 'fa-mask', name: 'Máscara O2' },
-            { icon: 'fa-crutch', name: 'Muleta' }
+            { icon: 'fa-stethoscope', name: 'Estetoscópio' }, { icon: 'fa-syringe', name: 'Seringa' },
+            { icon: 'fa-heart-pulse', name: 'ECG' }, { icon: 'fa-pills', name: 'Medicação' },
+            { icon: 'fa-user-doctor', name: 'Médico' }, { icon: 'fa-wheelchair', name: 'Cadeira' },
+            { icon: 'fa-mask', name: 'Máscara O2' }, { icon: 'fa-crutch', name: 'Muleta' }
         ];
 
         function startMemoryGame() {
             document.getElementById('memory-board').style.display = 'block';
             const grid = document.getElementById('memory-grid');
             grid.innerHTML = '';
-            
             const gameItems = memoryItems.slice(0, 6); 
             let cards = [...gameItems, ...gameItems];
-            
             for (let i = cards.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [cards[i], cards[j]] = [cards[j], cards[i]];
             }
-
             let flippedCards = [];
             let matchedPairs = 0;
-
             cards.forEach((item, index) => {
                 const card = document.createElement('div');
                 card.className = 'memory-card';
-                card.dataset.index = index;
                 card.dataset.name = item.name;
-                
+                // FIXED: Ensure innerHTML is set correctly for front/back faces
                 card.innerHTML = `
                     <div class="card-face card-front">
                         <i class="fas ${item.icon}" style="font-size: 2rem; color: var(--secondary);"></i>
@@ -1192,24 +1057,17 @@
                         <i class="fas fa-question"></i>
                     </div>
                 `;
-                
                 card.onclick = () => {
                     if(flippedCards.length < 2 && !card.classList.contains('flipped')) {
                         card.classList.add('flipped');
                         flippedCards.push(card);
-
                         if(flippedCards.length === 2) {
                             setTimeout(() => {
                                 if(flippedCards[0].dataset.name === flippedCards[1].dataset.name) {
                                     matchedPairs++;
                                     flippedCards = [];
                                     if(matchedPairs === gameItems.length) {
-                                        setTimeout(() => {
-                                            alert("Parabéns! Memória de elefante!");
-                                            state.xp += 50;
-                                            updateStats();
-                                            document.getElementById('memory-board').style.display='none';
-                                        }, 500);
+                                        setTimeout(() => { alert("Parabéns!"); state.xp += 50; updateStats(); document.getElementById('memory-board').style.display='none'; }, 500);
                                     }
                                 } else {
                                     flippedCards[0].classList.remove('flipped');
@@ -1224,28 +1082,219 @@
             });
         }
 
+        // --- SHOW DO MILHÃO ---
+        const prizes = ["R$ 1.000", "R$ 5.000", "R$ 10.000", "R$ 50.000", "R$ 100.000", "R$ 300.000", "R$ 500.000", "R$ 1 MILHÃO"];
+        
+        function startShowDoMilhao() {
+            document.getElementById('show-board').style.display = 'block';
+            state.showPrizeIndex = 0;
+            state.showLifelines = { skip: true, cards: true, ropes: true };
+            updateLifelineButtons();
+            loadShowQuestion();
+        }
+
+        function updateLifelineButtons() {
+            document.getElementById('ll-skip').disabled = !state.showLifelines.skip;
+            document.getElementById('ll-cards').disabled = !state.showLifelines.cards;
+            document.getElementById('ll-ropes').disabled = !state.showLifelines.ropes;
+        }
+
+        function useLifeline(type) {
+            if(type === 'skip') {
+                if(!state.showLifelines.skip) return;
+                state.showLifelines.skip = false;
+                loadShowQuestion(); // Load new question
+            } else if (type === 'cards') {
+                if(!state.showLifelines.cards) return;
+                state.showLifelines.cards = false;
+                // Remove 2 wrong answers
+                const opts = document.querySelectorAll('.show-opt');
+                let wrongRemoved = 0;
+                opts.forEach((opt, idx) => {
+                    if(idx !== state.currentShowQ.ans && wrongRemoved < 2) {
+                        opt.style.visibility = 'hidden';
+                        wrongRemoved++;
+                    }
+                });
+            } else if (type === 'ropes') {
+                if(!state.showLifelines.ropes) return;
+                state.showLifelines.ropes = false;
+                // Simulate audience vote (higher % for correct answer)
+                const correctIdx = state.currentShowQ.ans;
+                let votes = [0,0,0,0];
+                votes[correctIdx] = Math.floor(Math.random() * 40) + 40; // 40-80%
+                let remaining = 100 - votes[correctIdx];
+                for(let i=0; i<4; i++) {
+                    if(i !== correctIdx) {
+                        votes[i] = Math.floor(Math.random() * remaining);
+                        remaining -= votes[i];
+                    }
+                }
+                alert(`Resultado dos Cabos:\nA: ${votes[0]}%\nB: ${votes[1]}%\nC: ${votes[2]}%\nD: ${votes[3]}%`);
+            }
+            updateLifelineButtons();
+        }
+
+        function loadShowQuestion() {
+            // Filter for easier questions at start, harder later
+            let pool = db.questions.filter(q => q.diff === 'easy' || q.diff === 'medium');
+            if(state.showPrizeIndex > 4) pool = db.questions.filter(q => q.diff === 'hard');
+            
+            pool.sort(() => 0.5 - Math.random());
+            state.currentShowQ = pool[0];
+            
+            document.getElementById('show-prize-display').innerText = prizes[state.showPrizeIndex];
+            document.getElementById('show-question-text').innerText = state.currentShowQ.q;
+            
+            const container = document.getElementById('show-options-container');
+            container.innerHTML = '';
+            state.currentShowQ.options.forEach((opt, idx) => {
+                const div = document.createElement('div');
+                div.className = 'show-opt';
+                div.innerHTML = `<strong>${String.fromCharCode(65+idx)})</strong> ${opt}`;
+                div.onclick = () => checkShowAnswer(idx, div);
+                container.appendChild(div);
+            });
+        }
+
+        function checkShowAnswer(selected, element) {
+            element.classList.add('selected');
+            setTimeout(() => {
+                if(selected === state.currentShowQ.ans) {
+                    alert("CERTA RESPOSTA!");
+                    state.showPrizeIndex++;
+                    if(state.showPrizeIndex >= prizes.length) {
+                        alert("PARABÉNS! VOCÊ GANHOU 1 MILHÃO!");
+                        document.getElementById('show-board').style.display = 'none';
+                        state.xp += 1000; updateStats();
+                    } else {
+                        loadShowQuestion();
+                    }
+                } else {
+                    alert("ERRADO! Fim de jogo.");
+                    document.getElementById('show-board').style.display = 'none';
+                }
+            }, 1000);
+        }
+
+        // --- HANGMAN (FORCA) ---
+        function startHangman() {
+            document.getElementById('hangman-board').style.display = 'block';
+            state.hangmanWord = db.hangmanWords[Math.floor(Math.random() * db.hangmanWords.length)];
+            state.hangmanGuessed = [];
+            state.hangmanErrors = 0;
+            renderHangman();
+            renderHangmanKeyboard();
+            resetHangmanDraw();
+        }
+
+        function resetHangmanDraw() {
+            for(let i=1; i<=6; i++) {
+                const part = document.getElementById(`hm-${i === 1 ? 'head' : i === 2 ? 'body' : i === 3 ? 'arm-l' : i === 4 ? 'arm-r' : i === 5 ? 'leg-l' : 'leg-r'}`);
+                if(part) part.style.display = 'none';
+            }
+        }
+
+        function renderHangman() {
+            const display = state.hangmanWord.split('').map(l => state.hangmanGuessed.includes(l) ? l : '_').join(' ');
+            document.getElementById('hangman-word').innerText = display;
+            if(!display.includes('_')) {
+                alert("Parabéns! Você acertou a palavra: " + state.hangmanWord);
+                state.xp += 30; updateStats();
+                document.getElementById('hangman-board').style.display = 'none';
+            }
+        }
+
+        function renderHangmanKeyboard() {
+            const kb = document.getElementById('hangman-keyboard');
+            kb.innerHTML = '';
+            const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            alphabet.split('').forEach(letter => {
+                const btn = document.createElement('button');
+                btn.className = 'key-btn';
+                btn.innerText = letter;
+                btn.onclick = () => guessLetter(letter, btn);
+                kb.appendChild(btn);
+            });
+        }
+
+        function guessLetter(letter, btn) {
+            btn.disabled = true;
+            btn.classList.add('used');
+            if(state.hangmanWord.includes(letter)) {
+                state.hangmanGuessed.push(letter);
+                renderHangman();
+            } else {
+                state.hangmanErrors++;
+                drawHangmanPart(state.hangmanErrors);
+                if(state.hangmanErrors >= 6) {
+                    alert("Enforcado! A palavra era: " + state.hangmanWord);
+                    document.getElementById('hangman-board').style.display = 'none';
+                }
+            }
+        }
+
+        function drawHangmanPart(step) {
+            const parts = ['head', 'body', 'arm-l', 'arm-r', 'leg-l', 'leg-r'];
+            const el = document.getElementById(`hm-${parts[step-1]}`);
+            if(el) el.style.display = 'block';
+        }
+
         // --- TOOLS ---
         function loadTool(tool) {
             if(tool === 'monitor') {
                 document.getElementById('tool-monitor').style.display = 'block';
                 setToolRhythm('sinus');
+            } else if (tool === 'ventilator') {
+                document.getElementById('tool-ventilator').style.display = 'block';
+                updateVent();
             }
         }
 
-        function setToolRhythm(type) {
-            initECG('tool-ecg-path', type);
+        function setToolRhythm(type) { initECG('tool-ecg-path', type); }
+
+        // --- VENTILATOR LOGIC ---
+        let ventInterval;
+        function updateVent() {
+            const mode = document.getElementById('vent-mode').value;
+            const vt = parseInt(document.getElementById('vent-vt').value);
+            const rr = parseInt(document.getElementById('vent-rr').value);
+            const fio2 = parseInt(document.getElementById('vent-fio2').value);
+            
+            document.getElementById('disp-mode').innerText = mode;
+            document.getElementById('disp-fio2').innerText = fio2;
+            
+            // Calculate derived values
+            const mv = ((vt * rr) / 1000).toFixed(1);
+            document.getElementById('disp-mv').innerText = mv;
+            
+            // Simulate PIP based on VT (simplified physics)
+            const pip = Math.round((vt / 500) * 20 + 5); 
+            document.getElementById('disp-pip').innerText = pip;
+
+            // Animation Loop
+            clearInterval(ventInterval);
+            const lung = document.getElementById('lung-bag');
+            const cycleTime = 60000 / rr; // ms per breath
+            
+            ventInterval = setInterval(() => {
+                // Inspire
+                lung.style.transform = `scaleY(${1 + (vt/1000)})`;
+                setTimeout(() => {
+                    // Expire
+                    lung.style.transform = 'scaleY(1)';
+                }, cycleTime * 0.35); // I:E ratio approx 1:2
+            }, cycleTime);
         }
 
         // --- INIT ---
         window.onload = () => {
-            const saved = localStorage.getItem('medsim_state_v2');
+            const saved = localStorage.getItem('medsim_state_v3');
             if(saved) state = JSON.parse(saved);
             updateStats();
             renderDashboard();
-            
             initECG('ecg-path', 'sinus');
         };
-
     </script>
 </body>
 </html>
